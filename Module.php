@@ -19,6 +19,27 @@ class Module extends AbstractModule
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
         $sharedEventManager->attach(
+            'Omeka\Controller\Admin\Item',
+            'view.layout',
+            [$this, 'addAdminResourceHeaders']
+        );
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\ItemSet',
+            'view.layout',
+            [$this, 'addAdminResourceHeaders']
+        );
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\Media',
+            'view.layout',
+            [$this, 'addAdminResourceHeaders']
+        );
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\Annotation',
+            'view.layout',
+            [$this, 'addAdminResourceHeaders']
+        );
+
+        $sharedEventManager->attach(
             \Omeka\Form\ResourceForm::class,
             'form.add_elements',
             [$this, 'fixResourceForm']
@@ -56,5 +77,19 @@ class Module extends AbstractModule
                     ],
                 ],
             ]);
+    }
+
+    public function addAdminResourceHeaders(Event $event)
+    {
+        $view = $event->getTarget();
+
+        $action = $view->params()->fromRoute('action');
+        if (!in_array($action, ['add', 'edit'])) {
+            return;
+        }
+
+        $assetUrl = $view->getHelperPluginManager()->get('assetUrl');
+        $view->headLink()->appendStylesheet($assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
+        $view->headScript()->appendFile($assetUrl('js/advanced-resource-template-admin.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer']);
     }
 }
