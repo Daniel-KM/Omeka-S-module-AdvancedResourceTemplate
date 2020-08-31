@@ -5,7 +5,7 @@ Advanced Resource Template (module for Omeka S)
 the resource templates in order to simplify and to improve the edition of
 resources:
 
-- autocompletion with existing values,
+- auto-completion with existing values,
 - locked values,
 - language selection and pre-selection.
 
@@ -13,19 +13,33 @@ resources:
 Installation
 ------------
 
-This optional modules [Generic] may be installed first.
-
 See general end user documentation for [installing a module].
+
+The optional module [Generic] may be installed first.
+
+The module uses an external library, so use the release zip to install it, or
+use and init the source.
 
 * From the zip
 
-Download the last release [AdvancedResourceTemplate.zip] from the list of releases, and
-uncompress it in the `modules` directory.
+Download the last release [AdvancedResourceTemplate.zip] from the list of releases,
+(the master does not contain the dependency), and uncompress it in the `modules`
+directory.
 
 * From the source and for development
 
 If the module was installed from the source, rename the name of the folder of
-the module to `AdvancedResourceTemplate`.
+the module to `AdvancedResourceTemplate`, go to the root module, and run:
+
+```sh
+composer install --no-dev
+```
+
+The next times:
+
+```sh
+composer update --no-dev
+```
 
 
 Usage
@@ -72,11 +86,14 @@ and, more generally, to use and operate it in the same conditions of security.
 This Agreement may be freely reproduced and published, provided it is not
 altered, and that no provisions are either added or removed herefrom.
 
+* The library [jQuery-Autocomplete] is published under the license [MIT].
+
 
 Copyright
 ---------
 
 * Copyright Daniel Berthereau, 2020 (see [Daniel-KM] on GitHub)
+* Library [jQuery-Autocomplete]: Copyright 2012 DevBridge and other contributors
 
 These features are built for the future digital library [Manioc] of the
 Université des Antilles and Université de la Guyane, currently managed with
@@ -87,13 +104,14 @@ Université des Antilles and Université de la Guyane, currently managed with
 [Omeka S]: https://omeka.org/s
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
 [Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
-[AdvancedResourceTemplate.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/releases
+[AdvancedResourceTemplate.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/releases
 [module issues]: https://github.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
 [MIT]: http://http://opensource.org/licenses/MIT
+[jQuery-Autocomplete]: https://www.devbridge.com/sourcery/components/jquery-autocomplete/
 [Manioc]: http://www.manioc.org
 [Greenstone]: http://www.greenstone.org
 [Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
