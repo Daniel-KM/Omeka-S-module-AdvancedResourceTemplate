@@ -20,6 +20,8 @@ $(document).ready(function() {
             || field.find('input.value.to-require').length > 0
             // Custom vocab.
             || field.find('select.terms option').length > 0
+            // Numeric data types.
+            || field.find('input.numeric-integer-value').length > 0
             // Value suggest.
             || field.find('input.valuesuggest-input').length > 0
         ) {
@@ -84,6 +86,14 @@ $(document).ready(function() {
             selectTerms.find('option[value="' + valueObj['@value'] + '"]').prop('selected', true);
             selectTerms.chosen({ width: '100%', });
             selectTerms.trigger('chosen:updated');
+        }
+
+        // @see numeric-data-types.js
+        if (dataType === 'numeric:integer') {
+            var container = value;
+            var v = container.find('.numeric-integer-value');
+            var int = container.find('.numeric-integer-integer');
+            int.val(v.val());
         }
 
         // Value Suggest is a lot more complex. Sub-trigger value?
