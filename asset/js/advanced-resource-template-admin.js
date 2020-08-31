@@ -5,28 +5,42 @@ $(document).ready(function() {
      */
     function prepareFieldLanguage(field) {
         // Add a specific datalist for the property. It replaces the previous one from another template.
+        var templateSettings = $('#resource-values').data('template-settings');
         var settings = field.data('settings');
-        var inputLanguage = field.find('.values input.value-language');
+        var listName = 'value-languages';
         var term = field.data('property-term');
 
-        var datalist = field.find('.values ~ datalist.value-languages');
+        var datalist = $('#value-languages-template');
+        if (datalist.length) {
+            datalist.empty();
+        } else {
+            $('#value-languages').after('<datalist id="value-languages-template" class="value-languages"></datalist>');
+            datalist = $('#value-languages-template');
+        }
+        if (templateSettings.value_languages && !$.isEmptyObject(templateSettings.value_languages)) {
+            listName = 'value-languages-template';
+            $.each(templateSettings.value_languages, function(code, label) {
+                datalist.append($('<option>', { value: code, label: label.length ? label : code }));
+            });
+        }
+
+        datalist = field.find('.values ~ datalist.value-languages');
         if (datalist.length) {
             datalist.empty();
         } else {
             field.find('.values').first().after('<datalist class="value-languages"></datalist>');
             datalist = field.find('.values ~ datalist.value-languages');
+            datalist.attr('id', 'value-languages-' + term);
         }
-        datalist.attr('id', 'value-languages-' + term);
-
-        var listName = 'value-languages';
-
-        // Use the main datalist if option is empty.
         if (settings && settings.value_languages && !$.isEmptyObject(settings.value_languages)) {
-            listName += '-' + term;
+            listName = 'value-languages-' + term;
             $.each(settings.value_languages, function(code, label) {
                 datalist.append($('<option>', { value: code, label: label.length ? label : code }));
             });
         }
+
+        // Use the main datalist, or the template one, or the property one.
+        var inputLanguage = field.find('.values input.value-language');
         inputLanguage.attr('list', listName);
     }
 
@@ -216,9 +230,13 @@ $(document).ready(function() {
         }
 
         prepareFieldLanguage(field);
-        var listName = settings.value_languages && !$.isEmptyObject(settings.value_languages)
-            ? 'value-languages-' + term
+        var templateSettings = $('#resource-values').data('template-settings');
+        var listName = templateSettings.value_languages && !$.isEmptyObject(templateSettings.value_languages)
+            ? 'value-languages-template'
             : 'value-languages';
+        listName = settings.value_languages && !$.isEmptyObject(settings.value_languages)
+            ? 'value-languages-' + term
+            : listName;
         value.find('input.value-language').attr('list', listName);
 
         fillDefaultValue(dataType, value, valueObj, field);

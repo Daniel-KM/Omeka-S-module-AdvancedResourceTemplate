@@ -47,6 +47,11 @@ class Module extends AbstractModule
             [$this, 'fixResourceForm']
         );
         $sharedEventManager->attach(
+            \Omeka\Form\ResourceTemplateForm::class,
+            'form.add_elements',
+            [$this, 'addResourceTemplateFormElements']
+        );
+        $sharedEventManager->attach(
             \Omeka\Form\ResourceTemplatePropertyFieldset::class,
             'form.add_elements',
             [$this, 'addResourceTemplatePropertyFieldsetElements']
@@ -98,6 +103,24 @@ class Module extends AbstractModule
         $assetUrl = $view->getHelperPluginManager()->get('assetUrl');
         $view->headLink()->appendStylesheet($assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
         $view->headScript()->appendFile($assetUrl('js/advanced-resource-template-admin.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer']);
+    }
+
+    public function addResourceTemplateFormElements(Event $event)
+    {
+        /** @var \Omeka\Form\ResourceTemplateForm $form */
+        $form = $event->getTarget();
+        $form->get('o:settings')
+            ->add([
+                'name' => 'value_languages',
+                'type' => ArrayTextarea::class,
+                'options' => [
+                    'label' => 'Value languages for properties', // @translate
+                    'as_key_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'value_languages',
+                ],
+            ]);
     }
 
     public function addResourceTemplatePropertyFieldsetElements(Event $event)
