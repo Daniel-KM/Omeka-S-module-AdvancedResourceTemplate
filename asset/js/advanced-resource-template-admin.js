@@ -1,6 +1,36 @@
 $(document).ready(function() {
 
     /**
+     * Prepare the lock for a original values of a property.
+     */
+    function prepareFieldLocked(field) {
+        var settings = field.data('settings') ? field.data('settings') : {};
+        if (settings.locked_value != true) {
+            return;
+        }
+
+        // Some weird selectors are needed to manage all cases.
+        field.find('.inputs .values .value:not(.default-value) .input-body').find('input, select, textarea').addClass('original-value');
+        var originalValues = field.find('.input-body .original-value');
+        originalValues
+            .prop('readonly', 'readonly')
+            .attr('readonly', 'readonly');
+        originalValues.closest('.input-body').find('.o-icon-close').remove();
+        originalValues.closest('.input-body').find('.button.resource-select').remove();
+        originalValues.closest('div.value').find('.input-footer .remove-value').remove();
+
+        // Disable some field is required separately: it can be still changed (numeric data type).
+        originalValues.filter('[type=checkbox]:not([data-value-key])').attr('disabled', true);
+        originalValues.filter('[type=radio]:not([data-value-key])').attr('disabled', true);
+        originalValues.filter('select:not([data-value-key])').attr('disabled', true).trigger('chosen:updated');
+        // Manage custom vocab with chosen.
+        originalValues.filter('select[data-value-key]').each(function() {
+            $(this).find('option[value!="' + $(this).val() + '"]').remove()
+                .end().chosen('destroy');
+        });
+    }
+
+    /**
      * Prepare the autocompletion for a property.
      */
     function prepareFieldAutocomplete(field) {
@@ -309,6 +339,12 @@ $(document).ready(function() {
             prepareFieldAutocomplete($(field));
             prepareFieldLanguage($(field));
         });
+        if (!$('#resource-values').data('locked-ready')) {
+            fields.each(function(index, field) {
+                prepareFieldLocked($(field));
+            });
+            $('#resource-values').data('locked-ready', true);
+        }
     });
 
     $(document).on('o:property-added', '.resource-values.field', function() {
@@ -318,7 +354,7 @@ $(document).ready(function() {
     });
 
     $(document).on('o:prepare-value', function(e, dataType, value, valueObj) {
-        var field = value.closest('.field');
+        var field = value.closest('.resource-values.field');
         var term = value.data('term');
         if (!field.length) {
             field = $('#properties [data-property-term="' + term + '"].field');

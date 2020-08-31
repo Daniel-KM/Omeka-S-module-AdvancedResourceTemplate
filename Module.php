@@ -192,6 +192,18 @@ class Module extends AbstractModule
                 ],
             ])
             ->add([
+                'name' => 'locked_value',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Locked value once saved', // @translate
+                ],
+                'attributes' => [
+                    // 'id' => 'locked_value',
+                    'class' => 'setting',
+                    'data-setting-key' => 'locked_value',
+                ],
+            ])
+            ->add([
                 'name' => 'autocomplete',
                 'type' => Element\Radio::class,
                 'options' => [
