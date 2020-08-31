@@ -1,4 +1,5 @@
 <?php
+
 namespace AdvancedResourceTemplate;
 
 return [
@@ -9,6 +10,30 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
+        ],
+    ],
+    'controllers' => [
+        'factories' => [
+            'AdvancedResourceTemplate\Controller\Admin\Index' => Service\Controller\Admin\IndexControllerFactory::class,
+        ],
+    ],
+    'router' => [
+        'routes' => [
+            'admin' => [
+                'child_routes' => [
+                    'adv-res-temp' => [
+                        'type' => \Zend\Router\Http\Literal::class,
+                        'options' => [
+                            'route' => '/autocomplete',
+                            'defaults' => [
+                                '__NAMESPACE__' => 'AdvancedResourceTemplate\Controller\Admin',
+                                'controller' => 'Index',
+                                'action' => 'browse',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ],
     ],
     'translator' => [

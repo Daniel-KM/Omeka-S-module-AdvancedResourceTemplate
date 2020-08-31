@@ -12,11 +12,23 @@ use Generic\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Form\Element;
+use Laminas\Mvc\MvcEvent;
 use Omeka\Form\Element\ArrayTextarea;
 
 class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
+
+    public function onBootstrap(MvcEvent $event)
+    {
+        parent::onBootstrap($event);
+        $acl = $this->getServiceLocator()->get('Omeka\Acl');
+        $acl
+            ->allow(
+                $acl->getRoles(),
+                ['AdvancedResourceTemplate\Controller\Admin\Index']
+            );
+    }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager)
     {
