@@ -1,0 +1,32 @@
+{
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "asset/jquery-autocomplete",
+                "version": "1.4.11",
+                "dist": {
+                    "url": "https://github.com/devbridge/jQuery-Autocomplete/archive/v1.4.11.zip",
+                    "type": "zip"
+                }
+            }
+        }
+    ],
+    "require": {
+        "slowprog/composer-copy-file": "~0.3",
+        "asset/jquery-autocomplete": "*"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "SlowProg\\CopyFile\\ScriptHandler::copy"
+        ],
+        "post-update-cmd": [
+            "SlowProg\\CopyFile\\ScriptHandler::copy"
+        ]
+    },
+    "extra": {
+        "copy-file": {
+            "vendor/asset/jquery-autocomplete/dist/": "asset/vendor/jquery-autocomplete/"
+        }
+    }
+}
