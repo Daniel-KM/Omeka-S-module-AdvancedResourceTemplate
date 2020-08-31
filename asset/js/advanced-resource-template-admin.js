@@ -5,8 +5,8 @@ $(document).ready(function() {
      */
     function prepareFieldLanguage(field) {
         // Add a specific datalist for the property. It replaces the previous one from another template.
-        var templateSettings = $('#resource-values').data('template-settings');
-        var settings = field.data('settings');
+        var templateSettings = $('#resource-values').data('template-settings') ;
+        var settings = field.data('settings') ? field.data('settings') : {};
         var listName = 'value-languages';
         var term = field.data('property-term');
 
@@ -32,7 +32,7 @@ $(document).ready(function() {
             datalist = field.find('.values ~ datalist.value-languages');
             datalist.attr('id', 'value-languages-' + term);
         }
-        if (settings && settings.value_languages && !$.isEmptyObject(settings.value_languages)) {
+        if (settings.value_languages && !$.isEmptyObject(settings.value_languages)) {
             listName = 'value-languages-' + term;
             $.each(settings.value_languages, function(code, label) {
                 datalist.append($('<option>', { value: code, label: label.length ? label : code }));
@@ -42,6 +42,64 @@ $(document).ready(function() {
         // Use the main datalist, or the template one, or the property one.
         var inputLanguage = field.find('.values input.value-language');
         inputLanguage.attr('list', listName);
+
+        var noLanguage = !!(settings.use_language
+            && (settings.use_language === 'no' || (settings.use_language !== 'yes' && templateSettings.no_language)));
+        field.data('no-language', noLanguage);
+        field.find('.inputs .values input.value-language').each(function() {
+            initValueLanguage($(this), field);
+        });
+    }
+
+    /**
+     * Init the language input.
+     */
+    function initValueLanguage(languageInput, field) {
+        var languageElement;
+        var languageButton = languageInput.prev('a.value-language');
+        var language = languageInput.val();
+        if (field.data('no-language') == true) {
+            language = '';
+            languageButton.removeClass('active').addClass('no-language');
+            languageInput.prop('disabled', true).removeClass('active');
+        } else {
+            languageButton.removeClass('no-language');
+            languageInput.prop('disabled', false);
+            languageElement = languageInput;
+        }
+        if (language !== '') {
+            languageButton.addClass('active');
+            languageElement.addClass('active');
+        }
+    }
+
+    /**
+     * Fill the default language.
+     */
+    function fillDefaultLanguage(value, valueObj, field) {
+        value.find('input.value-language').each(function() {
+            initValueLanguage($(this), field);
+        });
+
+        if (valueObj) {
+            return;
+        }
+        if (field.data('no-language') == true) {
+            return;
+        }
+
+        var templateSettings = $('#resource-values').data('template-settings');
+        var settings = field.data('settings') ? field.data('settings') : {};
+        var defaultLanguage = templateSettings.default_language && templateSettings.default_language.length
+            ? templateSettings.default_language
+            : '';
+        defaultLanguage = settings.default_language && settings.default_language.length
+            ? settings.default_language
+            : defaultLanguage;
+        if (defaultLanguage.length) {
+            value.find('input.value-language').val(defaultLanguage).addClass('active');
+            value.find('a.value-language').addClass('active');
+        }
     }
 
     /**
@@ -238,6 +296,8 @@ $(document).ready(function() {
             ? 'value-languages-' + term
             : listName;
         value.find('input.value-language').attr('list', listName);
+
+        fillDefaultLanguage(value, valueObj, field);
 
         fillDefaultValue(dataType, value, valueObj, field);
     });

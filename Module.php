@@ -120,6 +120,26 @@ class Module extends AbstractModule
                 'attributes' => [
                     'id' => 'value_languages',
                 ],
+            ])
+            ->add([
+                'name' => 'default_language',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Default language', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'default_language',
+                ],
+            ])
+            ->add([
+                'name' => 'no_language',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'No language', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'no_language',
+                ],
             ]);
     }
 
@@ -151,6 +171,36 @@ class Module extends AbstractModule
                     // 'id' => 'value_languages',
                     'class' => 'setting',
                     'data-setting-key' => 'value_languages',
+                ],
+            ])
+            ->add([
+                'name' => 'default_language',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Default language', // @translate
+                ],
+                'attributes' => [
+                    // 'id' => 'default_language',
+                    'class' => 'setting',
+                    'data-setting-key' => 'default_language',
+                ],
+            ])
+            ->add([
+                'name' => 'use_language',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Use language', // @translate
+                    'value_options' => [
+                        '' => 'Use template setting', // @translate
+                        'yes' => 'Yes', // @translate
+                        'no' => 'No', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    // 'id' => 'use_language',
+                    'class' => 'setting',
+                    'data-setting-key' => 'use_language',
+                    'value' => 'template',
                 ],
             ]);
     }

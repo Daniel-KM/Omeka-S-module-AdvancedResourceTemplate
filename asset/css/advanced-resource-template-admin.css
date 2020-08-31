@@ -1,0 +1,6 @@
+a.value-language.no-language {
+     display: none;
+ }
+.resource-values.field .inputs .no-language ~ textarea {
+    padding-left: 6px;
+}
