@@ -11,6 +11,7 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 use Generic\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\Form\Element;
 
 class Module extends AbstractModule
 {
@@ -43,6 +44,11 @@ class Module extends AbstractModule
             \Omeka\Form\ResourceForm::class,
             'form.add_elements',
             [$this, 'fixResourceForm']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Form\ResourceTemplatePropertyFieldset::class,
+            'form.add_elements',
+            [$this, 'addResourceTemplatePropertyFieldsetElements']
         );
     }
 
@@ -91,5 +97,24 @@ class Module extends AbstractModule
         $assetUrl = $view->getHelperPluginManager()->get('assetUrl');
         $view->headLink()->appendStylesheet($assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
         $view->headScript()->appendFile($assetUrl('js/advanced-resource-template-admin.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer']);
+    }
+
+    public function addResourceTemplatePropertyFieldsetElements(Event $event)
+    {
+        /** @var \Omeka\Form\ResourceTemplatePropertyFieldset $fieldset */
+        $fieldset = $event->getTarget();
+        $fieldset
+            ->add([
+                'name' => 'default_value',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Default value', // @translate
+                ],
+                'attributes' => [
+                    // 'id' => 'default_value',
+                    'class' => 'setting',
+                    'data-setting-key' => 'default_value',
+                ],
+            ]);
     }
 }
