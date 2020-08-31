@@ -18,6 +18,10 @@ $(document).ready(function() {
             || field.find('.input-value').length > 0
             || field.find('input.value').length > 0
             || field.find('input.value.to-require').length > 0
+            // Custom vocab.
+            || field.find('select.terms option').length > 0
+            // Value suggest.
+            || field.find('input.valuesuggest-input').length > 0
         ) {
             return;
         }
@@ -73,6 +77,67 @@ $(document).ready(function() {
             $(this).removeAttr('name')
                 .val(valueObj ? valueObj[valueKey] : null);
         });
+
+        // @see custom-vocab.js
+        if (dataType.startsWith('customvocab:')) {
+            var selectTerms = value.find('select.terms');
+            selectTerms.find('option[value="' + valueObj['@value'] + '"]').prop('selected', true);
+            selectTerms.chosen({ width: '100%', });
+            selectTerms.trigger('chosen:updated');
+        }
+
+        // Value Suggest is a lot more complex. Sub-trigger value?
+        // @see valuesuggest.js
+        if (dataType.startsWith('valuesuggest')) {
+            var thisValue = value;
+            var suggestInput = thisValue.find('.valuesuggest-input');
+            var labelInput = thisValue.find('input[data-value-key="o:label"]');
+            var idInput = thisValue.find('input[data-value-key="@id"]');
+            var valueInput = thisValue.find('input[data-value-key="@value"]');
+            // var languageLabel = thisValue.find('.value-language.label');
+            var languageInput = thisValue.find('input[data-value-key="@language"]');
+            // var languageRemove = thisValue.find('.value-language.remove');
+            var idContainer = thisValue.find('.valuesuggest-id-container');
+
+            if (valueObj['o:label']) {
+                labelInput.val(valueObj['o:label']);
+            }
+            if (valueObj['@id']) {
+                idInput.val(valueObj['@id']);
+            }
+            if (valueObj['@value']) {
+                valueInput.val(valueObj['@value']);
+            }
+            if (valueObj['@language']) {
+                languageInput.val(valueObj['@language']);
+            }
+
+            // Literal is the default type.
+            idInput.prop('disabled', true);
+            labelInput.prop('disabled', true);
+            valueInput.prop('disabled', false);
+            idContainer.hide();
+
+            // Set existing values during initial load.
+            if (idInput.val()) {
+                // Set value as URI type
+                suggestInput.val(labelInput.val()).attr('placeholder', labelInput.val());
+                idInput.prop('disabled', false);
+                labelInput.prop('disabled', false);
+                valueInput.prop('disabled', true);
+                var link = $('<a>')
+                    .attr('href', idInput.val())
+                    .attr('target', '_blank')
+                    .text(idInput.val());
+                idContainer.show().find('.valuesuggest-id').html(link);
+            } else if (valueInput.val()) {
+                // Set value as Literal type
+                suggestInput.val(valueInput.val()).attr('placeholder', valueInput.val());
+                idInput.prop('disabled', true);
+                labelInput.prop('disabled', true);
+                valueInput.prop('disabled', false);
+            }
+        }
     }
 
     function jsonDecodeObject(string) {
