@@ -114,7 +114,10 @@ class Module extends AbstractModule
 
         $assetUrl = $view->getHelperPluginManager()->get('assetUrl');
         $view->headLink()->appendStylesheet($assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
-        $view->headScript()->appendFile($assetUrl('js/advanced-resource-template-admin.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer']);
+        $view->headScript()
+            ->appendScript(sprintf('var autocompleteUrl = %s;', json_encode($view->url('admin/default', ['controller' => 'autocomplete']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)))
+            ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer'])
+            ->appendFile($assetUrl('js/advanced-resource-template-admin.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer']);
     }
 
     public function addResourceTemplateFormElements(Event $event)
@@ -122,6 +125,22 @@ class Module extends AbstractModule
         /** @var \Omeka\Form\ResourceTemplateForm $form */
         $form = $event->getTarget();
         $form->get('o:settings')
+            ->add([
+                'name' => 'autocomplete',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Autocomplete with existing values', // @translate
+                    'value_options' => [
+                        'no' => 'No', // @translate
+                        'sw' => 'Starts with', // @translate
+                        'in' => 'Contains', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'autocomplete',
+                    'value' => 'no',
+                ],
+            ])
             ->add([
                 'name' => 'value_languages',
                 'type' => ArrayTextarea::class,
@@ -170,6 +189,25 @@ class Module extends AbstractModule
                     // 'id' => 'default_value',
                     'class' => 'setting',
                     'data-setting-key' => 'default_value',
+                ],
+            ])
+            ->add([
+                'name' => 'autocomplete',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Autocomplete with existing values', // @translate
+                    'value_options' => [
+                        '' => 'Use template setting', // @translate
+                        'no' => 'No', // @translate
+                        'sw' => 'Starts with', // @translate
+                        'in' => 'Contains', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    // 'id' => 'autocomplete',
+                    'class' => 'setting',
+                    'data-setting-key' => 'autocomplete',
+                    'value' => 'no',
                 ],
             ])
             ->add([

@@ -1,6 +1,35 @@
 $(document).ready(function() {
 
     /**
+     * Prepare the autocompletion for a property.
+     */
+    function prepareFieldAutocomplete(field) {
+        var templateSettings = $('#resource-values').data('template-settings') ;
+        var settings = field.data('settings') ? field.data('settings') : {};
+
+        // Reset autocomplete for all properties.
+        $('.inputs .values textarea.input-value').prop('autocomplete', 'off');
+        field.removeData('autocomplete');
+        field.find('.inputs .values textarea.input-value.autocomplete').each(function() {
+            var autocomp = $(this).autocomplete();
+            if (autocomp) {
+                autocomp.dispose();
+            }
+        });
+        field.find('.inputs .values textarea.input-value').prop('autocomplete', 'off').removeClass('autocomplete');
+
+        var autocomplete = templateSettings.autocomplete ? templateSettings.autocomplete : 'no';
+        autocomplete = settings.autocomplete && $.inArray(settings.autocomplete, ['no', 'sw', 'in']) 
+            ? settings.autocomplete
+            : autocomplete;
+        if (autocomplete === 'sw' || autocomplete === 'in') {
+            field.data('autocomplete', autocomplete);
+            field.find('.inputs .values textarea.input-value').addClass('autocomplete');
+            field.find('.inputs .values textarea.input-value.autocomplete').each(initAutocomplete);
+        }
+    }
+
+    /**
      * Prepare the language for a property.
      */
     function prepareFieldLanguage(field) {
@@ -252,6 +281,19 @@ $(document).ready(function() {
         }
     }
 
+    function initAutocomplete() {
+        var searchField = $(this);
+        searchField.autocomplete({
+            serviceUrl: autocompleteUrl,
+            dataType: 'json',
+            paramName: 'q',
+            params: {
+                prop: searchField.closest('.resource-values.field').data('property-id'),
+                type: searchField.closest('.resource-values.field').data('autocomplete'),
+            }
+        });
+    }
+
     function jsonDecodeObject(string) {
         try {
             var obj = JSON.parse(string);
@@ -262,14 +304,16 @@ $(document).ready(function() {
     }
 
     $(document).on('o:template-applied', 'form.resource-form', function() {
-        var fields = $('#properties .resource-values');
+        var fields = $('#properties .resource-values.field');
         fields.each(function(index, field) {
+            prepareFieldAutocomplete($(field));
             prepareFieldLanguage($(field));
         });
     });
 
     $(document).on('o:property-added', '.resource-values.field', function() {
         var field = $(this);
+        prepareFieldAutocomplete($(field));
         prepareFieldLanguage(field);
     });
 
@@ -287,7 +331,11 @@ $(document).ready(function() {
             return;
         }
 
-        prepareFieldLanguage(field);
+        if (field.data('autocomplete')) {
+            value.find('textarea.input-value').addClass('autocomplete');
+            value.find('textarea.input-value.autocomplete').each(initAutocomplete);
+        }
+
         var templateSettings = $('#resource-values').data('template-settings');
         var listName = templateSettings.value_languages && !$.isEmptyObject(templateSettings.value_languages)
             ? 'value-languages-template'
