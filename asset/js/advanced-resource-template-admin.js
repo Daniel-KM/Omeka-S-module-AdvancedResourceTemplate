@@ -1,6 +1,36 @@
 $(document).ready(function() {
 
     /**
+     * Prepare the language for a property.
+     */
+    function prepareFieldLanguage(field) {
+        // Add a specific datalist for the property. It replaces the previous one from another template.
+        var settings = field.data('settings');
+        var inputLanguage = field.find('.values input.value-language');
+        var term = field.data('property-term');
+
+        var datalist = field.find('.values ~ datalist.value-languages');
+        if (datalist.length) {
+            datalist.empty();
+        } else {
+            field.find('.values').first().after('<datalist class="value-languages"></datalist>');
+            datalist = field.find('.values ~ datalist.value-languages');
+        }
+        datalist.attr('id', 'value-languages-' + term);
+
+        var listName = 'value-languages';
+
+        // Use the main datalist if option is empty.
+        if (settings && settings.value_languages && !$.isEmptyObject(settings.value_languages)) {
+            listName += '-' + term;
+            $.each(settings.value_languages, function(code, label) {
+                datalist.append($('<option>', { value: code, label: label.length ? label : code }));
+            });
+        }
+        inputLanguage.attr('list', listName);
+    }
+
+    /**
      * Manage default value.
      *
      * The default value can be a json value, a simple string, an integer, or a uri + a string.
@@ -159,6 +189,18 @@ $(document).ready(function() {
         }
     }
 
+    $(document).on('o:template-applied', 'form.resource-form', function() {
+        var fields = $('#properties .resource-values');
+        fields.each(function(index, field) {
+            prepareFieldLanguage($(field));
+        });
+    });
+
+    $(document).on('o:property-added', '.resource-values.field', function() {
+        var field = $(this);
+        prepareFieldLanguage(field);
+    });
+
     $(document).on('o:prepare-value', function(e, dataType, value, valueObj) {
         var field = value.closest('.field');
         var term = value.data('term');
@@ -172,6 +214,12 @@ $(document).ready(function() {
         if (!settings) {
             return;
         }
+
+        prepareFieldLanguage(field);
+        var listName = settings.value_languages && !$.isEmptyObject(settings.value_languages)
+            ? 'value-languages-' + term
+            : 'value-languages';
+        value.find('input.value-language').attr('list', listName);
 
         fillDefaultValue(dataType, value, valueObj, field);
     });

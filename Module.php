@@ -12,6 +12,7 @@ use Generic\AbstractModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Form\Element;
+use Omeka\Form\Element\ArrayTextarea;
 
 class Module extends AbstractModule
 {
@@ -114,6 +115,19 @@ class Module extends AbstractModule
                     // 'id' => 'default_value',
                     'class' => 'setting',
                     'data-setting-key' => 'default_value',
+                ],
+            ])
+            ->add([
+                'name' => 'value_languages',
+                'type' => ArrayTextarea::class,
+                'options' => [
+                    'label' => 'Suggested languages', // @translate
+                    'as_key_value' => true,
+                ],
+                'attributes' => [
+                    // 'id' => 'value_languages',
+                    'class' => 'setting',
+                    'data-setting-key' => 'value_languages',
                 ],
             ]);
     }
