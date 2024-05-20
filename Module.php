@@ -464,6 +464,12 @@ class Module extends AbstractModule
         );
 
         $sharedEventManager->attach(
+            'Omeka\Controller\Admin\ResourceTemplate',
+            'view.layout',
+            [$this, 'handleViewLayoutResourceTemplate']
+        );
+
+        $sharedEventManager->attach(
             // \Omeka\Form\ResourceTemplateForm::class,
             \AdvancedResourceTemplate\Form\ResourceTemplateForm::class,
             'form.add_elements',
@@ -1584,6 +1590,33 @@ class Module extends AbstractModule
         $headStyle = $this->getServiceLocator()->get('ViewHelperManager')->get('headStyle');
         $headStyle->appendStyle('.group-br::before { display: block; content: ""; }');
     }
+
+    public function handleViewLayoutResourceTemplate(Event $event): void
+    {
+        /** @var \Laminas\View\Renderer\PhpRenderer $view */
+        $view = $event->getTarget();
+        $params = $view->params()->fromRoute();
+        $action = $params['action'] ?? 'browse';
+        if ($action !== 'browse') {
+            return;
+        }
+
+        $linkTableLabels = $view->hyperlink('Compare templates', $view->url('admin/default', ['action' => 'table-templates'], true), ['class' => 'button']);
+
+        /** @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource */
+        // Normally, the current resource should be present in vars.
+        $vars = $view->vars();
+        $html = $vars->offsetGet('content');
+        $html = preg_replace(
+            '~<div id="page-actions">(.*?)</div>~s',
+            '<div id="page-actions">' . $linkTableLabels . '$1</div>',
+            $html,
+            1
+        );
+
+        $vars->offsetSet('content', $html);
+    }
+
 
     public function addResourceTemplateFormElements(Event $event): void
     {

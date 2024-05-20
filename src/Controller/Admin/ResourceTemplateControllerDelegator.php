@@ -13,6 +13,85 @@ use Omeka\Stdlib\Message;
 
 class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\ResourceTemplateController
 {
+    public function tableTemplatesAction()
+    {
+        $this->browse()->setDefaults('resource_templates');
+        $query = $this->params()->fromQuery();
+
+        // Check if the query is empty to avoid to return all templates by default.
+        $qQuery = $query;
+        unset(
+            $qQuery['submit'],
+            $qQuery['limit'],
+            $qQuery['offset'],
+            $qQuery['page'],
+            $qQuery['per_page'],
+            $qQuery['sort_by'],
+            $qQuery['sort_order'],
+            $qQuery['sort_by_default']
+        );
+
+        $form = new \Laminas\Form\Form();
+        $form
+            ->setAttribute('method', 'get')
+            ->add([
+                'name' => 'id',
+                'type' => \Omeka\Form\Element\ResourceTemplateSelect::class,
+                'options' => [
+                    'prepend_value_options' => [
+                        'all' => 'All', // @translate
+                    ],
+                    'empty_option' => '',
+                ],
+                'attributes' => [
+                    'multiple' => true,
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select resource templates', // @translate
+                ]
+            ])
+            ->add([
+                'name' => 'submit',
+                'type' => 'submit',
+                'attributes' => [
+                    'value' => 'Submit',
+                ],
+            ]);
+
+        // TODO Check why resourceTemplateSelect is not constructed.
+        // Avoid an issue with bad init of select.
+        $services = $this->api()->read('vocabularies', ['id' => 1])->getContent()->getServiceLocator();
+        $apiManager = $services->get('Omeka\ApiManager');
+        $form->get('id')->setApiManager($apiManager);
+
+        $form->setData($query);
+
+        // Don't output any result by default or when the form is invalid.
+        if ($qQuery && !$form->isValid()) {
+            $query['id'] = [-1];
+        } else {
+            $ids = $query['id'] ?? [];
+            if (!$ids) {
+                $query['id'] = [-1];
+            } elseif (in_array('all', $ids)) {
+                unset($query['id']);
+            }
+        }
+
+        // No limit except asked.
+        // Anyway, there are never more than some templates.
+        $query['per_page'] ??= 1000;
+
+        // TODO No check of the form.
+        $response = $this->api()->search('resource_templates', $query);
+        $this->paginator($response->getTotalResults());
+        $resourceTemplates = $response->getContent();
+
+        return new ViewModel([
+            'resourceTemplates' => $resourceTemplates,
+            'form' => $form,
+        ]);
+    }
+
     /**
      * Remove useless keys "data_types" from o:data before final step.
      *

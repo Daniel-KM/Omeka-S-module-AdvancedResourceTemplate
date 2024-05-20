@@ -1,0 +1,88 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation[] $resourceTemplates
+ * @var \Laminas\Form\Form $form
+ */
+
+$plugins = $this->getHelperPluginManager();
+$escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
+
+$this->htmlElement('body')->appendAttribute('class', 'resource-templates browse browse-table');
+
+// Prepare the table one time early.
+$totalTemplates = count($resourceTemplates);
+$resourceTemplateIds = [];
+$rtpLabels = [];
+foreach ($resourceTemplates as $resourceTemplate) {
+    $resourceTemplateId = $resourceTemplate->id();
+    $resourceTemplateIds[] = $resourceTemplateId;
+    // Note: the same term can be in multiple properties but with different data types.
+    $prevTerm = null;
+    foreach ($resourceTemplate->resourceTemplateProperties() as $k => $rtp) {
+        $property = $rtp->property();
+        $term = $rtp->property()->term();
+        $prevTerm === $term ? ++$i : $i = 0;
+        $prevTerm = $term;
+        $termK = $term . '/' . $i;
+        if (!isset($rtpLabels[$termK][0])) {
+            $rtpLabels[$termK][0] = $translate($property->label());
+        }
+        $rtpLabels[$termK][$resourceTemplateId] = $rtp->alternateLabel() ?: true;
+    }
+}
+?>
+
+<style>
+.resource-template-browse-table td:first-child,
+.resource-template-browse-table th:first-child {
+    width: auto;
+}
+.property-label-default {
+    font-style: italic;
+}
+</style>
+
+<?= $this->pageTitle($translate('Table of labels'), 1, $translate('Resource templates')) ?>
+
+<?= $this->form($form) ?>
+
+<?php if (count($resourceTemplateIds)): ?>
+
+<table class="tablesaw resource-template-browse-table" data-tablesaw-mode="stack">
+    <thead>
+        <tr>
+            <th><?= $translate('Property') ?></th>
+            <?php foreach ($resourceTemplates as $resourceTemplate): ?>
+            <th><?= $escape($resourceTemplate->label()) ?></th>
+            <?php endforeach; ?>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($rtpLabels as $termK => $labels):
+            $term = strtok($termK, '/');
+        ?>
+        <tr>
+            <td><?= $escape($term) ?></td>
+            <?php foreach ($resourceTemplateIds as $resourceTemplateId): ?>
+            <?php if (isset($rtpLabels[$termK][$resourceTemplateId]) && $rtpLabels[$termK][$resourceTemplateId] === true): ?>
+            <td class="property-label-default"><?= $escape($rtpLabels[$termK][0]) ?></td>
+            <?php elseif (isset($rtpLabels[$termK][$resourceTemplateId])): ?>
+            <td class="property-label-custom"><?= $escape($rtpLabels[$termK][$resourceTemplateId]) ?></td>
+            <?php else: ?>
+            <td class="property-empty"></td>
+            <?php endif; ?>
+            <?php endforeach; ?>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+<?php else: ?>
+
+<p>
+    <?= $translate('Select resource templates above to compare their labels.') ?>
+</p>
+
+<?php endif; ?>
