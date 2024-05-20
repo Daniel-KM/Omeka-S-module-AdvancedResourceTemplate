@@ -16,6 +16,7 @@ trait TraitPropertyValuesDisplay
                     'element_group' => 'resources',
                     'label' => 'Display of property values', // @translate
                     'value_options' => [
+                        // Value.
                         [
                             'value' => 'value_search',
                             'label' => 'Value as search', // @translate
@@ -44,6 +45,7 @@ trait TraitPropertyValuesDisplay
                                 'class' => 'art_pd_value',
                             ],
                         ],
+                        // Prepend icon.
                         [
                             'value' => 'prepend_icon_search',
                             'label' => 'Prepend an icon for search link', // @translate
@@ -72,6 +74,7 @@ trait TraitPropertyValuesDisplay
                                 'class' => 'art_pd_prepend',
                             ],
                         ],
+                        // Append icon.
                         [
                             'value' => 'append_icon_search',
                             'label' => 'Append an icon for search link', // @translate
@@ -98,6 +101,35 @@ trait TraitPropertyValuesDisplay
                             'label' => 'Append an icon for external uri', // @translate
                             'label_attributes' => [
                                 'class' => 'art_pd_append',
+                            ],
+                        ],
+                        // Append icon only in record.
+                        [
+                            'value' => 'record_append_icon_search',
+                            'label' => 'Append an icon for search link, only in record', // @translate
+                            'label_attributes' => [
+                                'class' => 'art_pd_append_record group-br',
+                            ],
+                        ],
+                        [
+                            'value' => 'record_append_icon_advanced_search',
+                            'label' => 'Append an icon for advanced search link, only in record (module or fallback)', // @translate
+                            'label_attributes' => [
+                                'class' => 'art_pd_append_record',
+                            ],
+                        ],
+                        [
+                            'value' => 'record_append_icon_resource',
+                            'label' => 'Append an icon for linked resource, only in record', // @translate
+                            'label_attributes' => [
+                                'class' => 'art_pd_append_record',
+                            ],
+                        ],
+                        [
+                            'value' => 'record_append_icon_uri',
+                            'label' => 'Append an icon for external uri, only in record', // @translate
+                            'label_attributes' => [
+                                'class' => 'art_pd_append_record',
                             ],
                         ],
                     ],
