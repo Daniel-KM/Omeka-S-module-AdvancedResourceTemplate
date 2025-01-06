@@ -113,6 +113,8 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
+        $noModuleDynamicItemSets = !class_exists('DynamicItemSets\Module', false);
+
         // Store some template settings in main settings for simple access.
         $sharedEventManager->attach(
             \AdvancedResourceTemplate\Api\Adapter\ResourceTemplateAdapter::class,
@@ -254,6 +256,8 @@ class Module extends AbstractModule
             [$this, 'storeVaTemplates']
         );
 
+        if ($noModuleDynamicItemSets) {
+
         // Manage the items to append to item sets.
         // The item should be created to be able to do a search on it.
         // An event is needed early to update item set queries one time only.
@@ -288,6 +292,8 @@ class Module extends AbstractModule
             'api.delete.post',
             [$this, 'handleApiDeletePostItemSet']
         );
+
+        }
 
         // Display values according to options of the resource template.
         // For compatibility with other modules (HideProperties, Internationalisation)
@@ -428,6 +434,8 @@ class Module extends AbstractModule
             [$this, 'handleViewResourceShowValue']
         );
 
+        if ($noModuleDynamicItemSets) {
+
         // Search dynamic queries with "is_dynamic=0" or "is_dynamic=1".
         $sharedEventManager->attach(
             \Omeka\Api\Adapter\ItemSetAdapter::class,
@@ -455,6 +463,8 @@ class Module extends AbstractModule
             [$this, 'handleItemSetSidebar']
         );
 
+        }
+
         // Add css/js to some admin pages.
         $sharedEventManager->attach(
             'Omeka\Controller\Admin\Item',
@@ -478,6 +488,8 @@ class Module extends AbstractModule
             [$this, 'addAdminResourceHeaders']
         );
 
+        if ($noModuleDynamicItemSets) {
+
         // Display the item set query for items in advanced tab.
         $sharedEventManager->attach(
             'Omeka\Controller\Admin\ItemSet',
@@ -489,6 +501,8 @@ class Module extends AbstractModule
             'view.edit.form.advanced',
             [$this, 'addAdvancedTabElements']
         );
+
+        }
 
         // Modify the resource form for templates or set one by default.
         $sharedEventManager->attach(
