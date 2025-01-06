@@ -219,7 +219,10 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
 
   ![Export des modèles en csv/tsv](data/images/export_spreadsheet.png)
 
-- Placement automatique des contenus dans les collections
+- Collections dynamiques : placement automatique des contenus dans les collections
+
+  La fonctionnalité des collections dynamiques a été déplacé dans un nouveau
+  module [Collections dynamiques] depuis la version 3.4.37.
 
   En indiquant une requête dans l’onglet Avancé du formulaire de collection,
   tous les contenus existants et les nouveaux seront automatiquement placés dans
@@ -230,6 +233,41 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
   requête.
 
   ![Placement automatique des contenus dans les collections](data/images/auto-attach_items_to_item_sets.png)
+
+- Bloc de ressource avec des propriétés sélectionnées
+
+  Ce bloc permet de gérer une notice courte dans la page d’affichage d’une
+  ressource, par exemple quand un thème affiche un onglet avec « Notice » et
+  « Toutes les métadonnées ».
+
+    The option is set in site settings. Each line is the term and the optional
+  alternatif label, separated with a "=". To group properties, a class and an
+  optional label may be added with "# div-class = Title". Example:
+
+  Cette option est définie dans les paramètres du site. Chaque ligne correspond
+  à une propriété et un libellé alternatif facultatif. Pour grouper les
+  propriétés, une classe et un libellé facultatif peut être ajouté avec « # div-class = Titre ».
+  Exemple :
+
+```
+  # values-type
+  dcterms:type
+
+  # values-creator
+  dcterms:creator
+
+  # values-date
+  dcterms:date
+  dcterms:created
+  dcterms:issued
+
+  # values-subject
+  dcterms:subject
+
+  # values-rights = Terms of use
+  dcterms:rights
+  dcterms:license
+```
 
 
 Installation
@@ -552,7 +590,7 @@ connaissance de la licence CeCILL et que vous en acceptez les termes.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2020-2024 (voir [Daniel-KM] sur GitLab)
+* Copyright Daniel Berthereau, 2020-2025 (voir [Daniel-KM] sur GitLab)
 * Library [jQuery-Autocomplete] : Copyright 2012 DevBridge et autres contributeurs
 
 Ces fonctionnalités sont destinées à la future bibliothèque numérique [Manioc]
@@ -566,6 +604,7 @@ des travaux étudiants [Dante] de l’[Université de Toulouse Jean-Jaurès].
 [dépôt original]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate
 [English readme]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/blob/master/README.md
 [Omeka S]: https://omeka.org/s
+[Collections dynamiques]: https://gitlab.com/Daniel-KM/Omeka-S-module-DynamicItemSets
 [installer un module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
 [AdvancedResourceTemplate.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/releases

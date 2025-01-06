@@ -206,7 +206,10 @@ resources. If you do not see images, go to the [original repository]:
 
   ![Export of templates as csv/tsv](data/images/export_spreadsheet.png)
 
-- Automatic attachment of items to item sets
+- Dynamic Item Sets: Automatic attachment of items to item sets
+
+  The feature allowing to create dynamic item sets was moved to a new module
+  [Dynamic Item Sets] since version 3.4.37.
 
   When a query is set in the tab Advanced of the item set form, all existing and
   new items will be automatically attached to this item set, according to the
@@ -223,9 +226,8 @@ resources. If you do not see images, go to the [original repository]:
   example when a theme displays a tab with "Record" and "Advanced metadata".
 
   The option is set in site settings. Each line is the term and the optional
-  alternatif label. A specific label can be set on each line, separated with a
-  "=". A division to group a list of properties may be added with "# div-class"
-  and an optional label separated with a "=". Example:
+  alternatif label, separated with a "=". To group properties, a class and an
+  optional label may be added with "# div-class = Title". Example:
 
 ```
   # values-type
@@ -548,7 +550,7 @@ altered, and that no provisions are either added or removed herefrom.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2020-2024 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2020-2025 (see [Daniel-KM] on GitLab)
 * Library [jQuery-Autocomplete]: Copyright 2012 DevBridge and other contributors
 
 These features were built for the future digital library [Manioc] of the
@@ -561,6 +563,7 @@ and for the institutional repository of student works [Dante] of the [Universit√
 [original repository]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate
 [Lisez-moi]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/blob/master/LISEZMOI.md
 [Omeka S]: https://omeka.org/s
+[Dynamic Item Sets]: https://gitlab.com/Daniel-KM/Omeka-S-module-DynamicItemSets
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
 [AdvancedResourceTemplate.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/releases
