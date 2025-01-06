@@ -1018,8 +1018,8 @@ class Module extends AbstractModule
                 $display['icon_advanced_search'] = $display['prepend_icon_advanced_search'] || $display['append_icon_advanced_search'];
                 $display['advanced_search'] = $display['value_advanced_search'] || $display['icon_advanced_search'];
                 $advancedSearchConfig = $display['advanced_search'] ? $advancedSearchConfig() : null;
-                $engine = $advancedSearchConfig ? $advancedSearchConfig->engine() : null;
-                $querier = $engine ? $engine->querier() : null;
+                $searchEngine = $advancedSearchConfig ? $advancedSearchConfig->searchEngine() : null;
+                $querier = $searchEngine ? $searchEngine->querier() : null;
                 $isInternalSearch = $querier instanceof \AdvancedSearch\Querier\InternalQuerier;
                 // Fallback to standard search for module Advanced search.
                 if ($display['advanced_search'] && (!$querier || $querier instanceof \AdvancedSearch\Querier\NoopQuerier)) {
@@ -1345,8 +1345,8 @@ class Module extends AbstractModule
                 $display['icon_advanced_search'] = $display['record_append_icon_advanced_search'];
                 $display['advanced_search'] = $display['icon_advanced_search'];
                 $advancedSearchConfig = $display['advanced_search'] ? $advancedSearchConfig() : null;
-                $engine = $advancedSearchConfig ? $advancedSearchConfig->engine() : null;
-                $querier = $engine ? $engine->querier() : null;
+                $searchEngine = $advancedSearchConfig ? $advancedSearchConfig->searchEngine() : null;
+                $querier = $searchEngine ? $searchEngine->querier() : null;
                 $isInternalSearch = $querier instanceof \AdvancedSearch\Querier\InternalQuerier;
                 // Fallback to standard search for module Advanced search.
                 if ($display['advanced_search'] && (!$querier || $querier instanceof \AdvancedSearch\Querier\NoopQuerier)) {
