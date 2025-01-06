@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-22 00:00+0000\n"
+"POT-Creation-Date: 2025-01-06 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,33 +28,32 @@ msgid ""
 "{version} or later."
 msgstr ""
 
-#: Module.php:1011 Module.php:1329
+#: Module.php:1056 Module.php:1378
 msgid "Search this value"
 msgstr ""
 
-#: Module.php:1012 Module.php:1330
+#: Module.php:1057 Module.php:1379
 msgid "Show this item"
 msgstr ""
 
-#: Module.php:1013 Module.php:1331
+#: Module.php:1058 Module.php:1380
 msgid "Show this media"
 msgstr ""
 
-#: Module.php:1014 Module.php:1332
+#: Module.php:1059 Module.php:1381
 msgid "Show this item set"
 msgstr ""
 
-#: Module.php:1015 Module.php:1333
+#: Module.php:1060 Module.php:1382
 msgid "Show this resource"
 msgstr ""
 
-#: Module.php:1016 Module.php:1334
+#: Module.php:1061 Module.php:1383
 msgid "Open this external uri in a new tab"
 msgstr ""
 
-#: Module.php:1974
-#, php-format
-msgid "Add new %s"
+#: Module.php:1589 Module.php:1629
+msgid "Is dynamic"
 msgstr ""
 
 #: src/Autofiller/GenericAutofiller.php:58
@@ -68,6 +67,10 @@ msgstr ""
 
 #: src/Controller/Admin/IndexController.php:277
 msgid "An error occurred."
+msgstr ""
+
+#: view/common/advanced-search/item-set-is-dynamic.phtml:26
+msgid "Search dynamic item sets"
 msgstr ""
 
 #: view/common/resource-values.phtml:105
@@ -237,19 +240,42 @@ msgid ""
 "a short record."
 msgstr ""
 
-#: Module.php:1625
+#: data/scripts/upgrade.php:599
+msgid ""
+"The feature to create dynamic item sets will be moved to a new module {link}"
+"Dynamic Item Sets{link_end} in next version (3.4.37). You should install it "
+"if you need it."
+msgstr ""
+
+#: data/scripts/upgrade.php:616
+msgid "Currently, the feature is used by {count} item sets: {item_sets}."
+msgstr ""
+
+#: Module.php:1801
 msgid "The query to attach items cannot contain the item set itself."
 msgstr ""
 
-#: Module.php:1649
+#: Module.php:1825
 msgid ""
 "The query for the item set was changed: a job is run in background to detach "
 "and to attach items (job {link_job}#{job_id}{link_end}, {link_log}"
 "logs{link_end})."
 msgstr ""
 
-#: Module.php:1844
-msgid "Query to attach items automatically to this item set"
+#: Module.php:2020
+msgid "Query to attach items dynamically to this item set"
+msgstr ""
+
+#: view/common/advanced-search/item-set-is-dynamic.phtml:13
+msgid "Is dynamic item set"
+msgstr ""
+
+#: view/common/advanced-search/item-set-is-dynamic.phtml:17
+msgid "Is not dynamic"
+msgstr ""
+
+#: view/common/advanced-search/item-set-is-dynamic.phtml:19
+msgid "Any"
 msgstr ""
 
 #: src/Listener/ResourceOnSave.php:194
@@ -335,49 +361,49 @@ msgstr ""
 msgid "{count}/{total} items detached from item set #{item_set_id}."
 msgstr ""
 
-#: src/Job/AttachItemsToItemSet.php:77
+#: src/Job/AttachItemsToItemSet.php:96
 msgid "{count}/{total} new items attached to item set #{item_set_id}."
 msgstr ""
 
-#: src/Job/AttachItemsToItemSet.php:84
+#: src/Job/AttachItemsToItemSet.php:103
 msgid ""
 "Process ended for item set #{item_set_id}: {count} items were attached, "
 "{count_2} items were detached, {count_3} new items were attached."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:13 src/Form/SettingsFieldset.php:13
+#: src/Form/SiteSettingsFieldset.php:12 src/Form/SettingsFieldset.php:13
 msgid "Advanced Resource Template"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:16
+#: src/Form/SiteSettingsFieldset.php:15
 msgid "Block Resource metadata"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:17 src/Form/SettingsFieldset.php:17
+#: src/Form/SiteSettingsFieldset.php:16 src/Form/SettingsFieldset.php:17
 msgid "Resource metadata display"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:33
+#: src/Form/SiteSettingsFieldset.php:32
 msgid "Mode of display of property values"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:35
+#: src/Form/SiteSettingsFieldset.php:34
 msgid "Default display"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:36
+#: src/Form/SiteSettingsFieldset.php:35
 msgid "Use main settings"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:37
+#: src/Form/SiteSettingsFieldset.php:36
 msgid "Use site settings below"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:53
+#: src/Form/SiteSettingsFieldset.php:52
 msgid "Metadata for resource block Metadata"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:54
+#: src/Form/SiteSettingsFieldset.php:53
 msgid ""
 "This option may be used to display a short record. Each line is the term and "
 "the optional alternatif label. A specific label can be set on each line, "
@@ -385,19 +411,19 @@ msgid ""
 "added with \"# div-class\" and an optional label separated with a \"=\"."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:85
+#: src/Form/SiteSettingsFieldset.php:84
 msgid "Element for block Metadata"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:87
+#: src/Form/SiteSettingsFieldset.php:86
 msgid "Metadata label"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:88
+#: src/Form/SiteSettingsFieldset.php:87
 msgid "Property term"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:90
+#: src/Form/SiteSettingsFieldset.php:89
 msgid "Locale of the value"
 msgstr ""
 
@@ -574,47 +600,47 @@ msgid ""
 "and properties for each of them. May need a specific theme template."
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:265
+#: src/Form/ResourceTemplateDataFieldset.php:266
 msgid "Order of linked values (Omeka v4.1)"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:266
+#: src/Form/ResourceTemplateDataFieldset.php:267
 msgid ""
 "The default order of the linked resources is the title. Another order can be "
 "set for each linking property. For the default order when there is no "
 "property, just skip the property term."
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:285
+#: src/Form/ResourceTemplateDataFieldset.php:286
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:358
 msgid "More settings"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:286
+#: src/Form/ResourceTemplateDataFieldset.php:287
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:359
 msgid ""
 "Allow to pass some settings, usually for theme and generally via key-value "
 "pairs or json."
 msgstr ""
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:21
-msgid "Input control for literal (html pattern)"
-msgstr ""
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:34
-msgid "Minimum length (characters)"
-msgstr ""
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:48
-msgid "Maximum length (characters)"
-msgstr ""
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:62
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:19
 msgid "Minimum number of values (when required)"
 msgstr ""
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:76
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:33
 msgid "Maximum number of values"
+msgstr ""
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:47
+msgid "Minimum length (characters)"
+msgstr ""
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:61
+msgid "Maximum length (characters)"
+msgstr ""
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:77
+msgid "Input control for literal (html pattern)"
 msgstr ""
 
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:94

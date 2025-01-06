@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-22 00:00+0000\n"
+"POT-Creation-Date: 2025-01-06 00:00+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
@@ -30,34 +30,33 @@ msgstr ""
 "Certaines fonctionnalités nécessitent que le module {module} soit mis à "
 "niveau à la version {version} ou supérieure."
 
-#: Module.php:1011 Module.php:1329
+#: Module.php:1056 Module.php:1378
 msgid "Search this value"
 msgstr "Rechercher cette valeur"
 
-#: Module.php:1012 Module.php:1330
+#: Module.php:1057 Module.php:1379
 msgid "Show this item"
 msgstr "Voir ce contenu"
 
-#: Module.php:1013 Module.php:1331
+#: Module.php:1058 Module.php:1380
 msgid "Show this media"
 msgstr "Voir ce média"
 
-#: Module.php:1014 Module.php:1332
+#: Module.php:1059 Module.php:1381
 msgid "Show this item set"
 msgstr "Voir cette collection"
 
-#: Module.php:1015 Module.php:1333
+#: Module.php:1060 Module.php:1382
 msgid "Show this resource"
 msgstr "Voir cette ressource"
 
-#: Module.php:1016 Module.php:1334
+#: Module.php:1061 Module.php:1383
 msgid "Open this external uri in a new tab"
 msgstr "Ouvrir cette uri externe dans un nouvel onglet"
 
-#: Module.php:1974
-#, php-format
-msgid "Add new %s"
-msgstr "Ajouter un nouveau %s"
+#: Module.php:1589 Module.php:1629
+msgid "Is dynamic"
+msgstr "Est dynamique"
 
 #: src/Autofiller/GenericAutofiller.php:58
 #: src/Autofiller/GenericAutofiller.php:103
@@ -71,6 +70,10 @@ msgstr "La requête est vide."
 #: src/Controller/Admin/IndexController.php:277
 msgid "An error occurred."
 msgstr "Une erreur est survenue."
+
+#: view/common/advanced-search/item-set-is-dynamic.phtml:26
+msgid "Search dynamic item sets"
+msgstr "Rechercher les collections dynamiques "
 
 #: view/common/resource-values.phtml:105
 msgid "Other metadata"
@@ -283,13 +286,29 @@ msgstr ""
 "Un nouveau bloc de ressource a été ajouté pour afficher des métadonnées "
 "spécifiques, par exemple pour une notice abrégée."
 
-#: Module.php:1625
+#: data/scripts/upgrade.php:599
+msgid ""
+"The feature to create dynamic item sets will be moved to a new module {link}"
+"Dynamic Item Sets{link_end} in next version (3.4.37). You should install it "
+"if you need it."
+msgstr ""
+"La fonctionnalité permettant de créer des collections dynamiques sera "
+"déplacée dans un nouveau module {link}Collections dynamiques{link_end} dans "
+"la prochaine version (3.4.37). Vous devez l’installer si vous en avez besoin."
+
+#: data/scripts/upgrade.php:616
+msgid "Currently, the feature is used by {count} item sets: {item_sets}."
+msgstr ""
+"Actuellement, la fonctionnalité est utilisé par {count} collections : "
+"{item_sets}."
+
+#: Module.php:1801
 msgid "The query to attach items cannot contain the item set itself."
 msgstr ""
 "La requête pour attacher les contenus ne peut pas contenir la collection "
 "elle-même."
 
-#: Module.php:1649
+#: Module.php:1825
 msgid ""
 "The query for the item set was changed: a job is run in background to detach "
 "and to attach items (job {link_job}#{job_id}{link_end}, {link_log}"
@@ -299,9 +318,21 @@ msgstr ""
 "plan pour détacher et attacher les contenus ({link_job}tâche #{job_id}"
 "{link_end}, {link_log}journaux{link_end})."
 
-#: Module.php:1844
-msgid "Query to attach items automatically to this item set"
-msgstr "Requête pour placer automatiquement les contenus dans cette collection"
+#: Module.php:2020
+msgid "Query to attach items dynamically to this item set"
+msgstr "Requête pour placer dynamiquement les contenus dans cette collection"
+
+#: view/common/advanced-search/item-set-is-dynamic.phtml:13
+msgid "Is dynamic item set"
+msgstr "Est une collection dynamique"
+
+#: view/common/advanced-search/item-set-is-dynamic.phtml:17
+msgid "Is not dynamic"
+msgstr "N’est pas dynamique"
+
+#: view/common/advanced-search/item-set-is-dynamic.phtml:19
+msgid "Any"
+msgstr "Tous"
 
 #: src/Listener/ResourceOnSave.php:194
 msgid "This template cannot be used for this resource."
@@ -406,12 +437,12 @@ msgstr "La collection #{item_set_id} n’existe pas."
 msgid "{count}/{total} items detached from item set #{item_set_id}."
 msgstr "{count}/{total} contenus détachés de la collection #{item_set_id}."
 
-#: src/Job/AttachItemsToItemSet.php:77
+#: src/Job/AttachItemsToItemSet.php:96
 msgid "{count}/{total} new items attached to item set #{item_set_id}."
 msgstr ""
 "{count}/{total} nouveaux contenus attachés à la collection #{item_set_id}."
 
-#: src/Job/AttachItemsToItemSet.php:84
+#: src/Job/AttachItemsToItemSet.php:103
 msgid ""
 "Process ended for item set #{item_set_id}: {count} items were attached, "
 "{count_2} items were detached, {count_3} new items were attached."
@@ -420,39 +451,39 @@ msgstr ""
 "attachés, {count_2} contenus ont été détachés, {count_3} nouveaux contenus "
 "ont été attachés."
 
-#: src/Form/SiteSettingsFieldset.php:13 src/Form/SettingsFieldset.php:13
+#: src/Form/SiteSettingsFieldset.php:12 src/Form/SettingsFieldset.php:13
 msgid "Advanced Resource Template"
 msgstr "Modèle de ressources avancé"
 
-#: src/Form/SiteSettingsFieldset.php:16
+#: src/Form/SiteSettingsFieldset.php:15
 msgid "Block Resource metadata"
 msgstr "Bloc Métadonnées de la ressource"
 
-#: src/Form/SiteSettingsFieldset.php:17 src/Form/SettingsFieldset.php:17
+#: src/Form/SiteSettingsFieldset.php:16 src/Form/SettingsFieldset.php:17
 msgid "Resource metadata display"
 msgstr "Affichage des métadonnées de ressource"
 
-#: src/Form/SiteSettingsFieldset.php:33
+#: src/Form/SiteSettingsFieldset.php:32
 msgid "Mode of display of property values"
 msgstr "Mode d’affichage des valeurs de propriété"
 
-#: src/Form/SiteSettingsFieldset.php:35
+#: src/Form/SiteSettingsFieldset.php:34
 msgid "Default display"
 msgstr "Affichage par défaut"
 
-#: src/Form/SiteSettingsFieldset.php:36
+#: src/Form/SiteSettingsFieldset.php:35
 msgid "Use main settings"
 msgstr "Utiliser les paramètres généraux"
 
-#: src/Form/SiteSettingsFieldset.php:37
+#: src/Form/SiteSettingsFieldset.php:36
 msgid "Use site settings below"
 msgstr "Utiliser les paramètres de site ci-dessous"
 
-#: src/Form/SiteSettingsFieldset.php:53
+#: src/Form/SiteSettingsFieldset.php:52
 msgid "Metadata for resource block Metadata"
 msgstr "Métadonnées pour le bloc de ressource Métadonnées"
 
-#: src/Form/SiteSettingsFieldset.php:54
+#: src/Form/SiteSettingsFieldset.php:53
 msgid ""
 "This option may be used to display a short record. Each line is the term and "
 "the optional alternatif label. A specific label can be set on each line, "
@@ -465,19 +496,19 @@ msgstr ""
 "division pour grouper une liste de propriétés peut être ajoutée avec « # div-"
 "class » et un libellé facultatif séparé par un « = »."
 
-#: src/Form/SiteSettingsFieldset.php:85
+#: src/Form/SiteSettingsFieldset.php:84
 msgid "Element for block Metadata"
 msgstr "Élément pour le bloc Métadonnées"
 
-#: src/Form/SiteSettingsFieldset.php:87
+#: src/Form/SiteSettingsFieldset.php:86
 msgid "Metadata label"
 msgstr "Libellé des métadonnées"
 
-#: src/Form/SiteSettingsFieldset.php:88
+#: src/Form/SiteSettingsFieldset.php:87
 msgid "Property term"
 msgstr "Terme de propriété"
 
-#: src/Form/SiteSettingsFieldset.php:90
+#: src/Form/SiteSettingsFieldset.php:89
 msgid "Locale of the value"
 msgstr "Langue de la valeur"
 
@@ -673,11 +704,11 @@ msgstr ""
 "de noms de groupes et de propriétés. Dans certains cas, le thème doit être "
 "mis à jour."
 
-#: src/Form/ResourceTemplateDataFieldset.php:265
+#: src/Form/ResourceTemplateDataFieldset.php:266
 msgid "Order of linked values (Omeka v4.1)"
 msgstr "Tri des valeurs liées (Omeka v4.1)"
 
-#: src/Form/ResourceTemplateDataFieldset.php:266
+#: src/Form/ResourceTemplateDataFieldset.php:267
 msgid ""
 "The default order of the linked resources is the title. Another order can be "
 "set for each linking property. For the default order when there is no "
@@ -687,12 +718,12 @@ msgstr ""
 "être défini pour chaque propriété liante. Pour définir le tri par défaut en "
 "l’absence de propriété, ne pas indiquer le terme."
 
-#: src/Form/ResourceTemplateDataFieldset.php:285
+#: src/Form/ResourceTemplateDataFieldset.php:286
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:358
 msgid "More settings"
 msgstr "Autres paramètres"
 
-#: src/Form/ResourceTemplateDataFieldset.php:286
+#: src/Form/ResourceTemplateDataFieldset.php:287
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:359
 msgid ""
 "Allow to pass some settings, usually for theme and generally via key-value "
@@ -701,25 +732,25 @@ msgstr ""
 "Permet de passer certains paramètres généralement pour le thème et via des "
 "paires clés-valeurs ou json."
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:21
-msgid "Input control for literal (html pattern)"
-msgstr "Contrôle de saisie pour les valeurs texte (motif html)"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:34
-msgid "Minimum length (characters)"
-msgstr "Longueur minimale (caractères)"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:48
-msgid "Maximum length (characters)"
-msgstr "Longueur maximale (caractères)"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:62
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:19
 msgid "Minimum number of values (when required)"
 msgstr "Nombre minimal de valeurs (si requis)"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:76
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:33
 msgid "Maximum number of values"
 msgstr "Nombre maximal de valeurs"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:47
+msgid "Minimum length (characters)"
+msgstr "Longueur minimale (caractères)"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:61
+msgid "Maximum length (characters)"
+msgstr "Longueur maximale (caractères)"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:77
+msgid "Input control for literal (html pattern)"
+msgstr "Contrôle de saisie pour les valeurs texte (motif html)"
 
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:94
 msgid "Default value"
@@ -1053,6 +1084,10 @@ msgstr "Pas de résultats"
 
 msgid "No %s found."
 msgstr "Aucun %s trouvé."
+
+#, php-format
+#~ msgid "Add new %s"
+#~ msgstr "Ajouter un nouveau %s"
 
 #, php-format
 #~ msgid "This module requires the module \"%s\"."
