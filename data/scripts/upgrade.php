@@ -28,10 +28,10 @@ $messenger = $plugins->get('messenger');
 
 $localConfig = require dirname(__DIR__, 2) . '/config/module.config.php';
 
-if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.64')) {
+if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.65')) {
     $message = new \Omeka\Stdlib\Message(
         'The module %1$s should be upgraded to version %2$s or later.', // @translate
-        'Common', '3.4.64'
+        'Common', '3.4.65'
     );
     throw new ModuleCannotInstallException((string) $message);
 }
@@ -592,4 +592,34 @@ if (version_compare((string) $oldVersion, '3.4.32', '<')) {
         'A new resource block was added to display selected metadata, for example for a short record.' // @translate
     );
     $messenger->addSuccess($message);
+}
+
+if (version_compare((string) $oldVersion, '3.4.36', '<')) {
+    $message = new PsrMessage(
+        'The feature to create dynamic item sets will be moved to a new module {link}Dynamic Item Sets{link_end} in next version (3.4.37). You should install it if you need it.', // @translate
+        [
+            'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-DynamicItemSets" _target="blank" rel="noopener">',
+            'link_end' => '</a>',
+        ]
+    );
+    $message->setEscapeHtml(false);
+    $messenger->addWarning($message);
+
+    $itemSetQueries = $settings->get('advancedresourcetemplate_item_set_queries', []);
+    if ($itemSetQueries) {
+        $list = [];
+        $baseUrlItemSet = rtrim($url->fromRoute('admin/id', ['controller' => 'item-set', 'id' => '00']), '0');
+        foreach (array_keys($itemSetQueries) as $itemSetId) {
+            $list[] = sprintf('#<a href="%s">%d</a>', $baseUrlItemSet . $itemSetId, $itemSetId);
+        }
+        $message = new PsrMessage(
+            'Currently, the feature is used by {count} item sets: {item_sets}.', // @translate
+            [
+                'count' => count($itemSetQueries),
+                'item_sets' => implode(', ', $list),
+            ]
+        );
+        $message->setEscapeHtml(false);
+        $messenger->addWarning($message);
+    }
 }
