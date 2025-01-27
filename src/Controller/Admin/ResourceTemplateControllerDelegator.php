@@ -1499,7 +1499,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         if ($options['type'] === 'text/tab-separated-values') {
             $options['delimiter'] = "\t";
         }
-        $delimiter = $options['delimiter'];
+        $separator = $options['delimiter'];
         $enclosure = $options['enclosure'];
 
         // fgetcsv is not used to avoid issues with bom.
@@ -1513,7 +1513,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         }
 
         $first = true;
-        $rows = array_map(fn ($v) => str_getcsv($v, $delimiter, $enclosure), array_map('trim', explode("\n", $content)));
+        $rows = array_map(fn ($v) => str_getcsv($v, $separator, $enclosure), array_map('trim', explode("\n", $content)));
         foreach ($rows as $key => $row) {
             if (empty(array_filter($row))) {
                 unset($rows[$key]);
