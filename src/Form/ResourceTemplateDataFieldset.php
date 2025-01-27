@@ -277,6 +277,25 @@ bibo:issue asc',
                 ],
             ])
 
+            // Media.
+
+            ->add([
+                'name' => 'media_templates_minimum',
+                'type' => \Omeka\Form\Element\ArrayTextarea ::class,
+                'options' => [
+                    'label' => 'Minimum number of media for each media template', // @translate
+                    'info' => 'Set the template number or label, then "=", then the number. Use 0 as number to set the number for other templates.', // @translate
+                    'as_key_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'media_templates_minimum',
+                    'placeholder' => <<<'TXT'
+                        File = 1
+                        0 = 1
+                        TXT,
+                ],
+            ])
+
             // Others.
 
             ->add([

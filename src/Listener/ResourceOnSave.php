@@ -225,6 +225,53 @@ class ResourceOnSave
             }
         }
 
+        if ($entity instanceof \Omeka\Entity\Item) {
+            $requireMedias = array_filter($template->dataValue('media_templates_minimum') ?? []);
+            if ($requireMedias) {
+                $medias = $entity->getMedia();
+                // Do a quick check first.
+                if (count($medias) < array_sum($requireMedias)) {
+                    $message = new PsrMessage(
+                        'The minimum number of files or medias is {min}.', // @translate
+                        ['min' => array_sum($requireMedias)]
+                    );
+                    $errorStore->addError('o:media', $message);
+                } else {
+                    /** @var \Omeka\Entity\Media $media */
+                    // Prepare the total of medias by template.
+                    $countMediasByTemplate = [];
+                    foreach ($medias as $media) {
+                        $template = $media->getResourceTemplate();
+                        if ($template) {
+                            $templateId = $template->getId();
+                            $templateLabel = $template->getLabel();
+                        } else {
+                            $templateId = 0;
+                            $templateLabel = '';
+                        }
+                        $countMediasByTemplate[$templateId] = isset($countMediasByTemplate[$templateId])
+                            ? ++$countMediasByTemplate[$templateId]
+                            : 1;
+                        $countMediasByTemplate[$templateLabel] = isset($countMediasByTemplate[$templateLabel])
+                            ? ++$countMediasByTemplate[$templateLabel]
+                            : 1;
+                    }
+                    foreach ($requireMedias as $mediaTemplateIdOrLabel => $min) {
+                        if (!isset($countMediasByTemplate[$mediaTemplateIdOrLabel])
+                            || $countMediasByTemplate[$mediaTemplateIdOrLabel] < $min
+                        ) {
+                            $message = new PsrMessage(
+                                'The minimum number of files or medias is {min}.', // @translate
+                                ['min' => array_sum($requireMedias)]
+                            );
+                            // Display only one message for end user.
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         // TODO Manage closed property list: but good data can be added via modules (identifier, etc.).
 
         // Some checks can be done simpler via representation.
