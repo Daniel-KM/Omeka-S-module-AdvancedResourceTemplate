@@ -271,9 +271,11 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'attributes' => [
                     'id' => 'subject_values_order',
                     'rows' => 5,
-                    'placeholder' => '# dcterms:isPartOf
-bibo:volume asc
-bibo:issue asc',
+                    'placeholder' => <<<'TXT'
+                        # dcterms:isPartOf
+                        bibo:volume asc
+                        bibo:issue asc
+                        TXT,
                 ],
             ])
 

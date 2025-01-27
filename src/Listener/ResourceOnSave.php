@@ -433,13 +433,13 @@ class ResourceOnSave
                         }
                         $sqlWhere = implode(' OR ', $sqlWhere);
                         $sql = <<<SQL
-SELECT value.resource_id
-FROM value
-WHERE value.resource_id != :resource_id
-    AND value.property_id = :property_id
-    AND ($sqlWhere)
-LIMIT 1;
-SQL;
+                            SELECT value.resource_id
+                            FROM value
+                            WHERE value.resource_id != :resource_id
+                                AND value.property_id = :property_id
+                                AND ($sqlWhere)
+                            LIMIT 1;
+                            SQL;
                         $resId = $connection->executeQuery($sql, $bind, $types)->fetchOne();
                         if ($resId) {
                             $message = new PsrMessage(

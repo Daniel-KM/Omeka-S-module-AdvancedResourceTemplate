@@ -21,7 +21,7 @@ $plugins = $services->get('ControllerPluginManager');
 $url = $plugins->get('url');
 $api = $plugins->get('api');
 $settings = $services->get('Omeka\Settings');
-$translator = $services->get('MvcTranslator');
+// $translator = $services->get('MvcTranslator');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
 // $entityManager = $services->get('Omeka\EntityManager');
@@ -42,24 +42,24 @@ if (version_compare((string) $oldVersion, '3.3.3.3', '<')) {
 
 if (version_compare((string) $oldVersion, '3.3.4', '<')) {
     $sql = <<<'SQL'
-ALTER TABLE `resource_template_property_data`
-DROP INDEX UNIQ_B133BBAA2A6B767B,
-ADD INDEX IDX_B133BBAA2A6B767B (`resource_template_property_id`);
-SQL;
+        ALTER TABLE `resource_template_property_data`
+        DROP INDEX UNIQ_B133BBAA2A6B767B,
+        ADD INDEX IDX_B133BBAA2A6B767B (`resource_template_property_id`);
+        SQL;
     $connection->executeStatement($sql);
 }
 
 if (version_compare((string) $oldVersion, '3.3.4.3', '<')) {
     // @link https://www.doctrine-project.org/projects/doctrine-dbal/en/2.6/reference/types.html#array-types
     $sql = <<<'SQL'
-ALTER TABLE `resource_template_data`
-CHANGE `data` `data` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
-SQL;
+        ALTER TABLE `resource_template_data`
+        CHANGE `data` `data` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
+        SQL;
     $connection->executeStatement($sql);
     $sql = <<<'SQL'
-ALTER TABLE `resource_template_property_data`
-CHANGE `data` `data` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
-SQL;
+        ALTER TABLE `resource_template_property_data`
+        CHANGE `data` `data` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
+        SQL;
     $connection->executeStatement($sql);
 }
 
@@ -85,11 +85,11 @@ if (version_compare((string) $oldVersion, '3.3.4.13', '<')) {
         $templateData['suggested_resource_class_ids'] = $result;
         $quotedTemplateData = $connection->quote(json_encode($templateData));
         $sql = <<<SQL
-UPDATE `resource_template_data`
-SET
-    `data` = $quotedTemplateData
-WHERE `id` = $id;
-SQL;
+            UPDATE `resource_template_data`
+            SET
+                `data` = $quotedTemplateData
+            WHERE `id` = $id;
+            SQL;
         $connection->executeStatement($sql);
     }
 
@@ -132,11 +132,11 @@ if (version_compare((string) $oldVersion, '3.3.4.14', '<')) {
         }
         $quotedTemplateData = $connection->quote(json_encode($templateData));
         $sql = <<<SQL
-UPDATE `resource_template_data`
-SET
-    `data` = $quotedTemplateData
-WHERE `id` = $id;
-SQL;
+            UPDATE `resource_template_data`
+            SET
+                `data` = $quotedTemplateData
+            WHERE `id` = $id;
+            SQL;
         $connection->executeStatement($sql);
     }
 
@@ -162,11 +162,11 @@ SQL;
         }
         $quotedTemplatePropertyData = $connection->quote(json_encode($templatePropertyData));
         $sql = <<<SQL
-UPDATE `resource_template_property_data`
-SET
-    `data` = $quotedTemplatePropertyData
-WHERE `id` = $id;
-SQL;
+            UPDATE `resource_template_property_data`
+            SET
+                `data` = $quotedTemplatePropertyData
+            WHERE `id` = $id;
+            SQL;
         $connection->executeStatement($sql);
     }
 
@@ -204,17 +204,17 @@ if (version_compare((string) $oldVersion, '3.4.4.16', '<')) {
     ;
     $templatePropertyDatas = $connection->executeQuery($qb)->fetchAllAssociative();
     $sqlRtp = <<<SQL
-UPDATE `resource_template_property`
-SET
-    `default_lang` = :default_lang
-WHERE `id` = :rtp_id;
-SQL;
-    $sqlRtpd = <<<SQL
-UPDATE `resource_template_property_data`
-SET
-    `data` = :data
-WHERE `id` = :id;
-SQL;
+        UPDATE `resource_template_property`
+        SET
+            `default_lang` = :default_lang
+        WHERE `id` = :rtp_id;
+        SQL;
+            $sqlRtpd = <<<SQL
+        UPDATE `resource_template_property_data`
+        SET
+            `data` = :data
+        WHERE `id` = :id;
+        SQL;
     foreach ($templatePropertyDatas as $templatePropertyData) {
         $rtpData = json_decode($templatePropertyData['data'], true);
         if (!empty($rtpData['default_language'])) {
@@ -269,13 +269,13 @@ if (version_compare((string) $oldVersion, '3.4.21', '<')) {
 if (version_compare((string) $oldVersion, '3.4.22', '<')) {
     // Create a resource data for all resource templates.
     $sql = <<<SQL
-INSERT INTO resource_template_data (resource_template_id, data)
-SELECT resource_template.id, "{}"
-FROM resource_template
-LEFT JOIN resource_template_data ON resource_template_data.resource_template_id = resource_template.id
-WHERE resource_template_data.resource_template_id IS NULL
-;
-SQL;
+        INSERT INTO resource_template_data (resource_template_id, data)
+        SELECT resource_template.id, "{}"
+        FROM resource_template
+        LEFT JOIN resource_template_data ON resource_template_data.resource_template_id = resource_template.id
+        WHERE resource_template_data.resource_template_id IS NULL
+        ;
+        SQL;
     $connection->executeStatement($sql);
 
     // Make all templates available to all resources by default.
@@ -348,11 +348,11 @@ SQL;
         }
         $quotedTemplateData = $connection->quote(json_encode($templateData));
         $sql = <<<SQL
-UPDATE `resource_template_data`
-SET
-    `data` = $quotedTemplateData
-WHERE `id` = $id;
-SQL;
+            UPDATE `resource_template_data`
+            SET
+                `data` = $quotedTemplateData
+            WHERE `id` = $id;
+            SQL;
         $connection->executeStatement($sql);
     }
 
@@ -397,15 +397,15 @@ if (version_compare((string) $oldVersion, '3.4.25', '<')) {
 if (version_compare((string) $oldVersion, '3.4.26', '<')) {
     // Update tables with new index names.
     $sql = <<<'SQL'
-ALTER TABLE `resource_template_data`
-    DROP INDEX UNIQ_31D1FFC816131EA,
-    ADD UNIQUE INDEX uniq_resource_template_id (`resource_template_id`);
-ALTER TABLE `resource_template_property_data`
-    DROP INDEX IDX_B133BBAA16131EA,
-    DROP INDEX IDX_B133BBAA2A6B767B,
-    ADD INDEX idx_resource_template_id (`resource_template_id`),
-    ADD INDEX idx_resource_template_property_id (`resource_template_property_id`);
-SQL;
+        ALTER TABLE `resource_template_data`
+            DROP INDEX UNIQ_31D1FFC816131EA,
+            ADD UNIQUE INDEX uniq_resource_template_id (`resource_template_id`);
+        ALTER TABLE `resource_template_property_data`
+            DROP INDEX IDX_B133BBAA16131EA,
+            DROP INDEX IDX_B133BBAA2A6B767B,
+            ADD INDEX idx_resource_template_id (`resource_template_id`),
+            ADD INDEX idx_resource_template_property_id (`resource_template_property_id`);
+        SQL;
     $connection->executeStatement($sql);
 
     // Add the resource template and resource class to value annotations.
@@ -413,40 +413,40 @@ SQL;
 
     // Get the default template id for all templates.
     $sql = <<<'SQL'
-SELECT
-    `resource_template_id` AS rtid,
-    REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(
-        `data`, '"value_annotations_template":', -1
-    ), ',', 1), '}', 1), '"', '') AS vartid
-FROM `resource_template_data`
-WHERE `data` LIKE '%"value#_annotations#_template":%' ESCAPE "#"
-    AND `data` NOT LIKE '%"value#_annotations#_template":""%' ESCAPE "#"
-    AND `data` NOT LIKE '%"value#_annotations#_template":"none"%' ESCAPE "#"
-;
-SQL;
+        SELECT
+            `resource_template_id` AS rtid,
+            REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(
+                `data`, '"value_annotations_template":', -1
+            ), ',', 1), '}', 1), '"', '') AS vartid
+        FROM `resource_template_data`
+        WHERE `data` LIKE '%"value#_annotations#_template":%' ESCAPE "#"
+            AND `data` NOT LIKE '%"value#_annotations#_template":""%' ESCAPE "#"
+            AND `data` NOT LIKE '%"value#_annotations#_template":"none"%' ESCAPE "#"
+        ;
+        SQL;
     $rtVaTemplates = $connection->executeQuery($sql)->fetchAllKeyValue();
 
     // Get the specific template id for all property templates.
     $sql = <<<'SQL'
-SELECT
-    CONCAT(`resource_template_property`.`resource_template_id`, "-", `property_id`),
-    REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(
-        `data`, '"value_annotations_template":', -1
-    ), ',', 1), '}', 1), '"', '') AS vartid
-FROM `resource_template_property_data`
-JOIN `resource_template_property` ON `resource_template_property`.`id` = `resource_template_property_data`.`resource_template_property_id`
-WHERE `data` LIKE '%"value#_annotations#_template":%' ESCAPE "#"
-;
-SQL;
+        SELECT
+            CONCAT(`resource_template_property`.`resource_template_id`, "-", `property_id`),
+            REPLACE(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(
+                `data`, '"value_annotations_template":', -1
+            ), ',', 1), '}', 1), '"', '') AS vartid
+        FROM `resource_template_property_data`
+        JOIN `resource_template_property` ON `resource_template_property`.`id` = `resource_template_property_data`.`resource_template_property_id`
+        WHERE `data` LIKE '%"value#_annotations#_template":%' ESCAPE "#"
+        ;
+        SQL;
     $rtpVaTemplates = $connection->executeQuery($sql)->fetchAllKeyValue();
 
     // Get the main class associated with the templates.
     $sql = <<<'SQL'
-SELECT `id`, `resource_class_id`
-FROM `resource_template`
-WHERE `resource_class_id` IS NOT NULL
-;
-SQL;
+        SELECT `id`, `resource_class_id`
+        FROM `resource_template`
+        WHERE `resource_class_id` IS NOT NULL
+        ;
+        SQL;
     $templateClasses = $connection->executeQuery($sql)->fetchAllKeyValue();
 
     // Set default value annotation template when there is no specific property
@@ -491,41 +491,41 @@ SQL;
 
     // Do the update.
     $sql = <<<SQL
-UPDATE `resource`
-INNER JOIN `value` ON `value`.`value_annotation_id` = `resource`.`id`
-LEFT JOIN `resource` AS `resource_main` ON `resource_main`.`id` = `value`.`resource_id`
-SET
-    `resource`.`resource_class_id` = $rtVaClassesString,
-    `resource`.`resource_template_id` = $rtVaTemplatesString
-WHERE `value`.`value_annotation_id` IS NOT NULL
-;
-SQL;
+        UPDATE `resource`
+        INNER JOIN `value` ON `value`.`value_annotation_id` = `resource`.`id`
+        LEFT JOIN `resource` AS `resource_main` ON `resource_main`.`id` = `value`.`resource_id`
+        SET
+            `resource`.`resource_class_id` = $rtVaClassesString,
+            `resource`.`resource_template_id` = $rtVaTemplatesString
+        WHERE `value`.`value_annotation_id` IS NOT NULL
+        ;
+        SQL;
     $connection->executeStatement($sql);
 
     // Update new names of geometric data types that is not managed in the module.
     $sql = <<<SQL
-UPDATE `resource_template_property`
-SET
-    `resource_template_property`.`data_type` = REPLACE(REPLACE(`resource_template_property`.`data_type`,
-        "geometry:geometry", "geometry"),
-        "geometry:geography", "geography")
-WHERE `resource_template_property`.`data_type` LIKE "%geometry%"
-;
-UPDATE `resource_template_property_data`
-SET
-    `resource_template_property_data`.`data` = REPLACE(REPLACE(`resource_template_property_data`.`data`,
-        "geometry:geometry", "geometry"),
-        "geometry:geography", "geography")
-WHERE `resource_template_property_data`.`data` LIKE "%geometry%"
-;
-UPDATE `resource_template_data`
-SET
-    `resource_template_data`.`data` = REPLACE(REPLACE(`resource_template_data`.`data`,
-        "geometry:geometry", "geometry"),
-        "geometry:geography", "geography")
-WHERE `resource_template_data`.`data` LIKE "%geometry%"
-;
-SQL;
+        UPDATE `resource_template_property`
+        SET
+            `resource_template_property`.`data_type` = REPLACE(REPLACE(`resource_template_property`.`data_type`,
+                "geometry:geometry", "geometry"),
+                "geometry:geography", "geography")
+        WHERE `resource_template_property`.`data_type` LIKE "%geometry%"
+        ;
+        UPDATE `resource_template_property_data`
+        SET
+            `resource_template_property_data`.`data` = REPLACE(REPLACE(`resource_template_property_data`.`data`,
+                "geometry:geometry", "geometry"),
+                "geometry:geography", "geography")
+        WHERE `resource_template_property_data`.`data` LIKE "%geometry%"
+        ;
+        UPDATE `resource_template_data`
+        SET
+            `resource_template_data`.`data` = REPLACE(REPLACE(`resource_template_data`.`data`,
+                "geometry:geometry", "geometry"),
+                "geometry:geography", "geography")
+        WHERE `resource_template_data`.`data` LIKE "%geometry%"
+        ;
+        SQL;
     $connection->executeStatement($sql);
 
     $message = new PsrMessage(
