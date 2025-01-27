@@ -168,8 +168,7 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
 
 - Tri des ressources liées (valeurs sujets)
 
-  **Attention** : Cette fonctionnalité nécessite un correctif sur Omeka, en
-  l’attente de la requête [Omeka/Omeka-S#2054].
+  Attention: Le correctif [Omeka/Omeka-S#2054] est nécessaire pour Omeka v4.0.
 
   Par défaut, Omeka trie les ressources liées par titre. Cette option permet de
   les trier en fonction d’une ou plusieurs autres propriétés. Par exemple, les
@@ -185,6 +184,17 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
 
   Le tri par défaut peut être défini avec `#` sans nom de propriété, mais les
   cas d’usage sont probablement très rares.
+
+- Nombre minimal de médias
+
+  Il est possible de définir un nombre minimal de média par contenu. L’option
+  peut être définie par modèle de média (utiliser 0 pour les autres modèles).
+  Ici,un média avec un modèle « Fichier » et un autre média sont requis :
+
+```
+  Fichier = 1
+  0 = 1
+```
 
 - Module Custom Vocab : Liste d’autorité ouverte (module Custom Vocab),
   permettant à l’utilisateur d’ajouter de nouveaux termes quand cela est
@@ -275,7 +285,7 @@ Installation
 
 Consulter la documentation utilisateur pour [installer un module].
 
-Le module optionel [Generic] peut être installé en premier.
+Ce module requiert le module [Common], qui doit être installé en premier.
 
 Le module utilise une bibliothèque externe : utilisez le zip pour installer le
 module ou utilisez et initialisez la source.
@@ -606,7 +616,7 @@ des travaux étudiants [Dante] de l’[Université de Toulouse Jean-Jaurès].
 [Omeka S]: https://omeka.org/s
 [Collections dynamiques]: https://gitlab.com/Daniel-KM/Omeka-S-module-DynamicItemSets
 [installer un module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
-[Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
+[Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [AdvancedResourceTemplate.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/releases
 [Omeka/Omeka-S#2054]: https://github.com/omeka/omeka-s/pull/2054
 [IdRef]: https://www.idref.fr

@@ -157,7 +157,7 @@ resources. If you do not see images, go to the [original repository]:
 
 - Order of linked resources (subject values)
 
-  **Warning**: This feature requires a patch on Omeka, waiting for pull request [Omeka/Omeka-S#2054].
+  Warning: The fix [Omeka/Omeka-S#2054] is required for Omeka S v4.0.
 
   By default, linked resources are ordered by title. This option allows to order
   them with another property or multiple other properties. For example, the
@@ -174,6 +174,17 @@ resources. If you do not see images, go to the [original repository]:
 
   The default order can be set with `#` without property, but the use cases
   are probably very rare.
+
+- Minimum number of media
+
+  It is possible to require a minimum number of media for an item. The option
+  can be set by media template (use 0 for other templates). Here, a media
+  with a template named "File" and another media are required:
+
+```
+  File = 1
+  0 = 1
+```
 
 - Module Custom Vocab: Open authority list to allow user to add a new term when
   none can be used for a value.
@@ -255,7 +266,7 @@ Installation
 
 See general end user documentation for [installing a module].
 
-The optional module [Generic] may be installed first.
+This module requires the module [Common], that should be installed first.
 
 The module uses an external library, so use the release zip to install it, or
 use and init the source.
@@ -263,8 +274,7 @@ use and init the source.
 * From the zip
 
 Download the last release [AdvancedResourceTemplate.zip] from the list of releases
-(the master does not contain the dependency), and uncompress it in the `modules`
-directory.
+(the master does not contain the dependency), and uncompress it in the `modules` directory.
 
 * From the source and for development
 
@@ -565,7 +575,7 @@ and for the institutional repository of student works [Dante] of the [Universit√
 [Omeka S]: https://omeka.org/s
 [Dynamic Item Sets]: https://gitlab.com/Daniel-KM/Omeka-S-module-DynamicItemSets
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
-[Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
+[Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [AdvancedResourceTemplate.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/releases
 [Omeka/Omeka-S#2054]: https://github.com/omeka/omeka-s/pull/2054
 [IdRef]: https://www.idref.fr
