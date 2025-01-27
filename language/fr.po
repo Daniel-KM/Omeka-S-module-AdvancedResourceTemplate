@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-06 00:00+0000\n"
+"POT-Creation-Date: 2025-01-27 00:00+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
@@ -73,7 +73,7 @@ msgstr "Une erreur est survenue."
 
 #: view/common/advanced-search/item-set-is-dynamic.phtml:26
 msgid "Search dynamic item sets"
-msgstr "Rechercher les collections dynamiques "
+msgstr "Rechercher les collections dynamiques"
 
 #: view/common/resource-values.phtml:105
 msgid "Other metadata"
@@ -302,6 +302,10 @@ msgstr ""
 "Actuellement, la fonctionnalité est utilisé par {count} collections : "
 "{item_sets}."
 
+#: data/scripts/upgrade.php:629
+msgid "A new check can be done on the number of attached medias."
+msgstr "Une nouvelle vérification peut être ajoutée sur le nombre de médias."
+
 #: Module.php:1801
 msgid "The query to attach items cannot contain the item set itself."
 msgstr ""
@@ -350,7 +354,11 @@ msgstr "La classe doit être {resource_class}."
 msgid "The class should be one of {resource_classes}."
 msgstr "La classe doit être l’une parmi {resource_classes}."
 
-#: src/Listener/ResourceOnSave.php:269
+#: src/Listener/ResourceOnSave.php:235 src/Listener/ResourceOnSave.php:264
+msgid "The minimum number of files or medias is {min}."
+msgstr "Le nombre minimal des fichiers ou médias est {min}."
+
+#: src/Listener/ResourceOnSave.php:316
 msgid ""
 "The html input pattern \"{pattern}\" for template {template} cannot be "
 "processed."
@@ -358,7 +366,7 @@ msgstr ""
 "Le contrôle de saisie « {pattern} » pour le modèle de ressource {template} "
 "ne peut pas être traité."
 
-#: src/Listener/ResourceOnSave.php:278
+#: src/Listener/ResourceOnSave.php:325
 msgid ""
 "The value \"{value}\" for term {property} does not follow the input pattern "
 "\"{pattern}\"."
@@ -366,7 +374,7 @@ msgstr ""
 "La valeur « {value} » pour la propriété {property} ne correspond pas au "
 "format demandé « {pattern} »."
 
-#: src/Listener/ResourceOnSave.php:297
+#: src/Listener/ResourceOnSave.php:344
 msgid ""
 "The value for term {property} is shorter ({length} characters) than the "
 "minimal size ({number} characters)."
@@ -374,7 +382,7 @@ msgstr ""
 "La valeur pour la propriété {property} est plus courte ({length} caractères) "
 "que la taille minimale ({number} caractères)."
 
-#: src/Listener/ResourceOnSave.php:307
+#: src/Listener/ResourceOnSave.php:354
 msgid ""
 "The value for term {property} is longer ({length} characters) than the "
 "maximal size ({number} characters)."
@@ -382,7 +390,7 @@ msgstr ""
 "La valeur pour la propriété {property} est plus longue ({length} caractères) "
 "que la taille maximale ({number} caractères)."
 
-#: src/Listener/ResourceOnSave.php:329
+#: src/Listener/ResourceOnSave.php:376
 msgid ""
 "The number of values ({count}) for term {property} is lower than the minimal "
 "number of {number}."
@@ -390,7 +398,7 @@ msgstr ""
 "Le nombre de valeur ({count}) pour la propriété {property} est plus petit "
 "que le nombre minimum de {number}."
 
-#: src/Listener/ResourceOnSave.php:340
+#: src/Listener/ResourceOnSave.php:387
 msgid ""
 "The number of values ({count}) for term {property} is greater than the "
 "maximal number of {number}."
@@ -398,7 +406,7 @@ msgstr ""
 "Le nombre de valeur ({count}) pour la propriété {property} est plus grand "
 "que le nombre maximum de {number}."
 
-#: src/Listener/ResourceOnSave.php:399
+#: src/Listener/ResourceOnSave.php:446
 msgid ""
 "The value for term {property} should be unique, but already set for resource "
 "#{resource_id}."
@@ -406,19 +414,19 @@ msgstr ""
 "La valeur pour le terme {property} doit être unique, mais elle est déjà "
 "utilisée pour la ressource #{resource_id}."
 
-#: src/Listener/ResourceOnSave.php:647
+#: src/Listener/ResourceOnSave.php:694
 msgid "New descriptor appended to custom vocab \"{custom_vocab}\": {value}."
 msgstr ""
 "Un nouveau descripteur a été ajouté au vocabulaire personnalisé "
 "« {custom_vocab} » : {value}."
 
-#: src/Listener/ResourceOnSave.php:652
+#: src/Listener/ResourceOnSave.php:699
 msgid "New descriptors appended to custom vocab \"{custom_vocab}\": {values}."
 msgstr ""
 "De nouveaux descripteurs ont été ajoutés au vocabulaire personnalisé "
 "« {custom_vocab} » : {values}."
 
-#: src/Listener/ResourceOnSave.php:660
+#: src/Listener/ResourceOnSave.php:707
 msgid ""
 "Unable to append new descriptors to custom vocab \"{custom_vocab}\":  {error}"
 msgstr ""
@@ -718,12 +726,24 @@ msgstr ""
 "être défini pour chaque propriété liante. Pour définir le tri par défaut en "
 "l’absence de propriété, ne pas indiquer le terme."
 
-#: src/Form/ResourceTemplateDataFieldset.php:286
+#: src/Form/ResourceTemplateDataFieldset.php:288
+msgid "Minimum number of media for each media template"
+msgstr "Nombre minimal de médias pour chaque modèle de média"
+
+#: src/Form/ResourceTemplateDataFieldset.php:289
+msgid ""
+"Set the template number or label, then \"=\", then the number. Use 0 as "
+"number to set the number for other templates."
+msgstr ""
+"Indiquer le numéro ou le libellé du modèle, puis « = », puis le nombre. "
+"Utiliser 0 pour définir le nombre des autres modèles."
+
+#: src/Form/ResourceTemplateDataFieldset.php:307
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:358
 msgid "More settings"
 msgstr "Autres paramètres"
 
-#: src/Form/ResourceTemplateDataFieldset.php:287
+#: src/Form/ResourceTemplateDataFieldset.php:308
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:359
 msgid ""
 "Allow to pass some settings, usually for theme and generally via key-value "
