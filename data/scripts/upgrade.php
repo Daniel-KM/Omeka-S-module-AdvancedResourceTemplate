@@ -623,3 +623,10 @@ if (version_compare((string) $oldVersion, '3.4.36', '<')) {
         $messenger->addWarning($message);
     }
 }
+
+if (version_compare((string) $oldVersion, '3.4.37', '<')) {
+    $message = new PsrMessage(
+        'A new check can be done on the number of attached medias.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
