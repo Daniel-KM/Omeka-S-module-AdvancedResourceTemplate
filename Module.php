@@ -1593,9 +1593,20 @@ class Module extends AbstractModule
 
     protected function appendCssGroupMultiCheckbox(): void
     {
+        $css = <<<'CSS'
+            .group-br::before {
+                display: block;
+                content: "";
+            }
+            .group-label[data-group-label]::before {
+                content: attr(data-group-label);
+                font-style: italic;
+            }
+            CSS;
+
         /** @var \Laminas\View\Helper\HeadStyle headStyle */
         $headStyle = $this->getServiceLocator()->get('ViewHelperManager')->get('headStyle');
-        $headStyle->appendStyle('.group-br::before { display: block; content: ""; }');
+        $headStyle->appendStyle($css);
     }
 
     public function handleViewLayoutResourceTemplate(Event $event): void

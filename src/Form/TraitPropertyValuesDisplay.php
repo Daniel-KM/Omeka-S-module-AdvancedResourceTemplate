@@ -21,7 +21,8 @@ trait TraitPropertyValuesDisplay
                             'value' => 'value_search',
                             'label' => 'Value as search', // @translate
                             'label_attributes' => [
-                                'class' => 'art_pd_value',
+                                'class' => 'art_pd_value group-br group-label',
+                                'data-group-label' => 'Transform value', // @ŧranslate
                             ],
                         ],
                         [
@@ -50,7 +51,8 @@ trait TraitPropertyValuesDisplay
                             'value' => 'prepend_icon_search',
                             'label' => 'Prepend an icon for search link', // @translate
                             'label_attributes' => [
-                                'class' => 'art_pd_prepend group-br',
+                                'class' => 'art_pd_prepend group-br group-label',
+                                'data-group-label' => 'Prepend icon', // @ŧranslate
                             ],
                         ],
                         [
@@ -79,7 +81,8 @@ trait TraitPropertyValuesDisplay
                             'value' => 'append_icon_search',
                             'label' => 'Append an icon for search link', // @translate
                             'label_attributes' => [
-                                'class' => 'art_pd_append group-br',
+                                'class' => 'art_pd_append group-br group-label',
+                                'data-group-label' => 'Append icon', // @ŧranslate
                             ],
                         ],
                         [
@@ -108,7 +111,8 @@ trait TraitPropertyValuesDisplay
                             'value' => 'record_append_icon_search',
                             'label' => 'Append an icon for search link, only in record', // @translate
                             'label_attributes' => [
-                                'class' => 'art_pd_append_record group-br',
+                                'class' => 'art_pd_append_record group-br group-label',
+                                'data-group-label' => 'Append icon only in record', // @ŧranslate
                             ],
                         ],
                         [
