@@ -220,7 +220,7 @@ resources. If you do not see images, go to the [original repository]:
 - Dynamic Item Sets: Automatic attachment of items to item sets
 
   The feature allowing to create dynamic item sets was moved to a new module
-  [Dynamic Item Sets] since version 3.4.37.
+  [Dynamic Item Sets] since version 3.4.38.
 
   When a query is set in the tab Advanced of the item set form, all existing and
   new items will be automatically attached to this item set, according to the

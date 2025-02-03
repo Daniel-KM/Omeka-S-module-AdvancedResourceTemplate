@@ -232,7 +232,7 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
 - Collections dynamiques : placement automatique des contenus dans les collections
 
   La fonctionnalité des collections dynamiques a été déplacé dans un nouveau
-  module [Collections dynamiques] depuis la version 3.4.37.
+  module [Collections dynamiques] depuis la version 3.4.38.
 
   En indiquant une requête dans l’onglet Avancé du formulaire de collection,
   tous les contenus existants et les nouveaux seront automatiquement placés dans
