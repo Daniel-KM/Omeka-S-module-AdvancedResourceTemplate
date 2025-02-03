@@ -29,7 +29,7 @@ $this->headScript()
     <a href="#" class="delete button sidebar-content" data-sidebar-selector="#delete"><?php echo $translate('Delete'); ?></a>
     <?php endif; ?>
     <?php echo $this->cancelButton(); ?>
-    <button type="submit"><?php echo $escape($submitLabel); ?></button>
+    <button type="submit" class="button"><?php echo $escape($submitLabel); ?></button>
 </div>
 
 <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
@@ -56,7 +56,7 @@ $this->headScript()
 
 <?php echo $this->form()->closeTag(); ?>
 
-<button id="property-selector-button" class="mobile-only"><?php echo $translate('Add property'); ?></button>
+<button id="property-selector-button" class="mobile-only button"><?php echo $translate('Add property'); ?></button>
 
 <?php echo $this->propertySelector(); ?>
 <?php if (isset($resourceTemplate)): ?>
@@ -147,6 +147,6 @@ $this->headScript()
         <?php endif; ?>
     </div>
     <div class="confirm-panel">
-        <button id="set-changes"><?php echo $translate('Set changes'); ?></button>
+        <button id="set-changes" class="button"><?php echo $translate('Set changes'); ?></button>
     </div>
 </div>
