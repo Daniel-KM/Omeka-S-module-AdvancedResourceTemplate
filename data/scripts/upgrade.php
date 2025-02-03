@@ -594,9 +594,16 @@ if (version_compare((string) $oldVersion, '3.4.32', '<')) {
     $messenger->addSuccess($message);
 }
 
-if (version_compare((string) $oldVersion, '3.4.36', '<')) {
+if (version_compare((string) $oldVersion, '3.4.37', '<')) {
     $message = new PsrMessage(
-        'The feature to create dynamic item sets will be moved to a new module {link}Dynamic Item Sets{link_end} in next version (3.4.37). You should install it if you need it.', // @translate
+        'A new check can be done on the number of attached medias.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
+
+if (version_compare((string) $oldVersion, '3.4.38', '<')) {
+    $message = new PsrMessage(
+        'The feature to create dynamic item sets was moved to a new module {link}Dynamic Item Sets{link_end}. You should install it if you need it.', // @translate
         [
             'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-DynamicItemSets" _target="blank" rel="noopener">',
             'link_end' => '</a>',
@@ -607,13 +614,14 @@ if (version_compare((string) $oldVersion, '3.4.36', '<')) {
 
     $itemSetQueries = $settings->get('advancedresourcetemplate_item_set_queries', []);
     if ($itemSetQueries) {
+        $settings->get('dynamicitemsets_item_set_queries', $itemSetQueries);
         $list = [];
         $baseUrlItemSet = rtrim($url->fromRoute('admin/id', ['controller' => 'item-set', 'id' => '00']), '0');
         foreach (array_keys($itemSetQueries) as $itemSetId) {
             $list[] = sprintf('#<a href="%s">%d</a>', $baseUrlItemSet . $itemSetId, $itemSetId);
         }
         $message = new PsrMessage(
-            'Currently, the feature is used by {count} item sets: {item_sets}.', // @translate
+            'Currently, the feature is used by {count} item sets: {item_sets}. Upgrade is automatic.', // @translate
             [
                 'count' => count($itemSetQueries),
                 'item_sets' => implode(', ', $list),
@@ -621,12 +629,10 @@ if (version_compare((string) $oldVersion, '3.4.36', '<')) {
         );
         $message->setEscapeHtml(false);
         $messenger->addWarning($message);
+    } else {
+        $message = new PsrMessage(
+            'Currently, the feature is not used by any item set.' // @translate
+        );
+        $messenger->addWarning($message);
     }
-}
-
-if (version_compare((string) $oldVersion, '3.4.37', '<')) {
-    $message = new PsrMessage(
-        'A new check can be done on the number of attached medias.' // @translate
-    );
-    $messenger->addSuccess($message);
 }
