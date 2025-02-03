@@ -29,9 +29,11 @@ class SettingsFieldset extends Fieldset
                 'options' => [
                     'element_group' => 'resource_edit',
                     'label' => 'Skip checking advanced template settings to allow to save an invalid record', // @translate
-                    'info' => 'For example if a value is longer than the specified length, it will be saved anyway.
-This option should be used only during a migration process or to simplify a complex batch edition or import.
-It does not skip core checks, in particular required properties.', // @translate
+                    'info' => <<<'TXT'
+                        For example if a value is longer than the specified length, it will be saved anyway.
+                        This option should be used only during a migration process or to simplify a complex batch edition or import.
+                        It does not skip core checks, in particular required properties.
+                        TXT, // @translate
                 ],
                 'attributes' => [
                     'id' => 'advancedresourcetemplate_skip_checks',
@@ -63,8 +65,10 @@ It does not skip core checks, in particular required properties.', // @translate
                 'options' => [
                     'element_group' => 'resource_edit',
                     'label' => 'Append properties to resource form', // @translate
-                    'info' => 'When no template is selected in resource form, the property selector may be available or not to force to select a template.
-Warning: you may have to set each resource template as open/close to addition according to this setting.', // @translate
+                    'info' => <<<'TXT'
+                        When no template is selected in resource form, the property selector may be available or not to force to select a template.
+                        Warning: you may have to set each resource template as open/close to addition according to this setting.
+                        TXT, // @translate
                     'value_options' => [
                         '0' => 'Allow', // @translate
                         '1' => 'Forbid', // @translate

@@ -56,24 +56,25 @@ class SiteSettingsFieldset extends Fieldset
                 'attributes' => [
                     'id' => 'advancedresourcetemplate_block_metadata_fields',
                     'rows' => 5,
-                    'placeholder' => '# values-type
-dcterms:type
-
-# values-creator
-dcterms:creator
-
-# values-date
-dcterms:date
-dcterms:created
-dcterms:issued
-
-# values-subject
-dcterms:subject
-
-# values-rights = Terms of use
-dcterms:rights
-dcterms:license
-',
+                    'placeholder' => <<<'TXT'
+                        # values-type
+                        dcterms:type
+                        
+                        # values-creator
+                        dcterms:creator
+                        
+                        # values-date
+                        dcterms:date
+                        dcterms:created
+                        dcterms:issued
+                        
+                        # values-subject
+                        dcterms:subject
+                        
+                        # values-rights = Terms of use
+                        dcterms:rights
+                        dcterms:license
+                        TXT,
                 ],
             ])
             ->add([
