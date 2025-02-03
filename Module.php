@@ -1085,7 +1085,7 @@ class Module extends AbstractModule
                     'filter' => [[
                         'field' => $property,
                         'type' => $vr ? 'res' : 'eq',
-                        'value' => $vr ? $vr->id() : $uriOrVal,
+                        'val' => $vr ? $vr->id() : $uriOrVal,
                     ]],
                 ];
             } else {
@@ -1099,13 +1099,13 @@ class Module extends AbstractModule
                         [
                             'field' => $prop,
                             'type' => 'res',
-                            'value' => $vr->id(),
+                            'val' => $vr->id(),
                         ],
                         [
                             'join' => 'or',
                             'field' => $prop,
                             'type' => 'eq',
-                            'value' => $vr->displayTitle(),
+                            'val' => $vr->displayTitle(),
                         ],
                     ]];
                 } else {
@@ -1113,7 +1113,7 @@ class Module extends AbstractModule
                         'filter' => [[
                             'field' => $prop,
                             'type' => 'eq',
-                            'value' => $uriOrVal,
+                            'val' => $uriOrVal,
                         ]],
                     ];
                 }
@@ -1370,7 +1370,7 @@ class Module extends AbstractModule
                     'filter' => [[
                         'field' => $property,
                         'type' => $vr ? 'res' : 'eq',
-                        'value' => $vr ? $vr->id() : $uriOrVal,
+                        'val' => $vr ? $vr->id() : $uriOrVal,
                     ]],
                 ];
             } else {
@@ -1385,13 +1385,13 @@ class Module extends AbstractModule
                         [
                             'field' => $prop,
                             'type' => 'res',
-                            'value' => $vr->id(),
+                            'val' => $vr->id(),
                         ],
                         [
                             'join' => 'or',
                             'field' => $prop,
                             'type' => 'eq',
-                            'value' => $vr->displayTitle(),
+                            'val' => $vr->displayTitle(),
                         ],
                     ]];
                 } else {
@@ -1399,7 +1399,7 @@ class Module extends AbstractModule
                         'filter' => [[
                             'field' => $prop,
                             'type' => 'eq',
-                            'value' => $uriOrVal,
+                            'val' => $uriOrVal,
                         ]],
                     ];
                 }
