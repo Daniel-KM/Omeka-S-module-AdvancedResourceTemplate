@@ -76,7 +76,7 @@ $this->headLink()
             }
             $property = $propertyData['property'];
             if ($showLabel) {
-                $propertyLabel = $fields[$term] ?: $propertyData['alternate_label'] ?: $translate($property->label());
+                $propertyLabel = $fields[$term] ?: ($propertyData['alternate_label'] ? $translate($propertyData['alternate_label']) : $translate($property->label()));
             } else {
                 $propertyLabel = null;
             }
