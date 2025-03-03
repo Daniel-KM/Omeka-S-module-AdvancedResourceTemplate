@@ -43,10 +43,20 @@ if (version_compare((string) $oldVersion, '3.3.3.3', '<')) {
 if (version_compare((string) $oldVersion, '3.3.4', '<')) {
     $sql = <<<'SQL'
         ALTER TABLE `resource_template_property_data`
-        DROP INDEX UNIQ_B133BBAA2A6B767B,
+        DROP INDEX UNIQ_B133BBAA2A6B767B;
+        SQL;
+    try {
+        $connection->executeStatement($sql);
+    } catch (\Exception $e) {
+    }
+    $sql = <<<'SQL'
+        ALTER TABLE `resource_template_property_data`
         ADD INDEX IDX_B133BBAA2A6B767B (`resource_template_property_id`);
         SQL;
-    $connection->executeStatement($sql);
+    try {
+        $connection->executeStatement($sql);
+    } catch (\Exception $e) {
+    }
 }
 
 if (version_compare((string) $oldVersion, '3.3.4.3', '<')) {
@@ -398,15 +408,38 @@ if (version_compare((string) $oldVersion, '3.4.26', '<')) {
     // Update tables with new index names.
     $sql = <<<'SQL'
         ALTER TABLE `resource_template_data`
-            DROP INDEX UNIQ_31D1FFC816131EA,
-            ADD UNIQUE INDEX uniq_resource_template_id (`resource_template_id`);
+            DROP INDEX UNIQ_31D1FFC816131EA;
+        SQL;
+    try {
+        $connection->executeStatement($sql);
+    } catch (\Exception $e) {
+    }
+    $sql = <<<'SQL'
         ALTER TABLE `resource_template_property_data`
             DROP INDEX IDX_B133BBAA16131EA,
-            DROP INDEX IDX_B133BBAA2A6B767B,
+            DROP INDEX IDX_B133BBAA2A6B767B;
+        SQL;
+    try {
+        $connection->executeStatement($sql);
+    } catch (\Exception $e) {
+    }
+    $sql = <<<'SQL'
+        ALTER TABLE `resource_template_data`
+            ADD UNIQUE INDEX uniq_resource_template_id (`resource_template_id`);
+        SQL;
+    try {
+        $connection->executeStatement($sql);
+    } catch (\Exception $e) {
+    }
+    $sql = <<<'SQL'
+        ALTER TABLE `resource_template_property_data`
             ADD INDEX idx_resource_template_id (`resource_template_id`),
             ADD INDEX idx_resource_template_property_id (`resource_template_property_id`);
         SQL;
-    $connection->executeStatement($sql);
+    try {
+        $connection->executeStatement($sql);
+    } catch (\Exception $e) {
+    }
 
     // Add the resource template and resource class to value annotations.
     // TODO Use a single query instead of four requests (or use a temp view).
@@ -546,7 +579,21 @@ if (version_compare((string) $oldVersion, '3.4.26', '<')) {
 }
 
 if (version_compare((string) $oldVersion, '3.4.27', '<')) {
-    $this->updateItemSetsQueries();
+    // $this->updateItemSetsQueries();
+    $queries = $settings->get('advancedresourcetemplate_item_set_queries') ?: [];
+    if ($queries) {
+        // Use connection because the current user may not have access to all
+        // item sets. Check all item sets one time.
+        $itemSetIds = $connection
+            ->executeQuery(
+                'SELECT `id`, `id` FROM `item_set` WHERE `id` IN (:ids)',
+                ['ids' => array_keys($queries)],
+                ['ids' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY]
+            )
+            ->fetchAllKeyValue();
+        $queries = array_intersect_key($queries, $itemSetIds);
+        $settings->set('advancedresourcetemplate_item_set_queries', $queries);
+    }
 }
 
 if (version_compare((string) $oldVersion, '3.4.29', '<')) {
