@@ -40,6 +40,7 @@ $defaultPropertyBlacklist = [
     'bibo:uri',
     'curation:data',
     'curation:note',
+    'extracttext:extracted_text',
 ];
 
 return [
