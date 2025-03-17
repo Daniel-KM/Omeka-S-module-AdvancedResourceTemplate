@@ -52,10 +52,10 @@ $this->htmlElement('body')->appendAttribute('class', 'resource-templates show');
             <li><a class="link" href="<?= $escape($url(null, ['action' => 'export'], ['query' => ['output' => 'tsv']], true)) ?>"><?= $translate('As tsv') ?></a></li>
             <li><a class="link" href="<?= $escape($url(null, ['action' => 'export'], ['query' => ['output' => 'json']], true)) ?>"><?= $translate('As json') ?></a></li>
         </ul>
+        <?php if ($resourceTemplate->userIsAllowed('update')): ?>
+        <a class="button" href="<?= $escape($resourceTemplate->url('edit')) ?>"><?= $translate('Edit') ?></a>
+        <?php endif; ?>
     </div>
-    <?php if ($resourceTemplate->userIsAllowed('update')): ?>
-    <a class="button" href="<?= $escape($resourceTemplate->url('edit')) ?>"><?= $translate('Edit') ?></a>
-    <?php endif; ?>
 </div>
 
 <?php if ($resourceTemplate->resourceClass()): ?>
