@@ -32,8 +32,7 @@ class ResourceTemplateData extends AbstractEntity
      * @var ResourceTemplate
      *
      * @OneToOne(
-     *     targetEntity=\Omeka\Entity\ResourceTemplate::class,
-     *     fetch="EXTRA_LAZY"
+     *     targetEntity=\Omeka\Entity\ResourceTemplate::class
      * )
      * @JoinColumn(
      *     nullable=false,

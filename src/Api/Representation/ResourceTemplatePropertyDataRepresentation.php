@@ -107,7 +107,11 @@ class ResourceTemplatePropertyDataRepresentation extends AbstractRepresentation
 
     public function property(): PropertyRepresentation
     {
-        return $this->resourceTemplateProperty()->property();
+        // Don't use the representation, the vocabulary may not be loaded
+        // (extra lazy), but the property is normally cached by doctrine.
+        // return $this->resourceTemplateProperty()->property();
+        $property = $this->resource->getResourceTemplateProperty()->getProperty();
+        return $this->getAdapter('properties')->getRepresentation($property);
     }
 
     public function alternateLabel(): ?string

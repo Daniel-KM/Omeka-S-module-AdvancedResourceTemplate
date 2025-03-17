@@ -39,8 +39,7 @@ class ResourceTemplatePropertyData extends AbstractEntity
      * @var ResourceTemplate
      *
      * @ManyToOne(
-     *     targetEntity=\Omeka\Entity\ResourceTemplate::class,
-     *     fetch="EXTRA_LAZY"
+     *     targetEntity=\Omeka\Entity\ResourceTemplate::class
      * )
      * @JoinColumn(
      *     nullable=false,
@@ -59,8 +58,7 @@ class ResourceTemplatePropertyData extends AbstractEntity
      * @var ResourceTemplateProperty
      *
      * @ManyToOne(
-     *     targetEntity=\Omeka\Entity\ResourceTemplateProperty::class,
-     *     fetch="EXTRA_LAZY"
+     *     targetEntity=\Omeka\Entity\ResourceTemplateProperty::class
      * )
      * @JoinColumn(
      *     nullable=false,
