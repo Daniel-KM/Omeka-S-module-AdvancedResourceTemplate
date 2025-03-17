@@ -220,6 +220,21 @@ class ResourceTemplateDataFieldset extends Fieldset
                 ],
             ])
 
+            // Items.
+            ->add([
+                'name' => 'item_sets',
+                'type' => CommonElement\OptionalItemSetSelect::class,
+                'options' => [
+                    'label' => 'Item sets to set for items', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'item_sets',
+                    'class' => 'chosen-select',
+                    'multiple' => true,
+                    'data-placeholder' => 'Select item sets…', // @translate
+                ],
+            ])
+
             // Display.
 
             ->add([

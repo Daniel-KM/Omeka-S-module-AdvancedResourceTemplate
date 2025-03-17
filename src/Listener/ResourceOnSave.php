@@ -69,10 +69,20 @@ class ResourceOnSave
             }
         }
 
+        $type = $request->getResource() ?: $resource['@type'] ?? null;
+        $isItem = in_array($type, ['o:Item', 'items'])
+            || (is_array($type) && in_array('o:Item', $type));
+
         // Template level.
+
+        if ($isItem) {
+            $resource = $this->appendAutomaticItemSets($template, $resource);
+        }
+
         $resource = $this->appendAutomaticValuesFromTemplateData($template, $resource);
 
         // Property level.
+
         foreach ($template->resourceTemplateProperties() as $templateProperty) {
             foreach ($templateProperty->data() as $rtpData) {
                 // Manage the split separator.
@@ -713,6 +723,44 @@ class ResourceOnSave
                 }
             }
         }
+    }
+
+    protected function appendAutomaticItemSets(
+        \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template,
+        array $resource
+    ): array {
+        $itemSets = $template->dataValue('item_sets');
+        if (!$itemSets) {
+            return $resource;
+        }
+
+        $itemSets = array_map('intval', $itemSets);
+        $itemSets = array_combine($itemSets, $itemSets);
+
+        $existingItemSets = empty($resource['o:item_set'])
+            ? []
+            : array_column($resource['o:item_set'], 'o:id', 'o:id');
+
+        $newItemSets = array_diff_key($itemSets, $existingItemSets);
+        if (!count($newItemSets)) {
+            return $resource;
+        }
+
+        $itemSets = $newItemSets;
+
+        // Use connexion to avoid issue with rights.
+        $connection = $this->services->get('Omeka\Connection');
+        $sql = 'SELECT `id`, `id` FROM `item_set` WHERE `id` IN (:item_set_ids) ORDER BY `id`';
+        $itemSetIds = $connection->executeQuery($sql, ['item_set_ids' => $itemSets], ['item_set_ids' => \Doctrine\DBAL\Connection::PARAM_INT_ARRAY])->fetchAllKeyValue();
+        if (!$itemSetIds) {
+            return $resource;
+        }
+
+        foreach ($newItemSets as $itemSetId) {
+            $resource['o:item_set'][] = ['o:id' => $itemSetId];
+        }
+
+        return $resource;
     }
 
     protected function appendAutomaticValuesFromTemplateData(
