@@ -42,11 +42,11 @@ class Module extends AbstractModule
         }
 
         if ($this->isModuleActive('DynamicItemSets')
-            && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.2')
+            && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.3')
         ) {
             $message = new \Common\Stdlib\PsrMessage(
                 $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
-                ['module' => 'Dynamic Item Sets', 'version' => '3.4.2']
+                ['module' => 'Dynamic Item Sets', 'version' => '3.4.3']
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
