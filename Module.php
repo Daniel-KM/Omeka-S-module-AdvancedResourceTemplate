@@ -1095,14 +1095,8 @@ class Module extends AbstractModule
                 // For resource, the id may or may not be indexed in Solr, so
                 // use title. And the property may not be indexed too, anyway.
                 if ($vr) {
-                    $urlQuery = ['filter' => [
-                        [
-                            'field' => $prop,
-                            'type' => 'res',
-                            'val' => $vr->id(),
-                        ],
-                        [
-                            'join' => 'or',
+                    $urlQuery = [
+                        'filter' => [[
                             'field' => $prop,
                             'type' => 'eq',
                             'val' => $vr->displayTitle(),
@@ -1377,18 +1371,11 @@ class Module extends AbstractModule
                 $prop = is_array($property) && !$advancedSearchConfig
                     ? reset($property)
                     : $property;
-
                 // For resource, the id may or may not be indexed in Solr, so
                 // use title. And the property may not be indexed too, anyway.
                 if ($vr) {
-                    $urlQuery = ['filter' => [
-                        [
-                            'field' => $prop,
-                            'type' => 'res',
-                            'val' => $vr->id(),
-                        ],
-                        [
-                            'join' => 'or',
+                    $urlQuery = [
+                        'filter' => [[
                             'field' => $prop,
                             'type' => 'eq',
                             'val' => $vr->displayTitle(),
