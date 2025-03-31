@@ -999,6 +999,7 @@ class Module extends AbstractModule
         }
 
         $html = $event->getParam('html');
+        $htmlClean = html_entity_decode($html, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
 
         $vr = $value->valueResource();
         $uri = $value->uri();
@@ -1020,9 +1021,9 @@ class Module extends AbstractModule
 
         if ($display['default']) {
             if ($vr && $display['value_text_resource']) {
-                $result['value_default'] = strip_tags($html);
+                $result['value_default'] = strip_tags($htmlClean);
             } elseif ($uri && $display['value_text_uri']) {
-                $result['value_default'] = strip_tags($html);
+                $result['value_default'] = strip_tags($htmlClean);
             } else {
                 $result['value_default'] = $html;
             }
@@ -1051,7 +1052,7 @@ class Module extends AbstractModule
                 );
             }
             if ($display['value_search']) {
-                $searchLabel = $vr ? $html : (strlen($val) ? $val : $uri);
+                $searchLabel = $vr ? $htmlClean : (strlen($val) ? $val : $uri);
                 $result['value_search'] = $hyperlink(strip_tags($searchLabel), $searchUrl, ['class' => 'metadata-search-link']);
             }
             if ($display['icon_search']) {
@@ -1116,7 +1117,7 @@ class Module extends AbstractModule
                 ? $advancedSearchConfig->adminSearchUrl(false, $urlQuery)
                 : $advancedSearchConfig->siteUrl($siteSlug, false, $urlQuery);
             if ($display['value_advanced_search']) {
-                $searchLabel = $vr ? $html : (strlen($val) ? $val : $uri);
+                $searchLabel = $vr ? $htmlClean : (strlen($val) ? $val : $uri);
                 $result['value_advanced_search'] = $hyperlink(strip_tags($searchLabel), $searchUrl, ['class' => 'metadata-search-link']);
             }
             if ($display['icon_advanced_search']) {
