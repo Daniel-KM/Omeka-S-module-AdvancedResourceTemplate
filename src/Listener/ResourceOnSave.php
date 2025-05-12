@@ -772,7 +772,10 @@ class ResourceOnSave
             return $resource;
         }
 
-        $mapping = $this->stringToAutofillers("[automatic_values]\n$automaticValues");
+        // The method is currently not available here, so use the module.
+        $mod = new \AdvancedResourceTemplate\Module();
+        $mod->setServiceLocator($this->getServiceLocator());
+        $mapping = $mod->stringToAutofillers("[automatic_values]\n$automaticValues");
         if (!$mapping || !$mapping['automatic_values']['mapping']) {
             return $resource;
         }
