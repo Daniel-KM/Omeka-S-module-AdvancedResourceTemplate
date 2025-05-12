@@ -12,6 +12,7 @@ use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use Omeka\Api\Representation\ValueRepresentation;
 use Omeka\Module\AbstractModule;
 use Omeka\Mvc\Status;
 
@@ -545,9 +546,14 @@ class Module extends AbstractModule
             $templateProperties = [];
         }
 
-        $newValues = count($templateProperties)
-            ? $this->prepareGroupsValues($resource, $templateProperties, $values, $groups)
-            : $this->prependGroupsToValues($resource, $values, $groups);
+        if (count($templateProperties)) {
+            // Ideally, fake values should be checked first, but it is simpler
+            // here and in most of the cases, there are visible values anyway.
+            $newValues = $this->addFakeValues($resource, $templateProperties, $values);
+            $newValues = $this->prepareGroupsValues($resource, $templateProperties, $newValues, $groups);
+        } else {
+            $newValues = $this->prependGroupsToValues($resource, $values, $groups);
+        }
 
         $event->setParam('values', $newValues);
     }
@@ -649,6 +655,66 @@ class Module extends AbstractModule
                 ->setParameter($aliasProperty, $property, \Doctrine\DBAL\ParameterType::INTEGER)
                 ->addOrderBy("$alias.value", $sort);
         }
+    }
+
+    /**
+     * Add fake values for display.
+     *
+     * This fake value is used to display a property that has no value, for
+     * example "no value" or "[unknown photographer]".
+     *
+     * Warning: the value may have been removed earlier, for example when the
+     * private values are hidden.
+     */
+    protected function addFakeValues(
+        AbstractResourceEntityRepresentation $resource,
+        array $templateProperties,
+        array $values
+    ): array {
+        $resourceEntity = null;
+        $newValues = [];
+        /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyRepresentation $templateProperty */
+        foreach ($resource->resourceTemplate()->resourceTemplateProperties() as $rtp) {
+            $property = $rtp->property();
+            $term = $property->term();
+            if (isset($values[$term])) {
+                $newValues[$term] = $values[$term];
+            }
+            if (!isset($values[$term]['values']) || !count($values[$term]['values'])) {
+                foreach ($rtp->data() as $rtpData) {
+                    $displayValue = trim((string) $rtpData->dataValue('display_value'));
+                    if (strlen($displayValue)) {
+                        if (empty($resourceEntity)) {
+                            /** @var \Common\Stdlib\EasyMeta $easyMeta */
+                            $services = $this->getServiceLocator();
+                            $easyMeta = $services->get('Common\EasyMeta');
+                            $entityClass = $easyMeta->entityClass(get_class($resource));
+                            $entityManager = $services->get('Omeka\EntityManager');
+                            $resourceEntity = $entityManager->find($entityClass, $resource->id());
+                        }
+                        $valueEntity = new \Omeka\Entity\Value();
+                        $valueEntity->setResource($resourceEntity);
+                        $valueEntity->setIsPublic(true);
+                        $valueEntity->setProperty($entityManager->find(\Omeka\Entity\Property::class, $property->id()));
+                        // TODO Add a fake hidden data type (fake:literal?) and manage it in search links (has no value).
+                        $valueEntity->setType('literal');
+                        $valueEntity->setValue($displayValue);
+                        $newValues[$term] = [
+                            'fake' => true,
+                            'property' => $property,
+                            'alternate_label' => $rtp->alternateLabel(),
+                            'alternate_comment' => $rtp->alternateComment(),
+                            'values' => [new ValueRepresentation($valueEntity, $services)],
+                        ];
+                        // Add only one value in case of multiple terms.
+                        break;
+                    }
+                }
+            }
+        }
+        // Append values that are not in the template, but in resource only.
+        /** @see \Omeka\Api\Representation\AbstractResourceEntityRepresentation::values() */
+        return $newValues + $values;
     }
 
     /**
@@ -989,6 +1055,7 @@ class Module extends AbstractModule
 
         $value = $event->getTarget();
         $property = $value->property()->term();
+        // TODO Add a fake hidden data type (fake:literal?) and manage it in search links (has no value).
         if ($whitelistAll) {
             if (in_array($property, $blacklist)) {
                 return;

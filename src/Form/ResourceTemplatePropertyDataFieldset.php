@@ -112,6 +112,18 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'display_value',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Fake value to display when empty', // @translate
+                ],
+                'attributes' => [
+                    // 'id' => 'display_value',
+                    'class' => 'setting',
+                    'data-setting-key' => 'display_value',
+                ],
+            ])
+            ->add([
                 'name' => 'unique_value',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
