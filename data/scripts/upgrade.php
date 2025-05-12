@@ -725,3 +725,22 @@ if (version_compare((string) $oldVersion, '3.4.38', '<')) {
         $messenger->addWarning($message);
     }
 }
+
+if (version_compare((string) $oldVersion, '3.4.39', '<')) {
+    $message = new PsrMessage(
+        'It is now possible to set item sets via the template.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
+
+if (version_compare((string) $oldVersion, '3.4.40', '<')) {
+    $message = new PsrMessage(
+        'It is now possible to display fake values in record, like "Unknown author".' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'It is now possible to store the date when the the resource is issued for the first time.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
