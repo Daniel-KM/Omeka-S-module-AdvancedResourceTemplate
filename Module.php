@@ -2,7 +2,7 @@
 
 namespace AdvancedResourceTemplate;
 
-if (!class_exists(\Common\TraitModule::class)) {
+if (!class_exists('Common\TraitModule', false)) {
     require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
@@ -138,6 +138,7 @@ class Module extends AbstractModule
 
         // Manage some settings (auto-value, exploding, order, etc.) for each
         // resource type.
+        // ".pre" is used to allows to check validity in next event (hydrate).
         $sharedEventManager->attach(
             \Omeka\Api\Adapter\ItemAdapter::class,
             'api.create.pre',
@@ -915,6 +916,7 @@ class Module extends AbstractModule
         static $advancedSearchConfig;
         static $isInternalSearch;
 
+        // Early prepare all variables and functions one time.
         if ($display === false) {
             return;
         } elseif ($display === null) {
@@ -961,6 +963,8 @@ class Module extends AbstractModule
                 'append_icon_uri',
             ];
 
+            // A specific part should be configured to be displayed, else this
+            // feature is not used.
             $display = (array) $sSettings->get('advancedresourcetemplate_properties_display', []);
             $display = array_values(array_intersect($allowed, $display));
             if (!$display) {
@@ -968,13 +972,16 @@ class Module extends AbstractModule
                 return;
             }
 
+            // White list should contain at least one value ("all" or specific
+            // properties).
             $whitelist = $sSettings->get('advancedresourcetemplate_properties_as_search_whitelist', []);
-            $blacklist = $sSettings->get('advancedresourcetemplate_properties_as_search_blacklist', []);
-            $whitelistAll = in_array('all', $whitelist);
             if (!$whitelist) {
                 $display = false;
                 return;
             }
+
+            $blacklist = $sSettings->get('advancedresourcetemplate_properties_as_search_blacklist', []);
+            $whitelistAll = in_array('all', $whitelist);
 
             $helpers = $services->get('ViewHelperManager');
 
@@ -990,6 +997,7 @@ class Module extends AbstractModule
 
             $display = array_replace(array_fill_keys($allowed, false), array_fill_keys($display, true));
 
+            // Merge parts to to prepare links one time.
             $display['icon_search'] = $display['prepend_icon_search'] || $display['append_icon_search'];
             $display['icon_resource'] = $display['prepend_icon_resource'] || $display['append_icon_resource'];
             $display['icon_uri'] = $display['prepend_icon_uri'] || $display['append_icon_uri'];
@@ -1067,8 +1075,14 @@ class Module extends AbstractModule
         // When the value is attached to a value annotation, there may be no
         // resource.
         // TODO Manage the settings for the value annotations (links, icons).
-        $resource = $value->resource();
-        $controllerName = $resource ? $resource->getControllerName() : null;
+
+        try {
+            $resource = $value->resource();
+            $controllerName = $resource ? $resource->getControllerName() : null;
+        } catch (\Exception $e) {
+            $resource = null;
+            $controllerName = null;
+        }
         if (!$controllerName) {
             $display = false;
             return;
@@ -1258,6 +1272,7 @@ class Module extends AbstractModule
         static $advancedSearchConfig;
         static $isInternalSearch;
 
+        // Early prepare all variables and functions one time.
         if ($display === false) {
             return;
         } elseif ($display === null) {
@@ -1296,6 +1311,8 @@ class Module extends AbstractModule
                 'record_append_icon_uri',
             ];
 
+            // A specific part should be configured to be displayed, else this
+            // feature is not used.
             $display = (array) $sSettings->get('advancedresourcetemplate_properties_display', []);
             $display = array_values(array_intersect($allowed, $display));
             if (!$display) {
@@ -1303,13 +1320,16 @@ class Module extends AbstractModule
                 return;
             }
 
+            // White list should contain at least one value ("all" or specific
+            // properties).
             $whitelist = $sSettings->get('advancedresourcetemplate_properties_as_search_whitelist', []);
-            $blacklist = $sSettings->get('advancedresourcetemplate_properties_as_search_blacklist', []);
-            $whitelistAll = in_array('all', $whitelist);
             if (!$whitelist) {
                 $display = false;
                 return;
             }
+
+            $blacklist = $sSettings->get('advancedresourcetemplate_properties_as_search_blacklist', []);
+            $whitelistAll = in_array('all', $whitelist);
 
             $helpers = $services->get('ViewHelperManager');
 
@@ -1324,6 +1344,7 @@ class Module extends AbstractModule
 
             $display = array_replace(array_fill_keys($allowed, false), array_fill_keys($display, true));
 
+            // Merge parts to to prepare links one time.
             $display['icon_search'] = $display['record_append_icon_search'];
             $display['icon_resource'] = $display['record_append_icon_resource'];
             $display['icon_uri'] = $display['record_append_icon_uri'];
@@ -1390,8 +1411,17 @@ class Module extends AbstractModule
             return;
         }
 
-        $resource = $value->resource();
-        $controllerName = $resource->getControllerName();
+        // When the value is attached to a value annotation, there may be no
+        // resource.
+        // TODO Manage the settings for the value annotations (links, icons).
+
+        try {
+            $resource = $value->resource();
+            $controllerName = $resource ? $resource->getControllerName() : null;
+        } catch (\Exception $e) {
+            $resource = null;
+            $controllerName = null;
+        }
         if (!$controllerName) {
             $display = false;
             return;
@@ -1444,6 +1474,16 @@ class Module extends AbstractModule
 
             // There is currently no way to convert a query to a request, so do
             // it manually, because terms are managed in all queriers anyway.
+            /*
+            $query = new \AdvancedSearch\Query();
+            if ($vr) {
+                $query->addFilterQuery($property, $vr->id(), 'res');
+            } else {
+                $val = (string) $value->value();
+                $query->addFilterQuery($property, $uriOrVal, 'eq');
+            }
+            $urlQuery = $advancedSearchConfig->toRequest($query);
+            */
 
             if ($isInternalSearch) {
                 $urlQuery = [
@@ -1628,9 +1668,8 @@ class Module extends AbstractModule
         $autofillers = $settings->get('advancedresourcetemplate_autofillers') ?: [];
         $value = $this->autofillersToString($autofillers);
 
-        $fieldset = version_compare(\Omeka\Module::VERSION, '4', '<')
-            ? $event->getTarget()->get('advancedresourcetemplate')
-            : $event->getTarget();
+        /** @var \Omeka\Form\SettingForm $fieldset */
+        $fieldset = $event->getTarget();
         $fieldset
             ->get('advancedresourcetemplate_autofillers')
             ->setValue($value);
@@ -1640,9 +1679,7 @@ class Module extends AbstractModule
 
     public function handleMainSettingsFilters(Event $event): void
     {
-        $inputFilter = version_compare(\Omeka\Module::VERSION, '4', '<')
-            ? $event->getParam('inputFilter')->get('advancedresourcetemplate')
-            : $event->getParam('inputFilter');
+        $inputFilter = $event->getParam('inputFilter');
         $inputFilter
             ->add([
                 'name' => 'advancedresourcetemplate_autofillers',

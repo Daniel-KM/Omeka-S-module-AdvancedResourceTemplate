@@ -298,7 +298,7 @@ class ResourceTemplateDataFieldset extends Fieldset
 
             ->add([
                 'name' => 'media_templates_minimum',
-                'type' => \Omeka\Form\Element\ArrayTextarea ::class,
+                'type' => \Omeka\Form\Element\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Minimum number of media for each media template', // @translate
                     'info' => 'Set the template number or label, then "=", then the number. Use 0 as number to set the number for other templates.', // @translate

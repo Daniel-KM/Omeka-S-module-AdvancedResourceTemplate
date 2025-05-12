@@ -237,7 +237,7 @@ if (version_compare((string) $oldVersion, '3.4.4.16', '<')) {
             `default_lang` = :default_lang
         WHERE `id` = :rtp_id;
         SQL;
-            $sqlRtpd = <<<SQL
+    $sqlRtpd = <<<SQL
         UPDATE `resource_template_property_data`
         SET
             `data` = :data

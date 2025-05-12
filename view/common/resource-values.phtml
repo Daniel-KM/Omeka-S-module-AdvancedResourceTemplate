@@ -21,7 +21,9 @@ $mainViewTemplate = OMEKA_PATH . '/application/view/common/resource-values.phtml
 
 // When the module AdvancedResourceTemplate is not available, use default template.
 // Normally useless, except when copied in a theme.
-if (!$values || !class_exists('AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyDataRepresentation')) {
+if (!$values
+    || !class_exists('AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyDataRepresentation', false)
+) {
     include $mainViewTemplate;
     return;
 }

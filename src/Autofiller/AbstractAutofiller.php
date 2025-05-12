@@ -129,13 +129,13 @@ abstract class AbstractAutofiller implements AutofillerInterface
 
         // Get all the totals for the data type one time.
         $sql = <<<SQL
-SELECT `value`.`uri`, COUNT(`value`.`uri`)
-FROM `value`
-WHERE `value`.`uri` IN (:uris)$andWhere
-GROUP BY `value`.`uri`
-ORDER BY COUNT(`value`.`uri`) DESC
-;
-SQL;
+            SELECT `value`.`uri`, COUNT(`value`.`uri`)
+            FROM `value`
+            WHERE `value`.`uri` IN (:uris)$andWhere
+            GROUP BY `value`.`uri`
+            ORDER BY COUNT(`value`.`uri`) DESC
+            ;
+            SQL;
         $totals = $this->connection->executeQuery($sql, $bind, $types)->fetchAllKeyValue();
         return $totals ? array_map('intval', $totals) : [];
     }
