@@ -87,9 +87,9 @@ class ResourceOnSave
             foreach ($templateProperty->data() as $rtpData) {
                 // Manage the split separator.
                 $resource = $this->explodeValueFromTemplatePropertyData($rtpData, $resource);
-                // Append the automatic value.
-                $automaticValue = $this->automaticValueFromTemplatePropertyData($rtpData, $resource);
-                if (!is_null($automaticValue)) {
+                // Append the automatic values.
+                $automaticValues = $this->automaticValuesFromTemplatePropertyData($rtpData, $resource);
+                foreach ($automaticValues as $automaticValue) {
                     $resource[$templateProperty->property()->term()][] = $automaticValue;
                 }
                 // Order by linked resource property values.
@@ -144,9 +144,9 @@ class ResourceOnSave
                 foreach ($vaTemplateProperty->data() as $vaRtpData) {
                     // Manage the split separator.
                     $vaResource = $this->explodeValueFromTemplatePropertyData($vaRtpData, $vaResource);
-                    // Append the automatic value.
-                    $automaticValue = $this->automaticValueFromTemplatePropertyData($vaRtpData, $vaResource);
-                    if (!is_null($automaticValue)) {
+                    // Append the automatic values.
+                    $automaticValues = $this->automaticValuesFromTemplatePropertyData($vaRtpData, $vaResource);
+                    foreach ($automaticValues as $automaticValue) {
                         $vaResource[$vaTemplateProperty->property()->term()][] = $automaticValue;
                     }
                     // Order by linked resource property values.
@@ -863,23 +863,50 @@ class ResourceOnSave
         return $resource;
     }
 
-    protected function automaticValueFromTemplatePropertyData(
+    protected function automaticValuesFromTemplatePropertyData(
         \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyDataRepresentation $rtpData,
         array $resource
-    ): ?array {
+    ): array {
         $automaticValue = trim((string) $rtpData->dataValue('automatic_value'));
-        if ($automaticValue === '') {
-            return null;
+        $automaticValuesIssued = trim((string) $template->dataValue('automatic_value_issued'));
+        if ($automaticValue === '' && $automaticValuesIssued === '') {
+            return [];
         }
 
+        $values = [];
         $property = $rtpData->property();
-        return $this->appendAutomaticPropertyValueToResource($resource, [
-            'data_types' => $rtpData->dataTypes(),
-            'is_public' => !$rtpData->isPrivate(),
-            'term' => $property->term(),
-            'property_id' => $property->id(),
-            'value' => $automaticValue,
-        ]);
+        $propertyTerm = $property->term();
+        $propertyId = $property->id();
+
+        if ($automaticValue !== '') {
+            $value = $this->appendAutomaticPropertyValueToResource($resource, [
+                'data_types' => $rtpData->dataTypes(),
+                'is_public' => !$rtpData->isPrivate(),
+                'term' => $propertyTerm,
+                'property_id' => $propertyId,
+                'value' => $automaticValue,
+            ]);
+            $values[] = $value;
+        }
+
+        if ($automaticValuesIssued === 'first') {
+            // If a value is already set, skip it with mode "first".
+            $isPublic = !empty($resource['o:is_public']);
+            $hasNoValue = empty($values) && empty($resource[$propertyTerm]);
+            if ($isPublic && $hasNoValue) {
+                $value = $this->appendAutomaticPropertyValueToResource($resource, [
+                    'data_types' => $rtpData->dataTypes(),
+                    'is_public' => !$rtpData->isPrivate(),
+                    'term' => $propertyTerm,
+                    'property_id' => $propertyId,
+                    // Allow to manage literal and numeric timestamp.
+                    'value' => (new \DateTime)->format('Y-m-d'),
+                ]);
+                $values[] = $value;
+            }
+        }
+
+        return $values;
     }
 
     protected function appendAutomaticPropertyValueToResource(

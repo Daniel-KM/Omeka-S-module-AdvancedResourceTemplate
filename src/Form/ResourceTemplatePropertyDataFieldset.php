@@ -112,6 +112,25 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'automatic_value_issued',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Automatic date when resource is made public', // @translate
+                    'value_options' => [
+                        '' => 'No', // @translate
+                        'first' => 'First time issued', // @translate
+                        // TODO Manage last time issued for automatic date?
+                        // 'last' => 'Last time issued', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    // 'id' => 'automatic_value_issued',
+                    'class' => 'setting',
+                    'data-setting-key' => 'automatic_value_issued',
+                    'value' => '',
+                ],
+            ])
+            ->add([
                 'name' => 'display_value',
                 'type' => Element\Textarea::class,
                 'options' => [
