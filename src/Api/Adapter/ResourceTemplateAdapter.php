@@ -41,7 +41,11 @@ class ResourceTemplateAdapter extends \Omeka\Api\Adapter\ResourceTemplateAdapter
         // properties are not available.
 
         /** @var \Omeka\Entity\ResourceTemplate $entity */
+
         $data = $request->getContent();
+
+        $entityManager = $this->getEntityManager();
+
         $this->hydrateOwner($request, $entity);
         $this->hydrateResourceClass($request, $entity);
 
@@ -52,7 +56,7 @@ class ResourceTemplateAdapter extends \Omeka\Api\Adapter\ResourceTemplateAdapter
         if ($this->shouldHydrate($request, 'o:title_property')) {
             $titleProperty = $request->getValue('o:title_property');
             if (isset($titleProperty['o:id']) && is_numeric($titleProperty['o:id'])) {
-                $titleProperty = $this->getAdapter('properties')->findEntity($titleProperty['o:id']);
+                $titleProperty = $entityManager->find(\Omeka\Entity\Property::class, $titleProperty['o:id']);
             } else {
                 $titleProperty = null;
             }
@@ -62,7 +66,7 @@ class ResourceTemplateAdapter extends \Omeka\Api\Adapter\ResourceTemplateAdapter
         if ($this->shouldHydrate($request, 'o:description_property')) {
             $descriptionProperty = $request->getValue('o:description_property');
             if (isset($descriptionProperty['o:id']) && is_numeric($descriptionProperty['o:id'])) {
-                $descriptionProperty = $this->getAdapter('properties')->findEntity($descriptionProperty['o:id']);
+                $descriptionProperty = $entityManager->find(\Omeka\Entity\Property::class, $descriptionProperty['o:id']);
             } else {
                 $descriptionProperty = null;
             }
@@ -87,7 +91,6 @@ class ResourceTemplateAdapter extends \Omeka\Api\Adapter\ResourceTemplateAdapter
                 return null;
             };
 
-            $propertyAdapter = $this->getAdapter('properties');
             $resTemProps = $entity->getResourceTemplateProperties();
             $resTemPropsToRetain = [];
             // Position is one-based.
@@ -133,7 +136,7 @@ class ResourceTemplateAdapter extends \Omeka\Api\Adapter\ResourceTemplateAdapter
                     // It is not assigned. Add a new resource template property.
                     // No need to explicitly add it to the collection since it
                     // is added implicitly when setting the resource template.
-                    $property = $propertyAdapter->findEntity($propertyId);
+                    $property = $entityManager->find(\Omeka\Entity\Property::class, $propertyId);
                     $resTemProp = new ResourceTemplateProperty();
                     $resTemProp->setResourceTemplate($entity);
                     $resTemProp->setProperty($property);
