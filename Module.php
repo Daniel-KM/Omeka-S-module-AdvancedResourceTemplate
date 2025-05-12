@@ -954,6 +954,15 @@ class Module extends AbstractModule
                     $display['icon_advanced_search'] = false;
                     $display['advanced_search'] = false;
                 }
+            } else {
+                // Manage standard search with advanced search options, but
+                // without advanced search module.
+                $display['value_search'] = $display['value_search'] || $display['value_advanced_search'];
+                $display['prepend_icon_search'] = $display['prepend_icon_search'] || $display['prepend_icon_advanced_search'];
+                $display['append_icon_search'] = $display['append_icon_search'] || $display['append_icon_advanced_search'];
+                $display['icon_search'] = $display['prepend_icon_search'] || $display['append_icon_search'];
+                $display['search'] = $display['value_search'] || $display['icon_search'];
+                $display['default'] = !$display['value_search'];
             }
 
             // In admin, the links for linked resource and uri are appended by
@@ -1253,7 +1262,7 @@ class Module extends AbstractModule
             $display['icon_uri'] = $display['record_append_icon_uri'];
             $display['search'] = $display['icon_search'];
 
-            if ($advancedSearchConfig && !empty($display['record_append_icon_advanced_search'])) {
+            if ($advancedSearchConfig) {
                 $display['icon_advanced_search'] = $display['record_append_icon_advanced_search'];
                 $display['advanced_search'] = $display['icon_advanced_search'];
                 $advancedSearchConfig = $display['advanced_search'] ? $advancedSearchConfig() : null;
@@ -1262,14 +1271,23 @@ class Module extends AbstractModule
                 $isInternalSearch = $querier instanceof \AdvancedSearch\Querier\InternalQuerier;
                 // Fallback to standard search for module Advanced search.
                 if ($display['advanced_search'] && (!$querier || $querier instanceof \AdvancedSearch\Querier\NoopQuerier)) {
-                    $display['record_append_icon_search'] = true;
+                    // Update derivative display keys first to get fallback.
+                    $display['record_append_icon_search'] = $display['record_append_icon_advanced_search'] || $display['record_append_icon_advanced_search'];
                     $display['record_append_icon_advanced_search'] = false;
-                    $display['icon_search'] = true;
+                    // Reset derivative display keys for advanced search.
+                    $display['icon_search'] = $display['record_append_icon_search'];
                     $display['icon_advanced_search'] = false;
-                    $display['search'] = true;
+                    $display['search'] = $display['record_append_icon_search'];
                     $display['advanced_search'] = false;
                 }
             } else {
+                // Manage standard search with advanced search options, but
+                // without advanced search module.
+                $display['record_append_icon_search'] = $display['record_append_icon_advanced_search'] || $display['record_append_icon_advanced_search'];
+                $display['record_append_icon_advanced_search'] = false;
+                $display['icon_search'] = $display['record_append_icon_search'];
+                $display['icon_advanced_search'] = false;
+                $display['search'] = $display['record_append_icon_search'];
                 $display['advanced_search'] = false;
             }
 
