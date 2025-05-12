@@ -114,7 +114,7 @@ abstract class AbstractAutofiller implements AutofillerInterface
 
         // TODO Use doctrine query builder.
         $bind = [
-            'uris' => $uris,
+            'uris' => array_values($uris),
         ];
         $types = [
             'uris' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY,
