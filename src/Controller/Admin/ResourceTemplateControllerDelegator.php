@@ -5,6 +5,7 @@ namespace AdvancedResourceTemplate\Controller\Admin;
 use AdvancedResourceTemplate\Form\ResourceTemplatePropertyFieldset;
 use Common\Stdlib\PsrMessage;
 use Laminas\View\Model\ViewModel;
+use Omeka\Api\Representation\VocabularyRepresentation;
 use Omeka\Form\ResourceTemplateForm;
 use Omeka\Form\ResourceTemplateImportForm;
 use Omeka\Form\ResourceTemplateReviewImportForm;
@@ -247,20 +248,12 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
      */
     protected function flagValid(array $import)
     {
-        $vocabs = [];
-
-        $getVocab = function ($namespaceUri) use (&$vocabs) {
-            if (isset($vocabs[$namespaceUri])) {
-                return $vocabs[$namespaceUri];
+        $getVocab = function ($namespaceUri): ?VocabularyRepresentation {
+            try {
+                return $this->api()->read('vocabularies', ['namespaceUri' => $namespaceUri])->getContent();
+            } catch (\Exception $e) {
+                return null;
             }
-            $vocab = $this->api()->searchOne('vocabularies', [
-                'namespace_uri' => $namespaceUri,
-            ])->getContent();
-            if ($vocab) {
-                $vocabs[$namespaceUri] = $vocab;
-                return $vocab;
-            }
-            return false;
         };
 
         $getDataTypesByName = function ($dataTypesNameLabels) {
@@ -318,10 +311,14 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         if (isset($import['o:resource_class'])) {
             if ($vocab = $getVocab($import['o:resource_class']['vocabulary_namespace_uri'])) {
                 $import['o:resource_class']['vocabulary_prefix'] = $vocab->prefix();
-                $class = $this->api()->searchOne('resource_classes', [
-                    'vocabulary_namespace_uri' => $import['o:resource_class']['vocabulary_namespace_uri'],
-                    'local_name' => $import['o:resource_class']['local_name'],
-                ])->getContent();
+                try {
+                    $class = $this->api()->read('resource_classes', [
+                        'vocabulary' => $vocab->id(),
+                        'localName' => $import['o:resource_class']['local_name'],
+                    ])->getContent();
+                } catch (\Exception $e) {
+                    $class = null;
+                }
                 if ($class) {
                     $import['o:resource_class']['o:id'] = $class->id();
                 }
@@ -332,10 +329,14 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             if (isset($import[$property])) {
                 if ($vocab = $getVocab($import[$property]['vocabulary_namespace_uri'])) {
                     $import[$property]['vocabulary_prefix'] = $vocab->prefix();
-                    $prop = $this->api()->searchOne('properties', [
-                        'vocabulary_namespace_uri' => $import[$property]['vocabulary_namespace_uri'],
-                        'local_name' => $import[$property]['local_name'],
-                    ])->getContent();
+                    try {
+                        $prop = $this->api()->read('properties', [
+                            'vocabulary' => $vocab->id(),
+                            'localName' => $import[$property]['local_name'],
+                        ])->getContent();
+                    } catch (\Exception $e) {
+                        $prop = null;
+                    }
                     if ($prop) {
                         $import[$property]['o:id'] = $prop->id();
                     }
@@ -346,10 +347,14 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         foreach ($import['o:resource_template_property'] as $key => $property) {
             if ($vocab = $getVocab($property['vocabulary_namespace_uri'])) {
                 $import['o:resource_template_property'][$key]['vocabulary_prefix'] = $vocab->prefix();
-                $prop = $this->api()->searchOne('properties', [
-                    'vocabulary_namespace_uri' => $property['vocabulary_namespace_uri'],
-                    'local_name' => $property['local_name'],
-                ])->getContent();
+                try {
+                    $prop = $this->api()->read('properties', [
+                        'vocabulary' => $vocab->id(),
+                        'localName' => $import[$property]['local_name'],
+                    ])->getContent();
+                } catch (\Exception $e) {
+                    $prop = null;
+                }
                 if ($prop) {
                     $import['o:resource_template_property'][$key]['o:property'] = ['o:id' => $prop->id()];
                     // Check the deprecated "data_type_name" if needed and
@@ -1423,11 +1428,12 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             'o:resource_template_property' => [],
         ];
 
-        $defaultProperties = ['dcterms:title', 'dcterms:description'];
+        $defaultProperties = [
+            'dcterms:title' => 'title',
+            'dcterms:description' => 'description',
+        ];
         foreach ($defaultProperties as $property) {
-            $property = $this->api()->searchOne(
-                'properties', ['term' => $property]
-            )->getContent();
+            $property = $this->api()->read('properties', ['vocabulary' => 1, 'localName' => $property])->getContent();
             // In a Collection, "false" is not allowed for a checkbox, etc, except with input filter.
             $resourceTemplate['o:resource_template_property'][] = [
                 'o:property' => ['o:id' => $property->id()],
@@ -1608,14 +1614,16 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         if (empty($term)) {
             return null;
         }
-        $member = $this->api()->searchOne($type, ['term' => $term])->getContent();
-        if (empty($member)) {
+        try {
+            $vocabulary = $this->api()->read('vocabularies', ['prefix' => strtok($term, ':')])->getContent();
+            $member = $this->api()->read($type, ['vocabulary' => $vocabulary->id(), 'localName' => strtok(':')])->getContent();
+        } catch (\Exception $e) {
             return null;
         }
         return [
             'term' => $term,
-            'vocabulary_namespace_uri' => $member->vocabulary()->namespaceUri(),
-            'vocabulary_label' => $member->vocabulary()->label(),
+            'vocabulary_namespace_uri' => $vocabulary->namespaceUri(),
+            'vocabulary_label' => $vocabulary->label(),
             'local_name' => $member->localName(),
             'label' => $member->label(),
         ];

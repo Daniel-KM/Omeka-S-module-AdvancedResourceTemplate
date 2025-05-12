@@ -322,7 +322,13 @@ if (version_compare((string) $oldVersion, '3.4.22', '<')) {
     $annotationTemplates = $settings->get('cartography_template_describe') ?: [];
     $annotationTemplates = array_merge($annotationTemplates, $settings->get('cartography_template_locate') ?: []);
     // It is not possible to search by class before Omeka S v4.1.
-    $classAnnotation = $api->searchOne('resource_classes', ['term' => 'oa:Annotation'])->getContent();
+    try {
+        $property = 'oa:Annotation';
+        $vocabularyId = $api->read('vocabularies', ['prefix' => strtok($property, ':')])->getContent()->id();
+        $classAnnotation = $api->read('resource_classes', ['vocabulary' => $vocabularyId, 'localName' => strtok(':')])->getContent();
+    } catch (\Exception $e) {
+        $classAnnotation = null;
+    }
     if ($classAnnotation) {
         $qb = $connection->createQueryBuilder();
         $qb
@@ -337,8 +343,16 @@ if (version_compare((string) $oldVersion, '3.4.22', '<')) {
 
     // Except template for Thesaurus.
     $thesaurusTemplates = [];
-    $thesaurusTemplateScheme = $api->searchOne('resource_templates', ['label' => 'Thesaurus Scheme'])->getContent();
-    $thesaurusTemplateConcept = $api->searchOne('resource_templates', ['label' => 'Thesaurus Concept'])->getContent();
+    try {
+        $thesaurusTemplateScheme = $api->read('resource_templates', ['label' => 'Thesaurus Scheme'])->getContent();
+    } catch (\Exception $e) {
+        $thesaurusTemplateScheme = null;
+    }
+    try {
+        $thesaurusTemplateConcept = $api->read('resource_templates', ['label' => 'Thesaurus Concept'])->getContent();
+    } catch (\Exception $e) {
+        $thesaurusTemplateConcept = null;
+    }
     if ($thesaurusTemplateScheme) {
         $thesaurusTemplates[] = $thesaurusTemplateScheme->id();
     }
@@ -347,14 +361,22 @@ if (version_compare((string) $oldVersion, '3.4.22', '<')) {
     }
     $thesaurusTemplateSchemeId = $settings->get('thesaurus_skos_scheme_template_id');
     if ($thesaurusTemplateSchemeId) {
-        $thesaurusTemplateScheme = $api->searchOne('resource_templates', ['id' => $thesaurusTemplateSchemeId])->getContent();
+        try {
+            $thesaurusTemplateScheme = $api->read('resource_templates', ['id' => $thesaurusTemplateSchemeId])->getContent();
+        } catch (\Exception $e) {
+            $thesaurusTemplateScheme = null;
+        }
         if ($thesaurusTemplateScheme) {
             $thesaurusTemplates[] = $thesaurusTemplateScheme->id();
         }
     }
     $thesaurusTemplateConceptId = $settings->get('thesaurus_skos_concept_template_id');
     if ($thesaurusTemplateConceptId) {
-        $thesaurusTemplateConcept = $api->searchOne('resource_templates', ['id' => $thesaurusTemplateConceptId])->getContent();
+        try {
+            $thesaurusTemplateConcept = $api->read('resource_templates', ['id' => $thesaurusTemplateConceptId])->getContent();
+        } catch (\Exception $e) {
+            $thesaurusTemplateConcept = null;
+        }
         if ($thesaurusTemplateConcept) {
             $thesaurusTemplates[] = $thesaurusTemplateConcept->id();
         }
