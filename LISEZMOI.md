@@ -55,9 +55,18 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
 
 - Valeur automatique (lors de l’enregistrement) :
 
-  Cette option permet d’ajouter une valeur à la ressource. Par construction,
-  elle ne  peut pas être supprimée. La valeur peut être simple ou créée avec des
-  des jokers et d’autres valeurs. Voir plus bas.
+  Cette option permet d’ajouter une valeur à la ressource. La valeur peut être
+  simple ou créée avec des jokers et d’autres valeurs. Par construction, cette
+  valeur ne  peut pas être supprimée. Voir ci-dessous pour davantage
+  d’informations.
+
+- Afficher une valeur fictive
+
+  Cette option permet d’afficher une valeur fictive dans une notice quand il n’y
+  a pas de valeur dans une propriété. Par exemple, pour une ressource
+  « Photographie », vous pouvez afficher « [Photographe inconnu] » quand le
+  l’auteur n’est pas défini. Cette valeur n’est pas enregistrée dans la
+  ressource et n’est pas disponible dans l’api.
 
 - Valeur bloquée :
 

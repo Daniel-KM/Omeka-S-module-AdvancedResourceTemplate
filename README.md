@@ -51,14 +51,21 @@ resources. If you do not see images, go to the [original repository]:
 
 - Automatic value (on save):
 
-  This option allows to add a value to the resource. By construction, this value
-  cannot be removed. The value can be a raw one or created with placeholders and
-  other values. See below.
+  This option allows to add a value to the resource. It can be a raw string or a
+  value created with placeholders and other values. By construction, this value
+  cannot be removed. See below for more details.
+
+- Display fake value:
+
+  This option allows to display a fake value in a record when there is no value
+  in a property. For example, for a resource "Photography", you may want to
+  display "[Unknown photographer]" when the creator in undefined. This value is
+  not stored in the resource and is not available in the api.
 
 - Locked values:
 
   This option is useful for identifiers. Note that an automatic value is always
-  a locked value, so this option is designed  for other values. A locked value
+  a locked value, so this option is designed for other values. A locked value
   can still be updated by the api.
 
 - Explode a value with a separator:
@@ -333,15 +340,15 @@ For a linked resource, that is useful only for a better display:
 ### Automatic value
 
 This option can be set at template level or template property level. The aim is
-the same, but when created, the property level display the input in the form.
+the same, but when created, the property level displays the input in the form.
 
 #### Property level
 
 The value specified in the field will be appended to the resource.
 
 The value may be a simple string or a json representation of a value (like in
-the api). The type of the value should be one specified in the data types of the
-template property. A check is done for validity, for example the id should
+the api). The type of the value should be the one specified in the data types of
+the template property. A check is done for validity, for example the id should
 exists when the data type is a resource.
 
 Some basic placeholders can be used with json dot notation and basic twig-like
