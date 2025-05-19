@@ -889,7 +889,9 @@ class ResourceOnSave
                 'property_id' => $propertyId,
                 'value' => $automaticValue,
             ]);
-            $values[] = $value;
+            if (is_array($value)) {
+                $values[] = $value;
+            }
         }
 
         if ($automaticValuesIssued === 'first') {
@@ -905,7 +907,9 @@ class ResourceOnSave
                     // Allow to manage literal and numeric timestamp.
                     'value' => (new \DateTime)->format('Y-m-d'),
                 ]);
-                $values[] = $value;
+                if (is_array($value)) {
+                    $values[] = $value;
+                }
             }
         }
 
