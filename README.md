@@ -55,6 +55,24 @@ resources. If you do not see images, go to the [original repository]:
   value created with placeholders and other values. By construction, this value
   cannot be removed. See below for more details.
 
+  This value can be a simple string (to store a literal), or a json, formatted
+  as the omeka api, to pass a value with a specific type:
+
+  ```json
+  {
+    "type": "resource:item",
+    "value_resource_id": 1
+  }
+  ```
+
+  The value can be a string formatted with the inline format, for example
+  `1 ^^resource:item`.
+
+- Automatic value issued
+
+  This option allows to add the first time the resource is made public and to
+  store this date in a property, generally dcterms:issued.
+
 - Display fake value:
 
   This option allows to display a fake value in a record when there is no value

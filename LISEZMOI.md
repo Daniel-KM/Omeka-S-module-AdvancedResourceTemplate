@@ -60,6 +60,25 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
   valeur ne  peut pas être supprimée. Voir ci-dessous pour davantage
   d’informations.
 
+  Cette valeur peut être une simple chaîne (pour passer un texte) ou un json,
+  formatté comme dans l’api omeka, pour passer une valeur avec un type spécifique:
+
+  ```json
+  {
+    "type": "resource:item",
+    "value_resource_id": 1
+  }
+  ```
+
+  La valeur peut aussi être un texte formatée avec le format en ligne, par
+  exemple `1 ^^resource:item`.
+
+- Valeur automatique de publication
+
+  Cette option permet d’ajouter la date à laquelle la ressource est rendue
+  publique pour la première fois et de l’enregistrer dans une propriété,
+  généralement dcterms:issued.
+
 - Afficher une valeur fictive
 
   Cette option permet d’afficher une valeur fictive dans une notice quand il n’y
