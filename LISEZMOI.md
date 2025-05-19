@@ -61,7 +61,8 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
   d’informations.
 
   Cette valeur peut être une simple chaîne (pour passer un texte) ou un json,
-  formatté comme dans l’api omeka, pour passer une valeur avec un type spécifique:
+  formatté comme dans l’api omeka, pour passer une valeur avec un type
+  spécifique (voir plus bas pour plus de détails) :
 
   ```json
   {
@@ -72,6 +73,13 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
 
   La valeur peut aussi être un texte formatée avec le format en ligne, par
   exemple `1 ^^resource:item`.
+
+  La valeur peut aussi être liée à un autre champ, par exemple :
+
+  ```
+  {dcterms:creator.0.@value} [{dcterms:identifier.0.@value}]
+  ```
+
 
 - Valeur automatique de publication
 
@@ -413,7 +421,7 @@ lors de l’enregistrement d’un contenu :
 
 ```
 ~ = o:resource_template = 1
-~ = dcterms:identifier ^^literal {o:item.dcterms:creator.0..@value}_{o:item.o:template.o:label}_{{ index() }}
+~ = dcterms:identifier ^^literal {o:item.dcterms:creator.0.@value}_{o:item.o:template.o:label}_{{ index() }}
 ```
 
 ### Remplissage automatique

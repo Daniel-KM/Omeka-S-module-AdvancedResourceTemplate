@@ -56,7 +56,8 @@ resources. If you do not see images, go to the [original repository]:
   cannot be removed. See below for more details.
 
   This value can be a simple string (to store a literal), or a json, formatted
-  as the omeka api, to pass a value with a specific type:
+  as the omeka api, to pass a value with a specific type (see below for more
+  details):
 
   ```json
   {
@@ -67,6 +68,12 @@ resources. If you do not see images, go to the [original repository]:
 
   The value can be a string formatted with the inline format, for example
   `1 ^^resource:item`.
+
+  The value can be related to another property, for example:
+
+  ```
+  {dcterms:creator.0.@value} [{dcterms:identifier.0.@value}]
+  ```
 
 - Automatic value issued
 
@@ -385,7 +392,7 @@ saving an item:
 
 ```
 ~ = o:resource_template = 1
-~ = dcterms:identifier ^^literal {o:item.dcterms:creator.0..@value}_{o:item.o:template.o:label}_{{ index() }}
+~ = dcterms:identifier ^^literal {o:item.dcterms:creator.0.@value}_{o:item.o:template.o:label}_{{ index() }}
 ```
 
 ### Autofilling
