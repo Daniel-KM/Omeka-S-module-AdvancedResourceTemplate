@@ -88,7 +88,7 @@ class ResourceOnSave
                 // Manage the split separator.
                 $resource = $this->explodeValueFromTemplatePropertyData($rtpData, $resource);
                 // Append the automatic values.
-                $automaticValues = $this->automaticValuesFromTemplatePropertyData($rtpData, $resource);
+                $automaticValues = $this->automaticValuesFromTemplatePropertyData($rtpData, $resource, $template);
                 foreach ($automaticValues as $automaticValue) {
                     $resource[$templateProperty->property()->term()][] = $automaticValue;
                 }
@@ -868,7 +868,8 @@ class ResourceOnSave
 
     protected function automaticValuesFromTemplatePropertyData(
         \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyDataRepresentation $rtpData,
-        array $resource
+        array $resource,
+        \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template
     ): array {
         $automaticValue = trim((string) $rtpData->dataValue('automatic_value'));
         $automaticValuesIssued = trim((string) $template->dataValue('automatic_value_issued'));
