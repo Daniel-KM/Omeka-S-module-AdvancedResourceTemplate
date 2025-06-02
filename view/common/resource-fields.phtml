@@ -1,4 +1,11 @@
 <?php
+/**
+ * @var Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Form\ResourceForm $form
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $resource
+ * @var string $action
+ */
+
 $translate = $this->plugin('translate');
 $escapeAttr = $this->plugin('escapeHtmlAttr');
 $resourceTemplateSelect = $form->get('o:resource_template[o:id]');

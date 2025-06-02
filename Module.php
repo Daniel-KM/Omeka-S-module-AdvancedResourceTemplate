@@ -1614,17 +1614,20 @@ class Module extends AbstractModule
     {
         // TODO Remove the admin check for contribute (or copy the feature in the module).
 
-        /** @var \Omeka\Mvc\Status $status */
+        /**
+         * @var \Omeka\Mvc\Status $status
+         * @var \Omeka\Form\ResourceForm $form
+         * @var \Omeka\Settings\Settings $settings
+         */
         $services = $this->getServiceLocator();
         $status = $services->get('Omeka\Status');
+
         if (!$status->isAdminRequest()) {
             return;
         }
 
-        $settings = $services->get('Omeka\Settings');
-
-        /** @var \Omeka\Form\ResourceForm $form */
         $form = $event->getTarget();
+        $settings = $services->get('Omeka\Settings');
 
         // Limit resource templates to the current resource type.
         $resourceName = $this->getRouteResourceName($status);
@@ -1640,20 +1643,40 @@ class Module extends AbstractModule
 
         $closedPropertyList = (bool) (int) $settings->get('advancedresourcetemplate_closed_property_list');
         if ($closedPropertyList) {
-            /** @var \Omeka\Form\ResourceForm $form */
-            $form = $event->getTarget();
             $form->setAttribute('class', trim($form->getAttribute('class') . ' closed-property-list on-load'));
         }
 
-        // Set the resource template id from the query for a new resource.
-        // Else, it will be the user setting one.
-        // This feature requires to override file appliction/view/common/resource-fields.phtml.
+        /**
+         * Set resource template and class ids from query for a new resource.
+         * Else, it will be the user setting one.
+         *
+         * This feature is managed by modules Advanced Resource Template and
+         * Easy Admin, but in a different way (internally or via settings).
+         *
+         * This feature requires to override file appliction/view/common/resource-fields.phtml.
+         *
+         * @see \AdvancedResourceTemplate\Module::handleResourceForm()
+         * @see \EasyAdmin\Module::handleResourceForm()
+         */
+
         if ($status->getRouteParam('action') === 'add') {
-            $resourceTemplateId = $services->get('ControllerPluginManager')->get('Params')->fromQuery('resource_template_id');
+            $form = $event->getTarget();
+            $params = $services->get('ControllerPluginManager')->get('Params');
+            $resourceTemplateId = $params->fromQuery('resource_template_id');
             if ($resourceTemplateId && $form->has('o:resource_template[o:id]')) {
-                /** @var \Omeka\Form\Element\ResourceSelect $templateSelect */
+                /** @var \Omeka\Form\Element\ResourceTemplateSelect $templateSelect */
                 $templateSelect = $form->get('o:resource_template[o:id]');
-                $templateSelect->setValue($resourceTemplateId);
+                if (in_array($resourceTemplateId, array_keys($templateSelect->getValueOptions()))) {
+                    $templateSelect->setValue($resourceTemplateId);
+                }
+            }
+            $resourceClassId = $params->fromQuery('resource_class_id');
+            if ($resourceClassId && $form->has('o:resource_class[o:id]')) {
+                /** @var \Omeka\Form\Element\ResourceClassSelect $templateSelect */
+                $classSelect = $form->get('o:resource_class[o:id]');
+                if (in_array($resourceClassId, array_keys($classSelect->getValueOptions()))) {
+                    $classSelect->setValue($resourceClassId);
+                }
             }
         }
     }
