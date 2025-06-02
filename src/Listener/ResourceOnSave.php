@@ -46,7 +46,14 @@ class ResourceOnSave
         // creation/update.
         $resource = $request->getContent();
 
-        $templateId = $resource['o:resource_template']['o:id'] ?? null;
+        $template = $resource['o:resource_template'] ?? null;
+        if (!$template) {
+            return;
+        }
+
+        // The method jsonSerialize() does not encode objects as array (owner,
+        // resource template, etc.) currently.
+        $templateId = is_object($template) ? $template->id() : $template['o:id'] ?? null;
         if (!$templateId) {
             return;
         }
