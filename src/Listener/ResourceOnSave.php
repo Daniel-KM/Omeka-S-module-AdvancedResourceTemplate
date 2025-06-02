@@ -889,6 +889,7 @@ class ResourceOnSave
         $propertyId = $property->id();
 
         if ($automaticValue !== '') {
+            // May output a null.
             $value = $this->appendAutomaticPropertyValueToResource($resource, [
                 'data_types' => $rtpData->dataTypes(),
                 'is_public' => !$rtpData->isPrivate(),
@@ -896,7 +897,7 @@ class ResourceOnSave
                 'property_id' => $propertyId,
                 'value' => $automaticValue,
             ]);
-            if (is_array($value)) {
+            if (!empty($value)) {
                 $values[] = $value;
             }
         }
@@ -906,6 +907,7 @@ class ResourceOnSave
             $isPublic = !empty($resource['o:is_public']);
             $hasNoValue = empty($values) && empty($resource[$propertyTerm]);
             if ($isPublic && $hasNoValue) {
+                // May output a null.
                 $value = $this->appendAutomaticPropertyValueToResource($resource, [
                     'data_types' => $rtpData->dataTypes(),
                     'is_public' => !$rtpData->isPrivate(),
@@ -914,7 +916,7 @@ class ResourceOnSave
                     // Allow to manage literal and numeric timestamp.
                     'value' => (new \DateTime)->format('Y-m-d'),
                 ]);
-                if (is_array($value)) {
+                if (!empty($value)) {
                     $values[] = $value;
                 }
             }
