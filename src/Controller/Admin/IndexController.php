@@ -3,15 +3,13 @@
 namespace AdvancedResourceTemplate\Controller\Admin;
 
 use AdvancedResourceTemplate\Autofiller\AutofillerPluginManager as AutofillerManager;
+use Common\Mvc\Controller\Plugin\JSend;
 use Common\Stdlib\PsrMessage;
 use Doctrine\ORM\EntityManager;
 use Laminas\Http\Response as HttpResponse;
 use Laminas\Mvc\Controller\AbstractRestfulController;
-use Laminas\View\Model\JsonModel;
 use Omeka\Api\Exception\NotFoundException;
 use Omeka\Api\Representation\ResourceTemplateRepresentation;
-use Omeka\Stdlib\ErrorStore;
-use Omeka\View\Model\ApiJsonModel;
 
 class IndexController extends AbstractRestfulController
 {
@@ -44,8 +42,8 @@ class IndexController extends AbstractRestfulController
         $query = $this->params()->fromQuery();
         $q = isset($query['q']) ? trim($query['q']) : '';
         if (!strlen($q)) {
-            return $this->returnError(null, null, [
-                'suggestions' => new PsrMessage('The query is empty.'), // @translate
+            return $this->jSend(JSend::FAIL, [
+                'suggestions' =>(new PsrMessage('The query is empty.'))->setTranslator($this->translator), // @translate
             ]);
         }
 
@@ -76,11 +74,8 @@ class IndexController extends AbstractRestfulController
         // @link https://github.com/omniti-labs/jsend
         // @link https://www.devbridge.com/sourcery/components/jquery-autocomplete
         $result = array_map('trim', array_column($result, 'value'));
-        return new ApiJsonModel([
-            'status' => 'success',
-            'data' => [
-                'suggestions' => $result,
-            ],
+        return $this->jSend(JSend::SUCCESS, [
+            'suggestions' => $result,
         ]);
     }
 
@@ -89,7 +84,9 @@ class IndexController extends AbstractRestfulController
         $query = $this->params()->fromQuery();
         $q = isset($query['q']) ? trim($query['q']) : '';
         if (!strlen($q)) {
-            return $this->returnError(['suggestions' => $this->translate('The query is empty.')]); // @translate
+            return $this->jSend(JSend::FAIL, [
+                'suggestions' => (new PsrMessage('The query is empty.'))->setTranslator($this->translator), // @translate
+            ]);
         }
 
         /** @var \AdvancedResourceTemplate\Autofiller\AutofillerInterface $autofiller */
@@ -106,17 +103,14 @@ class IndexController extends AbstractRestfulController
             ->getResults($q, $lang);
 
         if (is_null($results)) {
-            return $this->returnError(new PsrMessage(
+            return $this->jSend(JSend::ERROR, null, (new PsrMessage(
                 'The remote service "{service}" seems unavailable.', // @translate
                 ['service' => $autofiller->getLabel()]
-            ), HttpResponse::STATUS_CODE_502);
+            ))->setTranslator($this->translator)->translate(), HttpResponse::STATUS_CODE_502);
         }
 
-        return new ApiJsonModel([
-            'status' => 'success',
-            'data' => [
-                'suggestions' => $results,
-            ],
+        return $this->jSend(JSend::SUCCESS, [
+            'suggestions' => $results,
         ]);
     }
 
@@ -132,12 +126,9 @@ class IndexController extends AbstractRestfulController
             return $autofiller;
         }
 
-        return new ApiJsonModel([
-            'status' => 'success',
-            'data' => [
-                'autofiller' => [
-                    'label' => $autofiller->getLabel(),
-                ],
+        return $this->jSend(JSend::SUCCESS, [
+            'autofiller' => [
+                'label' => $autofiller->getLabel(),
             ],
         ]);
     }
@@ -149,14 +140,14 @@ class IndexController extends AbstractRestfulController
     {
         $query = $this->params()->fromQuery();
         if (empty($query['service'])) {
-            return $this->returnError(null, null, [
-                'suggestions' => new PsrMessage('The service is empty.'), // @translate
+            return $this->jSend(JSend::FAIL, [
+                'suggestions' => (new PsrMessage('The service is empty.'))->setTranslator($this->translator), // @translate
             ]);
         }
 
         if (empty($query['template'])) {
-            return $this->returnError(null, null, [
-                'suggestions' => new PsrMessage('The template is empty.'), // @translate
+            return $this->jSend(JSend::FAIL, [
+                'suggestions' => (new PsrMessage('The template is empty.'))->setTranslator($this->translator), // @translate
             ]);
         }
 
@@ -165,27 +156,31 @@ class IndexController extends AbstractRestfulController
             /** @var \Omeka\Api\Representation\ResourceTemplateRepresentation $template */
             $template = $this->api()->read('resource_templates', ['id' => $query['template']])->getContent();
         } catch (NotFoundException $e) {
-            return $this->returnError(null, null, [
-                'suggestions' => new PsrMessage(
+            return $this->jSend(JSend::FAIL, [
+                'suggestions' => (new PsrMessage(
                     'The template "{template_id}" is not available.', // @translate
                     ['template_id' => $query['template']]
-                ),
+                ))->setTranslator($this->translator)->translate()
             ]);
         }
 
         $serviceMapping = $this->prepareServiceMapping($template, $query['service']);
         if (empty($serviceMapping)) {
-            return $this->returnError(new PsrMessage(
-                'The service "{service}" has no mapping.', // @translate
-                ['service' => $query['service']]
-            ), HttpResponse::STATUS_CODE_501);
+            return $this->jSend(JSend::ERROR, null, [
+                (new PsrMessage(
+                    'The service "{service}" has no mapping.', // @translate
+                    ['service' => $query['service']]
+                ))->setTranslator($this->translator)->translate()
+            ], HttpResponse::STATUS_CODE_501);
         }
 
         if (!$this->autofillerManager->has($serviceMapping['service'])) {
-            return $this->returnError(new PsrMessage(
-                'The service "{service}" is not available.', // @translate
-                ['service' => $query['service']]
-            ), HttpResponse::STATUS_CODE_501);
+            return $this->jSend(JSend::ERROR, null, [
+                (new PsrMessage(
+                    'The service "{service}" is not available.', // @translate
+                    ['service' => $query['service']]
+                ))->setTranslator($this->translator)->translate()
+            ], HttpResponse::STATUS_CODE_501);
         }
 
         $serviceOptions = $serviceMapping;
@@ -221,74 +216,5 @@ class IndexController extends AbstractRestfulController
     {
         $identifier = $this->getIdentifierName();
         return $routeMatch->getParam($identifier, false);
-    }
-
-    /**
-     * Return a message of error.
-     *
-     * @see https://github.com/omniti-labs/jsend
-     *
-     * @param \Common\Stdlib\PsrMessage|string $message
-     * @param int $statusCode
-     * @param \Omeka\Stdlib\ErrorStore|array $messages
-     * @return \Laminas\View\Model\JsonModel
-     */
-    protected function returnError($message, int $statusCode = HttpResponse::STATUS_CODE_400, $messages = null): JsonModel
-    {
-        $statusCode ??= HttpResponse::STATUS_CODE_400;
-
-        $response = $this->getResponse();
-        $response->setStatusCode($statusCode);
-
-        $translator = $this->translator();
-
-        if (is_array($messages) && count($messages)) {
-            foreach ($messages as &$msg) {
-                is_object($msg) ? $msg->setTranslator($translator) : $this->translate($msg);
-            }
-            unset($msg);
-        } elseif (is_object($messages) && $messages instanceof ErrorStore && $messages->hasErrors()) {
-            $msgs = [];
-            foreach ($messages->getErrors() as $key => $msg) {
-                $msgs[$key] = is_object($msg) ? $msg->setTranslator($translator) : $this->translate($msg);
-            }
-            $messages = $msgs;
-        } else {
-            $messages = [];
-        }
-
-        $status = $statusCode >= 500 ? 'error' : 'fail';
-
-        $result = [];
-        $result['status'] = $status;
-
-        if (is_object($message)) {
-            $message->setTranslator($translator);
-        } elseif ($message) {
-            $message = $this->translate($message);
-        } elseif ($status === 'error') {
-            // A message is required for error.
-            if ($messages) {
-                $message = reset($messages);
-                if (count($messages) === 1) {
-                    $messages = [];
-                }
-            } else {
-                $message = $this->translate('An error occurred.'); // @translate;
-            }
-        }
-
-        // Normally, only in error, not fail, but a main message may be useful
-        // in any case.
-        if ($message) {
-            $result['message'] = $message;
-        }
-
-        // Normally, not in error.
-        if (count($messages)) {
-            $result['data'] = $messages;
-        }
-
-        return new JsonModel($result);
     }
 }
