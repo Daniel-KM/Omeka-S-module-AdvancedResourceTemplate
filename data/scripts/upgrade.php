@@ -701,6 +701,10 @@ if (version_compare((string) $oldVersion, '3.4.38', '<')) {
 
     $itemSetQueries = $settings->get('advancedresourcetemplate_item_set_queries', []);
     if ($itemSetQueries) {
+        // For compatibility with new name in module Dynamic Item Sets.
+        if ($settings->get('dynamicitemsets_item_sets_queries_dynamic') === null) {
+            $settings->set('dynamicitemsets_item_sets_queries_dynamic', $itemSetQueries);
+        }
         if ($settings->get('dynamicitemsets_item_set_queries') === null) {
             $settings->set('dynamicitemsets_item_set_queries', $itemSetQueries);
         }
