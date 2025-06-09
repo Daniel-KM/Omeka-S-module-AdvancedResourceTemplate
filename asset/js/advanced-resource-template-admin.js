@@ -109,29 +109,31 @@
                 return;
             }
 
-            // Html input pattern does not work on textarea, so replace the textarea
+            // Html input pattern does not work on textarea, so replace each textarea
             // by an input.
-            const textarea = field.find('textarea.input-value, textarea.inputcontrol');
-            var input;
-            if (rtpData.input_control) {
-                // May be already set for new resource.
-                if (!textarea.hasClass('inputcontrol')) {
-                    textarea.addClass('inputcontrol');
-                    textarea.removeClass('input-value to-require');
-                    textarea.after($('<input/>', { type: 'text', class: 'input-value to-require', 'data-value-key': '@value' }));
-                    input = field.find('input.input-value');
-                    input.attr('pattern', rtpData.input_control);
-                    input.val(textarea.val());
-                    textarea.hide();
+            const textareas = field.find('textarea.input-value, textarea.inputcontrol');
+            textareas.each(function() {
+                const textarea = $(this);
+                var input;
+                if (rtpData.input_control) {
+                    if (!textarea.hasClass('inputcontrol')) {
+                        textarea.addClass('inputcontrol');
+                        textarea.removeClass('input-value to-require');
+                        textarea.after($('<input/>', { type: 'text', class: 'input-value to-require', 'data-value-key': '@value' }));
+                        input = textarea.next('input.input-value');
+                        input.attr('pattern', rtpData.input_control);
+                        input.val(textarea.val());
+                        textarea.hide();
+                    }
+                } else if (textarea.hasClass('inputcontrol')) {
+                    input = textarea.next('input.input-value');
+                    textarea.val(input.val());
+                    textarea.addClass('input-value to-require');
+                    textarea.removeClass('inputcontrol');
+                    input.remove();
+                    textarea.show();
                 }
-            } else if (textarea.hasClass('inputcontrol')) {
-                input = field.find('input.input-value');
-                textarea.val(input.val());
-                textarea.addClass('input-value to-require');
-                textarea.removeClass('inputcontrol');
-                input.remove();
-                textarea.show();
-            }
+            });
         }
 
         /**
