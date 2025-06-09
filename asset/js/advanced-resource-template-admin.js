@@ -96,7 +96,7 @@
         }
 
         /**
-         * Set a input regex pattern to a literal field.
+         * Set an input regex pattern to a literal field.
          */
         function prepareFieldInputControl(field) {
             const rtpData = field.data('template-property-data');

@@ -1083,7 +1083,36 @@
                 });
                 // To simplify process, specific options are kept as data.
                 rtpData['o:default_lang'] = rtpd['o:default_lang'];
-                rtpd['o:data'] = rtpData;
+                // Normalize data to simplify next checks. Empty strings must be null.
+                // TODO Normalize early when the template is stored.
+                function normalizeObjectValues(obj) {
+                    const normalizedObj = {};
+                    for (const key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            const value = obj[key];
+                            if (value === null || value === '') {
+                                normalizedObj[key] = null;
+                            } else if (value === false || value === true) {
+                                normalizedObj[key] = value;
+                            } else if (!isNaN(value) && typeof value !== 'boolean') {
+                                normalizedObj[key] = Number(value);
+                            } else if (typeof value === 'string') {
+                                const lowerValue = value.toLowerCase();
+                                if (['true', 'yes', 'on'].includes(lowerValue)) {
+                                    normalizedObj[key] = true;
+                                } else if (['false', 'no', 'off'].includes(lowerValue)) {
+                                    normalizedObj[key] = false;
+                                } else {
+                                    normalizedObj[key] = value;
+                                }
+                            } else {
+                                normalizedObj[key] = value;
+                            }
+                        }
+                    }
+                    return normalizedObj;
+                }
+                rtpd['o:data'] = normalizeObjectValues(rtpData);
                 rtps.push(rtpd);
             });
         });
