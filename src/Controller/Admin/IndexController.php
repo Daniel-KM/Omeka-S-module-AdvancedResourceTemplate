@@ -8,6 +8,7 @@ use Common\Stdlib\PsrMessage;
 use Doctrine\ORM\EntityManager;
 use Laminas\Http\Response as HttpResponse;
 use Laminas\Mvc\Controller\AbstractRestfulController;
+use Laminas\View\Model\ViewModel;
 use Omeka\Api\Exception\NotFoundException;
 use Omeka\Api\Representation\ResourceTemplateRepresentation;
 
@@ -91,7 +92,7 @@ class IndexController extends AbstractRestfulController
 
         /** @var \AdvancedResourceTemplate\Autofiller\AutofillerInterface $autofiller */
         $autofiller = $this->requestToAutofiller();
-        if ($autofiller instanceof HttpResponse) {
+        if ($autofiller instanceof ViewModel) {
             return $autofiller;
         }
 
@@ -122,7 +123,7 @@ class IndexController extends AbstractRestfulController
 
         /** @var \AdvancedResourceTemplate\Autofiller\AutofillerInterface $autofiller */
         $autofiller = $this->requestToAutofiller();
-        if ($autofiller instanceof HttpResponse) {
+        if ($autofiller instanceof ViewModel) {
             return $autofiller;
         }
 
@@ -134,7 +135,9 @@ class IndexController extends AbstractRestfulController
     }
 
     /**
-     * @return \AdvancedResourceTemplate\Autofiller\AutofillerInterface|\Laminas\Http\Response
+     * @return \AdvancedResourceTemplate\Autofiller\AutofillerInterface|\Laminas\View\Model\JsonModel
+     *
+     * @uses \Common\Mvc\Controller\Plugin\JSend::jSend()
      */
     protected function requestToAutofiller()
     {
