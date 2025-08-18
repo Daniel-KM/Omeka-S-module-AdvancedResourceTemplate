@@ -1607,7 +1607,7 @@ class Module extends AbstractModule
         $assetUrl = $plugins->get('assetUrl');
         $plugins->get('headLink')->appendStylesheet($assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
         $plugins->get('headScript')
-            ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer'])
+            ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'Common'), 'text/javascript', ['defer' => 'defer'])
             ->appendFile($assetUrl('js/advanced-resource-template-admin.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer']);
     }
 
@@ -1814,7 +1814,7 @@ class Module extends AbstractModule
         if ($resourceEntity) {
             $total = $services->get('Omeka\ApiManager')->search($resourceName, ['resource_template_id' => $resourceTemplate->id(), 'limit' => 0])->getTotalResults();
             $urlBrowse = $urlHelper('admin/default', ['controller' => $controllerName, 'action' => 'browse'], ['query' => ['resource_template_id' => $resourceTemplate->id()]]);
-            $label = $translate($translatePlural($resourceLabel, $resourcesLabel, $total));
+            $label = $translatePlural($resourceLabel, $resourcesLabel, $total);
             echo sprintf('<li class="browse-resources total-resources" style="width: 48px;">%s</li>', $hyperlink($total, $urlBrowse, ['class' => 'quick-total', 'title' => sprintf($translate('Browse %1$d %2$s'), $total, $label)]));
         }
 

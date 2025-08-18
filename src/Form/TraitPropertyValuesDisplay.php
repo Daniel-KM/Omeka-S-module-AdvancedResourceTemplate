@@ -151,7 +151,7 @@ trait TraitPropertyValuesDisplay
                     'label' => 'Properties to display as search link (whitelist)', // @translate
                     'term_as_value' => true,
                     'prepend_value_options' => [
-                        'all' => 'All properties', // @translate',
+                        'all' => 'All properties', // @translate
                     ],
                 ],
                 'attributes' => [

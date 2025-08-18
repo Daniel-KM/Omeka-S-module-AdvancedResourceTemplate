@@ -897,6 +897,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             // The data types should be prepared for each sub-data too.
             /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyDataRepresentation $rtpData */
             foreach ($exportRtp['o:data'] as $k => $rtpData) {
+                // TODO Don't use json_decode(json_encode()).
                 $exportRtp['o:data'][$k] = json_decode(json_encode($rtpData), true);
                 $exportRtp['o:data'][$k]['data_types'] = $rtpData->dataTypeLabels();
                 unset($exportRtp['o:data'][$k]['o:data_type']);
@@ -1139,6 +1140,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                 ->getContent();
             if (!$isPost) {
                 // Recursive conversion into a json array.
+                // TODO Don't use json_decode(json_encode()).
                 $data = json_decode(json_encode($resourceTemplate), true);
                 $data = $this->fixDataArray($data);
                 $form->setData($data);
