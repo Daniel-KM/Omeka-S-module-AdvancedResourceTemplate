@@ -453,11 +453,12 @@ class Module extends AbstractModule
             'view.layout',
             [$this, 'handleViewLayoutResourceTemplate']
         );
-        // Modify display of resource template to add a button for new resource.
+        // Modify display of resource template to add a button for new resource
+        // and a link to resources with the total of resources.
         $sharedEventManager->attach(
             'Omeka\Controller\Admin\ResourceTemplate',
             'view.browse.actions',
-            [$this, 'appendButtonActionNewResource']
+            [$this, 'handleResourceTemplateBrowseActions']
         );
 
         // Add elements to the resource template form.
@@ -1768,12 +1769,13 @@ class Module extends AbstractModule
         $vars->offsetSet('content', $html);
     }
 
-    public function appendButtonActionNewResource(Event $event): void
+    public function handleResourceTemplateBrowseActions(Event $event): void
     {
         /**
          * @var \Laminas\View\Renderer\PhpRenderer $view
          * @var \Omeka\Api\Representation\ResourceTemplateRepresentation $resourceTemplate
          * @var \Omeka\View\Helper\UserIsAllowed $userIsAllowed
+         * @var \Common\Stdlib\EasyMeta $easyMeta
          */
 
         $services = $this->getServiceLocator();
@@ -1786,29 +1788,42 @@ class Module extends AbstractModule
         $resourceTemplate = $event->getParam('resource');
         $useForResources = $resourceTemplate->dataValue('use_for_resources');
         if (!$useForResources || in_array('items', $useForResources)) {
-            $resourceLabel = 'item';
-            $controllerName = 'item';
-            $resourceEntity = \Omeka\Entity\Item::class;
+            $resourceName = 'items';
         } elseif (in_array('item_sets', $useForResources)) {
-            $resourceLabel = 'item set';
-            $controllerName = 'item-set';
-            $resourceEntity = \Omeka\Entity\ItemSet::class;
+            $resourceName = 'item_sets';
+        } elseif (in_array('media', $useForResources)) {
+            $resourceName = 'media';
         } else {
+            // TODO Allow to search resources.
             return;
         }
 
         $plugins = $services->get('ViewHelperManager');
+        $translate = $plugins->get('translate');
+        $hyperlink = $plugins->get('hyperlink');
+        $urlHelper = $plugins->get('url');
+        $easyMeta = $services->get('Common\EasyMeta');
         $userIsAllowed = $plugins->get('userIsAllowed');
-        if (!$userIsAllowed($resourceEntity, 'create')) {
-            return;
+        $translatePlural = $plugins->get('translatePlural');
+
+        $resourceLabel = $easyMeta->resourceLabel($resourceName);
+        $resourcesLabel = $easyMeta->resourceLabelPlural($resourceName);
+        $controllerName = $easyMeta->resourceType($resourceName);
+        $resourceEntity = $easyMeta->entityClass($resourceName);
+
+        if ($resourceEntity) {
+            $total = $services->get('Omeka\ApiManager')->search($resourceName, ['resource_template_id' => $resourceTemplate->id(), 'limit' => 0])->getTotalResults();
+            $urlBrowse = $urlHelper('admin/default', ['controller' => $controllerName, 'action' => 'browse'], ['query' => ['resource_template_id' => $resourceTemplate->id()]]);
+            $label = $translate($translatePlural($resourceLabel, $resourcesLabel, $total));
+            echo sprintf('<li class="browse-resources total-resources" style="width: 48px;">%s</li>', $hyperlink($total, $urlBrowse, ['class' => 'quick-total', 'title' => sprintf($translate('Browse %1$d %2$s'), $total, $label)]));
         }
 
-        $translate = $plugins->get('translate');
-        $urlHelper = $plugins->get('url');
-        $hyperlink = $plugins->get('hyperlink');
-
-        $url = $urlHelper('admin/default', ['controller' => $controllerName, 'action' => 'add'], ['query' => ['resource_template_id' => $resourceTemplate->id()]]);
-        echo sprintf('<li>%s</li>', $hyperlink('', $url, ['class' => 'o-icon-add', 'title' => sprintf($translate('Add new %s'), $translate($resourceLabel))]));
+        if (!in_array($resourceName, ['resources', 'media']) && $userIsAllowed($resourceEntity, 'create')) {
+            $urlPlus = $urlHelper('admin/default', ['controller' => $controllerName, 'action' => 'add'], ['query' => ['resource_template_id' => $resourceTemplate->id()]]);
+            echo sprintf('<li>%s</li>', $hyperlink('', $urlPlus, ['class' => 'o-icon-add', 'title' => sprintf($translate('Add new %s'), $translate($resourceLabel))]));
+        } else {
+            echo '<li><span class="no-action" style="display: inline-block; width: 24px;"></span></li>';
+        }
     }
 
     public function addResourceTemplateFormElements(Event $event): void
