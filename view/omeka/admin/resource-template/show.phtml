@@ -118,7 +118,7 @@ $matches = [];
             <td><?php echo $escape($resourceTemplateProperty->defaultLang()); ?></td>
             <td><dl><?php foreach ($resourceTemplateProperty->data() as $key => $value): ?>
                 <?php if (!$value || mb_substr($key, 0, 2) === 'o:' || in_array($key, ['is-title-property', 'is-description-property'])) continue; ?>
-                <dt><?php echo str_replace('_', ' ', $key); ?></dt>
+                <dt><?php echo strtr($key, ['_' => ' ']); ?></dt>
                 <?php if (is_array($value)): ?>
                     <?php foreach ($value as $k => $v): ?>
                         <?php if (is_array($v)) $v = json_encode($v, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); ?>
@@ -148,7 +148,7 @@ $matches = [];
     <span class="label" style="font-weight: bold;"><?php echo $translate('Advanced settings'); ?></span>
     <dl><?php foreach ($resourceTemplate->data() as $key => $value): ?>
         <?php if (!$value) continue; ?>
-        <dt><?php echo str_replace('_', ' ', $key); ?></dt>
+        <dt><?php echo strtr($key, ['_' => ' ']); ?></dt>
         <?php if (is_array($value)): ?>
             <?php foreach ($value as $k => $v): ?>
                 <?php if (is_array($v)) $v = json_encode($v, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); ?>

@@ -44,7 +44,7 @@ foreach ($resourceTemplates as $resourceTemplate) {
 }
 </style>
 
-<?= str_replace('<h2>', '<h2 id="table-caption-template-compare">', $this->pageTitle($translate('Table of labels'), 1, $translate('Resource templates'))) ?>
+<?= strtr($this->pageTitle($translate('Table of labels'), 1, $translate('Resource templates')), ['<h2>' => '<h2 id="table-caption-template-compare">']) ?>
 
 <?= $this->form($form) ?>
 

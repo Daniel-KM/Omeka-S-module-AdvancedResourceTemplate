@@ -381,7 +381,7 @@ class ArtMapper extends AbstractPlugin
             if (!empty($target['replace'])) {
                 $target['replace']['{__value__}'] = $value;
                 $target['replace']['{__label__}'] = $value;
-                $transformed = str_replace(array_keys($target['replace']), array_values($target['replace']), $target['pattern']);
+                $transformed = strtr($target['pattern'], $target['replace']);
             }
             if (!empty($target['twig'])) {
                 $target['pattern'] = $transformed;
@@ -580,7 +580,7 @@ class ArtMapper extends AbstractPlugin
                 case 'replace':
                     $arga = $extractAssociative($args);
                     if ($arga) {
-                        $v = str_replace(array_keys($arga), array_values($arga), $w);
+                        $v = strtr($w, $arga);
                     }
                     break;
 
@@ -852,7 +852,7 @@ class ArtMapper extends AbstractPlugin
             // cannot be a reserved keyword.
             foreach ($filters as $filter) {
                 $v = $hasReplaceQuery
-                    ? $twigProcess($v, str_replace(array_keys($replace), array_values($replace), $filter))
+                    ? $twigProcess($v, strtr($filter, $replace))
                     : $twigProcess($v, $filter);
             }
             // A twig pattern may return an array.
@@ -860,12 +860,12 @@ class ArtMapper extends AbstractPlugin
                 $v = (string) reset($v);
             }
             if ($hasReplaceQuery) {
-                $twigReplace[str_replace(array_keys($replace), array_values($replace), $query)] = $v;
+                $twigReplace[strtr($query, $replace)] = $v;
             } else {
                 $twigReplace[$query] = $v;
             }
         }
-        return str_replace(array_keys($twigReplace), array_values($twigReplace), $pattern);
+        return strtr($pattern, $twigReplace);
     }
 
     protected function normalizeMapping(array $mapping): array
@@ -929,7 +929,7 @@ class ArtMapper extends AbstractPlugin
     private function _flatArray(array &$array, &$flatArray, $keys = null): void
     {
         foreach ($array as $key => $value) {
-            $nKey = str_replace(['.', '\\'], ['\.', '\\\\'], (string) $key);
+            $nKey = strtr((string) $key, ['.' => '\.', '\\' => '\\\\']);
             if (is_array($value)) {
                 $this->_flatArray($value, $flatArray, $keys . '.' . $nKey);
             } else {

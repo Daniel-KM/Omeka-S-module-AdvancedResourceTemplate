@@ -18,7 +18,7 @@ class GenericAutofiller extends AbstractAutofiller
         // TODO Manage language.
         // The max number of rows is the default one or the one set in the que query.
         $params = [];
-        parse_str(str_replace('{query}', rawurlencode($query), (string) $this->options['query']), $params);
+        parse_str(strtr((string) $this->options['query'], ['{query}' => rawurlencode($query)]), $params);
 
         $response = $this->httpClient
             ->setUri($this->options['url'])
