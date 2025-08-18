@@ -1,7 +1,6 @@
 <?php
 /**
  * @var \Laminas\View\Renderer\PhpRenderer $this
- * @var \Omeka\Api\Representation\VocabularyRepresentation $resourceTemplate
  * @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $resourceTemplate
  */
 
@@ -21,6 +20,8 @@ $hyperlink = $plugins->get('hyperlink');
 
 $this->headLink()->appendStylesheet($this->assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
 $this->htmlElement('body')->appendAttribute('class', 'resource-templates show');
+
+$matches = [];
 ?>
 
 <?php echo $this->pageTitle($resourceTemplate->label(), 1, $translate('Resource templates')); ?>
@@ -100,7 +101,13 @@ $this->htmlElement('body')->appendAttribute('class', 'resource-templates show');
             <td>
                 <ul>
                     <?php foreach ($resourceTemplateProperty->dataTypeLabels() as $dataTypeLabel): ?>
-                    <li><?php echo $escape($dataTypeLabel['label']); ?></li>
+                    <li>
+                        <?php if (strtok($dataTypeLabel['name'], ':') === 'customvocab'):?>
+                        <?= $hyperlink($dataTypeLabel['label'], $url('admin/default', ['controller' => 'custom-vocab'], ['query' => ['id' => strtok(':')]])) ?>
+                        <?php else: ?>
+                        <?php echo $escape($dataTypeLabel['label']); ?>
+                        <?php endif; ?>
+                    </li>
                     <?php endforeach; ?>
                 </ul>
             </td>
