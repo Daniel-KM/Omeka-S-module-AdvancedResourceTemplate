@@ -1333,6 +1333,10 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
     {
         $rtps = [];
         foreach ($post['o:resource_template_property'] as $rtp) {
+            // TODO Fix issue with property id id with form, but should be fixed when form is filled with bad data or when module is upgraded?
+            if (is_array($rtp['o:property']['o:id'])) {
+                $rtp['o:property']['o:id'] = $rtp['o:property']['o:id']['o:id'];
+            }
             $propertyId = $rtp['o:property']['o:id'];
             $rtpd = $rtp;
             unset($rtpd['o:property'], $rtpd['o:data']);
