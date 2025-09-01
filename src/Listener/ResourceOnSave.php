@@ -845,7 +845,7 @@ class ResourceOnSave
             return $resource;
         }
 
-        $separator = trim((string) $rtpData->dataValue('split_separator'));
+        $separator = (string) $rtpData->dataValue('split_separator');
         if ($separator === '') {
             return $resource;
         }
