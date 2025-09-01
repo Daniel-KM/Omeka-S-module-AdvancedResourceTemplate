@@ -2077,7 +2077,7 @@ class Module extends AbstractModule
                 }
                 $result[$autofillerKey]['mapping'][] = [
                     'from' => $from,
-                    'to' => array_filter($ton, fn ($v) => !is_null($v)),
+                    'to' => array_filter($ton, fn ($v) => $v !== null),
                 ];
             }
         }

@@ -184,7 +184,7 @@ class ResourceTemplatePropertyRepresentation extends \Omeka\Api\Representation\R
                 $lists[$id][] = new ResourceTemplatePropertyDataRepresentation($rtpData, $services);
             }
         }
-        return is_null($index)
+        return $index === null
             ? $lists[$id]
             : ($lists[$id][$index] ?? null);
     }

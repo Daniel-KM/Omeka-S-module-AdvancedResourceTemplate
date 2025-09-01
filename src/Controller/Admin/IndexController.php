@@ -103,7 +103,7 @@ class IndexController extends AbstractRestfulController
         $results = $autofiller
             ->getResults($q, $lang);
 
-        if (is_null($results)) {
+        if ($results === null) {
             return $this->jSend(JSend::ERROR, null, (new PsrMessage(
                 'The remote service "{service}" seems unavailable.', // @translate
                 ['service' => $autofiller->getLabel()]

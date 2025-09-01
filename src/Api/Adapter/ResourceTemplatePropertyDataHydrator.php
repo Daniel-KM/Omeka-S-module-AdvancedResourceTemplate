@@ -25,7 +25,7 @@ class ResourceTemplatePropertyDataHydrator
      */
     public function hydrate(Request $request, ResourceTemplate $entity, ResourceTemplateAdapter $adapter): void
     {
-        if (is_null($this->resourceTemplateProperties)) {
+        if ($this->resourceTemplateProperties === null) {
             // To avoid a flush and issues with remove/persist, get templates
             // properties by property, that are unique.
             $list = [];

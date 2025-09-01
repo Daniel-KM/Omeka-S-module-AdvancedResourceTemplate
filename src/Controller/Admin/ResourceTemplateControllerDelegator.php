@@ -780,25 +780,25 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                 || !is_string($property['vocabulary_label'])
                 || !is_string($property['local_name'])
                 || !is_string($property['label'])
-                || (!is_string($property['o:alternate_label']) && !is_null($property['o:alternate_label']))
-                || (!is_string($property['o:alternate_comment']) && !is_null($property['o:alternate_comment']))
+                || (!is_string($property['o:alternate_label']) && $property['o:alternate_label'] !== null)
+                || (!is_string($property['o:alternate_comment']) && $property['o:alternate_comment'] !== null)
                 || !is_bool($property['o:is_required'])
                 || !is_bool($property['o:is_private'])
             ) {
                 return false;
             }
             if ($oldExportBefore3) {
-                if ((!is_string($property['data_type_name']) && !is_null($property['data_type_name']))
-                    || (!is_string($property['data_type_label']) && !is_null($property['data_type_label']))
+                if ((!is_string($property['data_type_name']) && $property['data_type_name'] !== null)
+                    || (!is_string($property['data_type_label']) && $property['data_type_label'] !== null)
                 ) {
                     return false;
                 }
-            } elseif (!is_array($property['data_types']) && !is_null($property['data_types'])) {
+            } elseif (!is_array($property['data_types']) && $property['data_types'] !== null) {
                 return false;
             }
 
             // Validate info introduced in newer versions.
-            if (isset($property['o:default_lang']) && (!is_string($property['o:default_lang']) && !is_null($property['o:default_lang']))) {
+            if (isset($property['o:default_lang']) && (!is_string($property['o:default_lang']) && $property['o:default_lang'] !== null)) {
                 // o:default_lang introduced in v4.0.0
                 return false;
             }
