@@ -83,8 +83,8 @@ $translate = $plugins->get('translate');
     // $values is an AppendIterator: array_filter(), count(), etc. cannot be used.
     $sourceValues = $values;
     foreach (array_keys($groups) as $groupLabel):
-        $valuesGroup = new \AppendIterator();
-        $sourceValuesFiltered = new \AppendIterator();
+        $valuesGroup = new \AdvancedResourceTemplate\Stdlib\CountableAppendIterator();
+        $sourceValuesFiltered = new \AdvancedResourceTemplate\Stdlib\CountableAppendIterator();
         foreach ($sourceValues as $term => $propertyData) {
             ($propertyData['group'] ?? '') === $groupLabel
                 ? $valuesGroup->append(new \ArrayIterator([$term => $propertyData]))

@@ -7,6 +7,7 @@ if (!class_exists('Common\TraitModule', false)) {
 }
 
 use AdvancedResourceTemplate\Listener\ResourceOnSave;
+use AdvancedResourceTemplate\Stdlib\CountableAppendIterator;
 use Common\TraitModule;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
@@ -847,7 +848,7 @@ class Module extends AbstractModule
 
         // Instead of an array, use an iterator to keep the same term for
         // multiple propertyDatas.
-        $newValues = new \AppendIterator();
+        $newValues = new CountableAppendIterator();
         $hasGroups = !empty($groups);
         $currentGroup = null;
         foreach ($valuesWithLabel as $term => $propData) {
