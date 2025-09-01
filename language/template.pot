@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-09 00:00+0000\n"
+"POT-Creation-Date: 2025-09-01 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,52 +17,44 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/scripts/upgrade.php:51 Module.php:49 Module.php:59
+#: data/scripts/upgrade.php:51 Module.php:50 Module.php:60
 msgid ""
 "Some features require the module {module} to be upgraded to version "
 "{version} or later."
 msgstr ""
 
-#: Module.php:39
+#: Module.php:40
 #, php-format
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr ""
 
-#: Module.php:1056 Module.php:1396
+#: Module.php:1058 Module.php:1398
 msgid "Search this value"
 msgstr ""
 
-#: Module.php:1057 Module.php:1397
+#: Module.php:1059 Module.php:1399
 msgid "Show this item"
 msgstr ""
 
-#: Module.php:1058 Module.php:1398
+#: Module.php:1060 Module.php:1400
 msgid "Show this media"
 msgstr ""
 
-#: Module.php:1059 Module.php:1399
+#: Module.php:1061 Module.php:1401
 msgid "Show this item set"
 msgstr ""
 
-#: Module.php:1060 Module.php:1400
+#: Module.php:1062 Module.php:1402
 msgid "Show this resource"
 msgstr ""
 
-#: Module.php:1061 Module.php:1401
+#: Module.php:1063 Module.php:1403
 msgid "Open this external uri in a new tab"
 msgstr ""
 
 #: src/Autofiller/GenericAutofiller.php:58
 #: src/Autofiller/GenericAutofiller.php:103
 msgid "[Result]"
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:92
-msgid "The query is empty."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:277
-msgid "An error occurred."
 msgstr ""
 
 #: view/common/resource-values.phtml:107
@@ -73,38 +65,38 @@ msgstr ""
 msgid "Default language?"
 msgstr ""
 
-#: view/omeka/admin/resource-template/show.phtml:39
+#: view/omeka/admin/resource-template/show.phtml:40
 #, php-format
 msgid "Browse %d items"
 msgstr ""
 
-#: view/omeka/admin/resource-template/show.phtml:42
+#: view/omeka/admin/resource-template/show.phtml:43
 #, php-format
 msgid "Browse %d item sets"
 msgstr ""
 
-#: view/omeka/admin/resource-template/show.phtml:45
+#: view/omeka/admin/resource-template/show.phtml:46
 #, php-format
 msgid "Browse %d media"
 msgstr ""
 
-#: view/omeka/admin/resource-template/show.phtml:51
+#: view/omeka/admin/resource-template/show.phtml:52
 msgid "As csv"
 msgstr ""
 
-#: view/omeka/admin/resource-template/show.phtml:52
+#: view/omeka/admin/resource-template/show.phtml:53
 msgid "As tsv"
 msgstr ""
 
-#: view/omeka/admin/resource-template/show.phtml:53
+#: view/omeka/admin/resource-template/show.phtml:54
 msgid "As json"
 msgstr ""
 
-#: view/omeka/admin/resource-template/show.phtml:79
+#: view/omeka/admin/resource-template/show.phtml:80
 msgid "Other settings"
 msgstr ""
 
-#: view/omeka/admin/resource-template/show.phtml:141
+#: view/omeka/admin/resource-template/show.phtml:148
 msgid "Advanced settings"
 msgstr ""
 
@@ -242,102 +234,102 @@ msgid ""
 "Dynamic Item Sets{link_end}. You should install it if you need it."
 msgstr ""
 
-#: data/scripts/upgrade.php:713
+#: data/scripts/upgrade.php:717
 msgid ""
 "Currently, the feature is used by {count} item sets: {item_sets}. Upgrade is "
 "automatic."
 msgstr ""
 
-#: data/scripts/upgrade.php:723
+#: data/scripts/upgrade.php:727
 msgid "Currently, the feature is not used by any item set."
 msgstr ""
 
-#: data/scripts/upgrade.php:731
+#: data/scripts/upgrade.php:735
 msgid "It is now possible to set item sets via the template."
 msgstr ""
 
-#: data/scripts/upgrade.php:738
+#: data/scripts/upgrade.php:742
 msgid ""
 "It is now possible to display fake values in record, like \"Unknown author\"."
 msgstr ""
 
-#: data/scripts/upgrade.php:743
+#: data/scripts/upgrade.php:747
 msgid ""
 "It is now possible to store the date when the the resource is issued for the "
 "first time."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:204
+#: src/Listener/ResourceOnSave.php:211
 msgid "This template cannot be used for this resource."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:214
+#: src/Listener/ResourceOnSave.php:221
 msgid "A class is required."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:224
+#: src/Listener/ResourceOnSave.php:231
 msgid "The class should be {resource_class}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:230
+#: src/Listener/ResourceOnSave.php:237
 msgid "The class should be one of {resource_classes}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:245 src/Listener/ResourceOnSave.php:274
+#: src/Listener/ResourceOnSave.php:252 src/Listener/ResourceOnSave.php:281
 msgid "The minimum number of files or medias is {min}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:326
+#: src/Listener/ResourceOnSave.php:333
 msgid ""
 "The html input pattern \"{pattern}\" for template {template} cannot be "
 "processed."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:335
+#: src/Listener/ResourceOnSave.php:342
 msgid ""
 "The value \"{value}\" for term {property} does not follow the input pattern "
 "\"{pattern}\"."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:354
+#: src/Listener/ResourceOnSave.php:361
 msgid ""
 "The value for term {property} is shorter ({length} characters) than the "
 "minimal size ({number} characters)."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:364
+#: src/Listener/ResourceOnSave.php:371
 msgid ""
 "The value for term {property} is longer ({length} characters) than the "
 "maximal size ({number} characters)."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:386
+#: src/Listener/ResourceOnSave.php:393
 msgid ""
 "The number of values ({count}) for term {property} is lower than the minimal "
 "number of {number}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:397
+#: src/Listener/ResourceOnSave.php:404
 msgid ""
 "The number of values ({count}) for term {property} is greater than the "
 "maximal number of {number}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:456
+#: src/Listener/ResourceOnSave.php:463
 msgid ""
 "The value for term {property} should be unique, but already set for resource "
 "#{resource_id}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:704
+#: src/Listener/ResourceOnSave.php:711
 msgid "New descriptor appended to custom vocab \"{custom_vocab}\": {value}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:709
+#: src/Listener/ResourceOnSave.php:716
 msgid "New descriptors appended to custom vocab \"{custom_vocab}\": {values}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:717
+#: src/Listener/ResourceOnSave.php:724
 msgid ""
 "Unable to append new descriptors to custom vocab \"{custom_vocab}\":  {error}"
 msgstr ""
@@ -407,8 +399,13 @@ msgid ""
 "Skip checking advanced template settings to allow to save an invalid record"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:32 src/Form/SettingsFieldset.php:68
-msgid "info"
+#: src/Form/SettingsFieldset.php:32
+msgid ""
+"For example if a value is longer than the specified length, it will be saved "
+"anyway.\n"
+"This option should be used only during a migration process or to simplify a "
+"complex batch edition or import.\n"
+"It does not skip core checks, in particular required properties."
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:47
@@ -441,6 +438,14 @@ msgstr ""
 
 #: src/Form/SettingsFieldset.php:67
 msgid "Append properties to resource form"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:68
+msgid ""
+"When no template is selected in resource form, the property selector may be "
+"available or not to force to select a template.\n"
+"Warning: you may have to set each resource template as open/close to "
+"addition according to this setting."
 msgstr ""
 
 #: src/Form/SettingsFieldset.php:73
@@ -859,27 +864,32 @@ msgstr ""
 msgid "%1$s: %2$s"
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:110
+#: src/Controller/Admin/IndexController.php:47
+#: src/Controller/Admin/IndexController.php:89
+msgid "The query is empty."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:108
 msgid "The remote service \"{service}\" seems unavailable."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:153
+#: src/Controller/Admin/IndexController.php:147
 msgid "The service is empty."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:159
+#: src/Controller/Admin/IndexController.php:153
 msgid "The template is empty."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:170
+#: src/Controller/Admin/IndexController.php:164
 msgid "The template \"{template_id}\" is not available."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:179
+#: src/Controller/Admin/IndexController.php:174
 msgid "The service \"{service}\" has no mapping."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:186
+#: src/Controller/Admin/IndexController.php:183
 msgid "The service \"{service}\" is not available."
 msgstr ""
 
@@ -915,13 +925,13 @@ msgstr ""
 msgid "File cannot be checked or saved."
 msgstr ""
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1174
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1176
 msgid ""
 "When multiple fields use the same property, only one field can be without "
 "data type."
 msgstr ""
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1177
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1179
 msgid ""
 "When multiple fields use the same property, the data types must be unique "
 "among them."
