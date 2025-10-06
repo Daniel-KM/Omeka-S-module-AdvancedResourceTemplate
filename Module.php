@@ -916,7 +916,7 @@ class Module extends AbstractModule
         static $siteSlug;
         static $text;
         static $advancedSearchConfig;
-        static $isInternalSearch;
+        static $isInternalQuerier;
 
         // Early prepare all variables and functions one time.
         if ($display === false) {
@@ -1013,7 +1013,7 @@ class Module extends AbstractModule
                 $advancedSearchConfig = $display['advanced_search'] ? $advancedSearchConfig() : null;
                 $searchEngine = $advancedSearchConfig ? $advancedSearchConfig->searchEngine() : null;
                 $querier = $searchEngine ? $searchEngine->querier() : null;
-                $isInternalSearch = $querier instanceof \AdvancedSearch\Querier\InternalQuerier;
+                $isInternalQuerier = $querier instanceof \AdvancedSearch\Querier\InternalQuerier;
                 // Fallback to standard search for module Advanced search.
                 if ($display['advanced_search'] && (!$querier || $querier instanceof \AdvancedSearch\Querier\NoopQuerier)) {
                     // Update derivative display keys first to get fallback.
@@ -1173,7 +1173,7 @@ class Module extends AbstractModule
             $urlQuery = $advancedSearchConfig->toRequest($query);
             */
 
-            if ($isInternalSearch) {
+            if ($isInternalQuerier) {
                 $urlQuery = [
                     'filter' => [[
                         'field' => $property,
@@ -1182,28 +1182,18 @@ class Module extends AbstractModule
                     ]],
                 ];
             } else {
+                // Warning: for solr, the data (linked resource id or uri)
+                // should be indexed for this property.
                 $prop = is_array($property) && !$advancedSearchConfig
                     ? reset($property)
                     : $property;
-                // For resource, the id may or may not be indexed in Solr, so
-                // use title. And the property may not be indexed too, anyway.
-                if ($vr) {
-                    $urlQuery = [
-                        'filter' => [[
-                            'field' => $prop,
-                            'type' => 'eq',
-                            'val' => $vr->displayTitle(),
-                        ],
-                    ]];
-                } else {
-                    $urlQuery = [
-                        'filter' => [[
-                            'field' => $prop,
-                            'type' => 'eq',
-                            'val' => $uriOrVal,
-                        ]],
-                    ];
-                }
+                $urlQuery = [
+                    'filter' => [[
+                        'field' => $prop,
+                        'type' => $vr ? 'res' : 'eq',
+                        'val' => $vr ? $vr->id() : $uriOrVal,
+                    ]],
+                ];
             }
             $searchUrl = $isAdmin
                 ? $advancedSearchConfig->adminSearchUrl(false, $urlQuery)
@@ -1272,7 +1262,7 @@ class Module extends AbstractModule
         static $siteSlug;
         static $text;
         static $advancedSearchConfig;
-        static $isInternalSearch;
+        static $isInternalQuerier;
 
         // Early prepare all variables and functions one time.
         if ($display === false) {
@@ -1358,7 +1348,7 @@ class Module extends AbstractModule
                 $advancedSearchConfig = $display['advanced_search'] ? $advancedSearchConfig() : null;
                 $searchEngine = $advancedSearchConfig ? $advancedSearchConfig->searchEngine() : null;
                 $querier = $searchEngine ? $searchEngine->querier() : null;
-                $isInternalSearch = $querier instanceof \AdvancedSearch\Querier\InternalQuerier;
+                $isInternalQuerier = $querier instanceof \AdvancedSearch\Querier\InternalQuerier;
                 // Fallback to standard search for module Advanced search.
                 if ($display['advanced_search'] && (!$querier || $querier instanceof \AdvancedSearch\Querier\NoopQuerier)) {
                     // Update derivative display keys first to get fallback.
@@ -1487,7 +1477,7 @@ class Module extends AbstractModule
             $urlQuery = $advancedSearchConfig->toRequest($query);
             */
 
-            if ($isInternalSearch) {
+            if ($isInternalQuerier) {
                 $urlQuery = [
                     'filter' => [[
                         'field' => $property,
@@ -1496,28 +1486,18 @@ class Module extends AbstractModule
                     ]],
                 ];
             } else {
+                // Warning: for solr, the data (linked resource id or uri)
+                // should be indexed for this property.
                 $prop = is_array($property) && !$advancedSearchConfig
                     ? reset($property)
                     : $property;
-                // For resource, the id may or may not be indexed in Solr, so
-                // use title. And the property may not be indexed too, anyway.
-                if ($vr) {
-                    $urlQuery = [
-                        'filter' => [[
-                            'field' => $prop,
-                            'type' => 'eq',
-                            'val' => $vr->displayTitle(),
-                        ],
-                    ]];
-                } else {
-                    $urlQuery = [
-                        'filter' => [[
-                            'field' => $prop,
-                            'type' => 'eq',
-                            'val' => $uriOrVal,
-                        ]],
-                    ];
-                }
+                $urlQuery = [
+                    'filter' => [[
+                        'field' => $prop,
+                        'type' => $vr ? 'res' : 'eq',
+                        'val' => $vr ? $vr->id() : $uriOrVal,
+                    ]],
+                ];
             }
             $searchUrl = $isAdmin
                 ? $advancedSearchConfig->adminSearchUrl(false, $urlQuery)
