@@ -13,7 +13,7 @@ class Metadata implements ResourcePageBlockLayoutInterface
 {
     public function getLabel() : string
     {
-        return 'Metadata'; // @translate
+        return 'Advanced Resource Template: Metadata'; // @translate
     }
 
     public function getCompatibleResourceNames() : array
