@@ -171,10 +171,13 @@ class ResourceOnSave
 
     public function validateEntityHydratePost(Event $event): void
     {
-        /** @var \Omeka\Entity\Resource $entity */
+        /**
+         * @var \Omeka\Api\Request $request
+         * @var \Omeka\Entity\Resource $entity
+         * @var \Omeka\Entity\ResourceTemplate $templateEntity
+         */
         $entity = $event->getParam('entity');
 
-        /** @var \Omeka\Entity\ResourceTemplate $templateEntity */
         $templateEntity = $entity->getResourceTemplate();
         if (!$templateEntity) {
             return;
@@ -189,7 +192,7 @@ class ResourceOnSave
          */
         $adapter = $event->getTarget();
         $template = $adapter->getAdapter('resource_templates')->getRepresentation($templateEntity);
-        // $request = $event->getParam('request');
+        $request = $event->getParam('request');
         $errorStore = $event->getParam('errorStore');
 
         // Update the title with fallback properties.
@@ -202,6 +205,10 @@ class ResourceOnSave
         $this->updateCustomVocabOpen($event);
 
         // Check the template constraints.
+
+        if ($request->getOption('skipValidation')) {
+            return;
+        }
 
         $settings = $this->services->get('Omeka\Settings');
         $skipChecks = (bool) $settings->get('advancedresourcetemplate_skip_checks');
