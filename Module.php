@@ -182,6 +182,7 @@ class Module extends AbstractModule
         );
 
         // Check the resource according to the specified template settings.
+        // Store the fallback title when needed.
         $sharedEventManager->attach(
             \Omeka\Api\Adapter\ItemAdapter::class,
             'api.hydrate.post',

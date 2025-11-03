@@ -8,7 +8,9 @@ use Common\Stdlib\PsrMessage;
 use Exception;
 use Laminas\EventManager\Event;
 use Laminas\ServiceManager\ServiceLocatorInterface;
+use Omeka\Api\Adapter\AbstractResourceEntityAdapter;
 use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use Omeka\Entity\Resource;
 use Omeka\Entity\ResourceTemplate;
 use Omeka\Entity\Value;
 use Omeka\Stdlib\ErrorStore;
@@ -178,15 +180,6 @@ class ResourceOnSave
             return;
         }
 
-        // Update open custom vocabs in any cases, when checks are skipped.
-        $this->updateCustomVocabOpen($event);
-
-        $settings = $this->services->get('Omeka\Settings');
-        $skipChecks = (bool) $settings->get('advancedresourcetemplate_skip_checks');
-        if ($skipChecks) {
-            return;
-        }
-
         /**
          * @var \Omeka\Api\Adapter\AbstractResourceEntityAdapter $adapter
          * @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template
@@ -198,6 +191,23 @@ class ResourceOnSave
         $template = $adapter->getAdapter('resource_templates')->getRepresentation($templateEntity);
         // $request = $event->getParam('request');
         $errorStore = $event->getParam('errorStore');
+
+        // Update the title with fallback properties.
+        $title = $entity->getTitle();
+        if ($title === null || $title === '') {
+            $this->fillTitleFromFallbackProperties($entity, $adapter);
+        }
+
+        // Update open custom vocabs in any cases, when checks are skipped.
+        $this->updateCustomVocabOpen($event);
+
+        // Check the template constraints.
+
+        $settings = $this->services->get('Omeka\Settings');
+        $skipChecks = (bool) $settings->get('advancedresourcetemplate_skip_checks');
+        if ($skipChecks) {
+            return;
+        }
 
         $directMessage = $this->displayDirectMessage();
         $messenger = $directMessage ? $this->services->get('ControllerPluginManager')->get('messenger') : null;
@@ -596,6 +606,45 @@ class ResourceOnSave
         return $routeName === 'admin/default'
             && in_array($routeMatch->getParam('__CONTROLLER__'), ['item', 'item-set', 'media', 'annotation'])
             && in_array($routeMatch->getParam('action'), ['add', 'edit']);
+    }
+
+    /**
+     * Add a specific title from fallback properties if the title is empty.
+     *
+     * Unlike Omeka core, it may use the linked resource title value.
+     *
+     * @see \Omeka\Api\Adapter\ResourceTitleHydrator::getResourceTitle()
+     */
+    protected function fillTitleFromFallbackProperties(Resource $entity, AbstractResourceEntityAdapter $adapter): void
+    {
+        /**
+         * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
+         * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation|null $vr
+         * @var \Omeka\Entity\Resource $vrEntity
+         */
+        $resource = $adapter->getRepresentation($entity);
+
+        $resourceTemplate = $resource->resourceTemplate();
+        $titleProperty = $resourceTemplate->titleProperty();
+        $defaultFallbacks = [$titleProperty ? $titleProperty->term() : 'dcterms:title'];
+        $fallbacks = array_merge(
+            $defaultFallbacks,
+            array_values($resourceTemplate->dataValue('title_fallback_properties') ?: [])
+        );
+
+        $entityManager = $this->services->get('Omeka\EntityManager');
+
+        foreach ($fallbacks as $fallback) foreach ($resource->value($fallback, ['all' => true]) as $value) {
+            $val = $vr = $value->valueResource()
+                // Do not use method title(), because it calls a upper layer
+                // event.
+                ? $entityManager->find(\Omeka\Entity\Resource::class, $vr->id())->getTitle()
+                : $value->value();
+            if ($val !== null && $val !== '') {
+                $entity->setTitle($val);
+                return;
+            }
+        }
     }
 
     /**

@@ -168,6 +168,22 @@ class ResourceTemplateDataFieldset extends Fieldset
             ])
 
             ->add([
+                'name' => 'title_fallback_properties',
+                'type' => OmekaElement\ArrayTextarea::class,
+                'options' => [
+                    'label' => 'Properties used as fallback for title', // @translate
+                    'as_key_value' => false,
+                ],
+                'attributes' => [
+                    'id' => 'title_fallback_properties',
+                    'placeholder' => <<<'TXT'
+                        dcterms:alternative
+                        dcterms:identifier
+                        TXT,
+                ],
+            ])
+
+            ->add([
                 'name' => 'automatic_values',
                 'type' => Element\Textarea::class,
                 'options' => [
