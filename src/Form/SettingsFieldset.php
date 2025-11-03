@@ -99,7 +99,7 @@ class SettingsFieldset extends Fieldset
                 'type' => Element\Checkbox::class,
                 'options' => [
                     'element_group' => 'metadata_display',
-                    'label' => 'Skip private values on sites, even when user is connected', // @translate
+                    'label' => 'Skip private values on sites, even for admin', // @translate
                 ],
                 'attributes' => [
                     'id' => 'advancedresourcetemplate_skip_private_values',

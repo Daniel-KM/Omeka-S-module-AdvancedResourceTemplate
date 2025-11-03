@@ -530,12 +530,16 @@ class Module extends AbstractModule
 
         $services = $this->getServiceLocator();
         $status = $services->get('Omeka\Status');
-        if ($status->isSiteRequest()
-            && $services->get('Omeka\Settings')->get('advancedresourcetemplate_skip_private_values')
-        ) {
-            $values = $this->hidePrivateValues($values);
-            if (!count($values)) {
-                return;
+        if ($status->isSiteRequest()) {
+            $skipPrivate = $services->get('Omeka\Settings\Site')->get('advancedresourcetemplate_skip_private_values');
+            $skipPrivate = is_numeric($skipPrivate)
+                ? (int) $skipPrivate
+                : $services->get('Omeka\Settings')->get('advancedresourcetemplate_skip_private_values');
+            if ($skipPrivate) {
+                $values = $this->hidePrivateValues($values);
+                if (!count($values)) {
+                    return;
+                }
             }
         }
 

@@ -223,6 +223,7 @@ return [
                 'all',
             ],
             'advancedresourcetemplate_properties_as_search_blacklist' => $defaultPropertyBlacklist,
+            'advancedresourcetemplate_skip_private_values' => '',
             'advancedresourcetemplate_block_metadata_fields' => [
                 'values-type' => [
                     'dcterms:type' => '',

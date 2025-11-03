@@ -42,6 +42,23 @@ class SiteSettingsFieldset extends Fieldset
             ])
             ->addElementsPropertyDisplay()
 
+            ->add([
+                'name' => 'advancedresourcetemplate_skip_private_values',
+                'type' => CommonElement\OptionalRadio::class,
+                'options' => [
+                    'element_group' => 'metadata_display',
+                    'label' => 'Display private values even for admin', // @translate
+                    'value_options' => [
+                        '' => 'Use main settings', // @translate
+                        '0' => 'Show', // @translate
+                        '1' => 'Hide', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'id' => 'advancedresourcetemplate_skip_private_values',
+                ],
+            ])
+
             // Block Metadata.
 
             ->add([
