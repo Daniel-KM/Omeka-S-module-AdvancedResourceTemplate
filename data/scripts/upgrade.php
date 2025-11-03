@@ -45,13 +45,24 @@ if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActi
 }
 
 if ($this->isModuleActive('DynamicItemSets')
-    && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.3')
+    && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.5')
 ) {
     $message = new PsrMessage(
         $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
-        ['module' => 'Dynamic Item Sets', 'version' => '3.4.3']
+        ['module' => 'Dynamic Item Sets', 'version' => '3.4.5']
     );
-    throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+    throw new ModuleCannotInstallException((string) $message);
+}
+
+if ($this->isModuleActive('AdvancedSearch')
+    && !$this->isModuleVersionAtLeast('AdvancedSearch', '3.4.53')
+) {
+    $message = new \Common\Stdlib\PsrMessage(
+        $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
+        ['module' => 'Advanced Search', 'version' => '3.4.53']
+    );
+    $messenger = $services->get('ControllerPluginManager')->get('messenger');
+    $messenger->addWarning($message);
 }
 
 if (version_compare((string) $oldVersion, '3.3.3.3', '<')) {
@@ -667,7 +678,6 @@ if (version_compare((string) $oldVersion, '3.4.31', '<')) {
 if (version_compare((string) $oldVersion, '3.4.32', '<')) {
     $blockMetadataFields = $localConfig['advancedresourcetemplate']['site_settings']['advancedresourcetemplate_block_metadata_fields'] ?? [];
     $blockMetadataComponents = $localConfig['advancedresourcetemplate']['site_settings']['advancedresourcetemplate_block_metadata_components'] ?? [];
-    $siteSettings = $services->get('Omeka\Settings\Site');
     $siteIds = $api->search('sites', [], ['returnScalar' => 'id'])->getContent();
     foreach ($siteIds as $siteId) {
         $siteSettings->setTargetId($siteId);
@@ -745,6 +755,24 @@ if (version_compare((string) $oldVersion, '3.4.40', '<')) {
 
     $message = new PsrMessage(
         'It is now possible to store the date when the the resource is issued for the first time.' // @translate
+    );
+    $messenger->addSuccess($message);
+}
+
+if (version_compare((string) $oldVersion, '3.4.47', '<')) {
+    $siteIds = $api->search('sites', [], ['returnScalar' => 'id'])->getContent();
+    foreach ($siteIds as $siteId) {
+        $siteSettings->setTargetId($siteId);
+        $siteSettings->set('advancedresourcetemplate_skip_private_values', '');
+    }
+
+    $message = new PsrMessage(
+        'A new site setting allows to hide private values in public interface even for admin users.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    $message = new PsrMessage(
+        'A new template setting allows to set fallbacks properties for title.' // @translate
     );
     $messenger->addSuccess($message);
 }

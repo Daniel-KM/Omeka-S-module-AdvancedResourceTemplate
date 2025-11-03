@@ -44,21 +44,21 @@ class Module extends AbstractModule
         }
 
         if ($this->isModuleActive('DynamicItemSets')
-            && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.3')
+            && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.5')
         ) {
             $message = new \Common\Stdlib\PsrMessage(
                 $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
-                ['module' => 'Dynamic Item Sets', 'version' => '3.4.3']
+                ['module' => 'Dynamic Item Sets', 'version' => '3.4.5']
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
 
         if ($this->isModuleActive('AdvancedSearch')
-            && !$this->isModuleVersionAtLeast('AdvancedSearch', '3.4.22')
+            && !$this->isModuleVersionAtLeast('AdvancedSearch', '3.4.53')
         ) {
             $message = new \Common\Stdlib\PsrMessage(
                 $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
-                ['module' => 'Advanced Search', 'version' => '3.4.22']
+                ['module' => 'Advanced Search', 'version' => '3.4.53']
             );
             $messenger = $services->get('ControllerPluginManager')->get('messenger');
             $messenger->addWarning($message);
