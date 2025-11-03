@@ -520,6 +520,16 @@ https://www.idref.fr/Sru/Solr
 /doc/str[@name="ppn_z"] = bibo:uri ^^uri ~ https://idref.fr/{__value__}
 ```
 
+### Development
+
+#### Skip validation
+
+A main setting allows to skip validation of the resource with the template and
+property metadata.
+
+For individual skipping, the key `skipValidation` as true can be added to api
+requests for create and api update.
+
 
 TODO
 ----
