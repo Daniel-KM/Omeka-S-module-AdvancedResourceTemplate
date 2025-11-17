@@ -350,7 +350,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                 try {
                     $prop = $this->api()->read('properties', [
                         'vocabulary' => $vocab->id(),
-                        'localName' => $import[$property]['local_name'],
+                        'localName' => $property['local_name'],
                     ])->getContent();
                 } catch (\Exception $e) {
                     $prop = null;
