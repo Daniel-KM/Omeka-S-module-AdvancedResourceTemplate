@@ -642,7 +642,7 @@ class ResourceOnSave
         $entityManager = $this->services->get('Omeka\EntityManager');
 
         foreach ($fallbacks as $fallback) foreach ($resource->value($fallback, ['all' => true]) as $value) {
-            $val = $vr = $value->valueResource()
+            $val = ($vr = $value->valueResource())
                 // Do not use method title(), because it calls a upper layer
                 // event.
                 ? $entityManager->find(\Omeka\Entity\Resource::class, $vr->id())->getTitle()
