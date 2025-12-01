@@ -244,6 +244,7 @@ return [
                     'dcterms:license' => '',
                 ],
             ],
+            'advancedresourcetemplate_block_metadata_components' => [],
             'advancedresourcetemplate_block_metadata_show_label' => false,
             'advancedresourcetemplate_block_metadata_show_info' => 'none',
             'advancedresourcetemplate_block_metadata_show_locale' => false,
