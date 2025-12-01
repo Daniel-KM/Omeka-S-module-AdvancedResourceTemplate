@@ -468,8 +468,8 @@ Pour un service json, utilisez la notation objet :
 [geonames]
 ?username=demo
 toponymName = dcterms:title
-geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{__value__}/
-adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {__value__}
+geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{{ value }}/
+adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {{ value }}
 countryName = dcterms:isPartOf
 ~ = dcterms:spatial ~ Coordonnées : {lat}/{lng}
 ```
@@ -487,7 +487,7 @@ service à distance : il suffit de les ajouter au format url encodée sur une
 ligne commençant par `?`.
 
 Il est également possible de formater les valeurs : il suffit d’ajouter `~` pour
-indiquer le format à utiliser et `{__value__}` pour préciser la valeur à partir
+indiquer le format à utiliser et `{{ value }}` pour préciser la valeur à partir
 de la source. Pour un schéma complexe, vous pouvez utiliser tout chemin de la
 source entre `{` et `}`.
 
@@ -518,7 +518,7 @@ quatre lignes distinctes :
 - le chemin à la liste des résultats, lorsqu’il n’est pas en racine, afin de
   pouvoir réaliser une boucle, indiqué par `{list}`,
 - le chemin vers la valeur à utiliser comme libellé pour chaque résultat,
-  indiqué par `{__label__}`. S’il est absent, le premier champ sera utilisé.
+  indiqué par `{{ label }}`. S’il est absent, le premier champ sera utilisé.
 
 Par exemple, vous pouvez interroger un autre service Omeka S (essayez avec
 "archives"), ou les services ci-dessus :
@@ -527,31 +527,31 @@ Par exemple, vous pouvez interroger un autre service Omeka S (essayez avec
 [generic:json #Mall History] Omeka S demo Mall History
 http://dev.omeka.org/omeka-s-sandbox/api/items?site_id=4
 ?fulltext_search={query}
-o:title = {__label__}
+o:title = {{ label }}
 dcterms:title.0.@value = dcterms:title
 dcterms:date.0.@value = dcterms:date
-o:id = dcterms:identifier ^^uri ~ https://dev.omeka.org/omeka-s-sandbox/s/mallhistory/item/{__value__}
+o:id = dcterms:identifier ^^uri ~ https://dev.omeka.org/omeka-s-sandbox/s/mallhistory/item/{{ value }}
 
 [generic:json #geonames] = Geonames générique
 http://api.geonames.org/searchJSON
 ?username=johnsmith&q={query}
 geonames = {list}
 toponymName = dcterms:title
-geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{__value__}/
-adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {__value__}
+geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{{ value }}/
+adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {{ value }}
 countryName = dcterms:isPartOf
 ~ = dcterms:spatial ~ Coordinates: {lat}/{lng}
 
 [generic:xml #IdRef Person] = IdRef Personne
 https://www.idref.fr/Sru/Solr
 ?version=2.2&rows=30&q=persname_t%3A{query}
-/doc/str[@name="affcourt_z"] = {__label__}
+/doc/str[@name="affcourt_z"] = {{ label }}
 /response/result/doc = {list}
 /doc/arr[@name="affcourt_r"]/str = dcterms:title
 /doc/arr[@name="nom_t"] = foaf:lastName
 /doc/arr[@name="prenom_t"] = foaf:firstName
 /doc/date[@name="datenaissance_dt"] = dcterms:date ^^numeric:timestamp
-/doc/str[@name="ppn_z"] = bibo:uri ^^uri ~ https://idref.fr/{__value__}
+/doc/str[@name="ppn_z"] = bibo:uri ^^uri ~ https://idref.fr/{{ value }}
 ```
 
 
@@ -560,7 +560,7 @@ TODO
 
 - [x] Ajouter les modèles pour les annotations de valeur.
 - [x] Remplacer FieldNameToProperty avec AutomapFields ou MetaMapper du module BulkImport.
-- [ ] Remplacer `{__value__}` et `{__label__}` par `{{ value }}` et `{{ label }}` (prêt dans module BulkImport).
+- [x] Remplacer `{__value__}` et `{__label__}` par `{{ value }}` et `{{ label }}` (prêt dans module BulkImport).
 - [ ] Inclure tous les suggesteurs du module [Value Suggest].
 - [ ] Limiter l’autocomplétion aux ressources choisies.
 - [ ] Autocompléter avec des ressources, pas des valeurs.

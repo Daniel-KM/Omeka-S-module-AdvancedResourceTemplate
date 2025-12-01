@@ -438,8 +438,8 @@ For a json service, use the object notation:
 [geonames]
 ?username=demo
 toponymName = dcterms:title
-geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{__value__}/
-adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {__value__}
+geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{{ value }}/
+adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {{ value }}
 countryName = dcterms:isPartOf
 ~ = dcterms:spatial ~ Coordonnées : {lat}/{lng}
 ```
@@ -455,7 +455,7 @@ More largely, you can append any arguments to the query sent to the remote
 service: simply append them url encoded on a line beginning with `?`.
 
 It’s also possible to format the values: simply append `~` to indicate the
-pattern to use and `{__value__}` to set the value from the source. For a complex
+pattern to use and `{{ value }}` to set the value from the source. For a complex
 pattern, you can use any source path between `{` and `}`.
 
 For more complex pattern, you can use some [Twig filters] with the current
@@ -484,7 +484,7 @@ params should be added on four separate lines:
 - the path to the list of results, when it is not root, in order to loop them,
   indicated with `{list}`,
 - the path to the value to use as a label for each result, indicated with
-  `{__label__}`. If missing, the first field will be used.
+  `{{ label }}`. If missing, the first field will be used.
 
 For exemple, you can query another Omeka S service (try with "archives"), or the
 services above:
@@ -493,31 +493,31 @@ services above:
 [generic:json #Mall History] Omeka S demo Mall History
 http://dev.omeka.org/omeka-s-sandbox/api/items?site_id=4
 ?fulltext_search={query}
-o:title = {__label__}
+o:title = {{ label }}
 dcterms:title.0.@value = dcterms:title
 dcterms:date.0.@value = dcterms:date
-o:id = dcterms:identifier ^^uri ~ https://dev.omeka.org/omeka-s-sandbox/s/mallhistory/item/{__value__}
+o:id = dcterms:identifier ^^uri ~ https://dev.omeka.org/omeka-s-sandbox/s/mallhistory/item/{{ value }}
 
 [generic:json #geonames] = Geonames generic
 http://api.geonames.org/searchJSON
 ?username=johnsmith&q={query}
 geonames = {list}
 toponymName = dcterms:title
-geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{__value__}/
-adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {__value__}
+geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{{ value }}/
+adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {{ value }}
 countryName = dcterms:isPartOf
 ~ = dcterms:spatial ~ Coordinates: {lat}/{lng}
 
 [generic:xml #IdRef Person] = IdRef Person
 https://www.idref.fr/Sru/Solr
 ?version=2.2&rows=30&q=persname_t%3A{query}
-/doc/str[@name="affcourt_z"] = {__label__}
+/doc/str[@name="affcourt_z"] = {{ label }}
 /response/result/doc = {list}
 /doc/arr[@name="affcourt_r"]/str = dcterms:title
 /doc/arr[@name="nom_t"] = foaf:lastName
 /doc/arr[@name="prenom_t"] = foaf:firstName
 /doc/date[@name="datenaissance_dt"] = dcterms:date ^^numeric:timestamp
-/doc/str[@name="ppn_z"] = bibo:uri ^^uri ~ https://idref.fr/{__value__}
+/doc/str[@name="ppn_z"] = bibo:uri ^^uri ~ https://idref.fr/{{ value }}
 ```
 
 ### Development
@@ -536,7 +536,7 @@ TODO
 
 - [x] Integrate template for value annotations.
 - [x] Replace the mapper with AutomapFields or MetaMapper from module [Bulk Import].
-- [ ] Replace `{__value__}` and `{__label__}` by `{{ value }}` and `{{ label }}` (ready in module [Bulk Import]).
+- [x] Replace `{__value__}` and `{__label__}` by `{{ value }}` and `{{ label }}` (ready in module [Bulk Import]).
 - [ ] Include all suggesters from module [Value Suggest].
 - [ ] Limit autocompletion to selected resources.
 - [ ] Fill autocompletion with resource, not value.
