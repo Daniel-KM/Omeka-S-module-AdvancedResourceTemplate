@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-01 00:00+0000\n"
+"POT-Creation-Date: 2026-01-12 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,44 +17,56 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/scripts/upgrade.php:51 Module.php:50 Module.php:60
+#: data/scripts/upgrade.php:51 data/scripts/upgrade.php:61 Module.php:49
+#: Module.php:59
 msgid ""
 "Some features require the module {module} to be upgraded to version "
 "{version} or later."
 msgstr ""
 
-#: Module.php:40
+#: Module.php:39
 #, php-format
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr ""
 
-#: Module.php:1058 Module.php:1398
+#: Module.php:69
+msgid ""
+"The module {link}Mapper{link_end} is recommended for autofiller features "
+"(IdRef, Geonames, etc.)."
+msgstr ""
+
+#: Module.php:1229
+#, php-format
+msgid "Browse %1$d %2$s"
+msgstr ""
+
+#: Module.php:1234
+#, php-format
+msgid "Add new %s"
+msgstr ""
+
+#: src/Listener/ValueDisplayListener.php:324
 msgid "Search this value"
 msgstr ""
 
-#: Module.php:1059 Module.php:1399
+#: src/Listener/ValueDisplayListener.php:325
 msgid "Show this item"
 msgstr ""
 
-#: Module.php:1060 Module.php:1400
+#: src/Listener/ValueDisplayListener.php:326
 msgid "Show this media"
 msgstr ""
 
-#: Module.php:1061 Module.php:1401
+#: src/Listener/ValueDisplayListener.php:327
 msgid "Show this item set"
 msgstr ""
 
-#: Module.php:1062 Module.php:1402
+#: src/Listener/ValueDisplayListener.php:328
 msgid "Show this resource"
 msgstr ""
 
-#: Module.php:1063 Module.php:1403
+#: src/Listener/ValueDisplayListener.php:329
 msgid "Open this external uri in a new tab"
-msgstr ""
-
-#: src/Autofiller/GenericAutofiller.php:58
-#: src/Autofiller/GenericAutofiller.php:103
-msgid "[Result]"
 msgstr ""
 
 #: view/common/resource-values.phtml:107
@@ -108,230 +120,285 @@ msgstr ""
 msgid "Select resource templates above to compare their labels."
 msgstr ""
 
-#: data/scripts/upgrade.php:125
+#: data/scripts/upgrade.php:136
 msgid "New settings were added to the resource templates."
 msgstr ""
 
-#: data/scripts/upgrade.php:129
+#: data/scripts/upgrade.php:140
 msgid ""
 "Values are now validated against settings in all cases, included background "
 "or direct api process."
 msgstr ""
 
-#: data/scripts/upgrade.php:205
+#: data/scripts/upgrade.php:216
 msgid "New settings were added to the template."
 msgstr ""
 
-#: data/scripts/upgrade.php:209
+#: data/scripts/upgrade.php:220
 msgid ""
 "New settings were added to the {link}main settings{link_end} to simplify "
 "resource form."
 msgstr ""
 
-#: data/scripts/upgrade.php:221
+#: data/scripts/upgrade.php:232
 msgid "It’s now possible to group a long list of template properties."
 msgstr ""
 
-#: data/scripts/upgrade.php:265
+#: data/scripts/upgrade.php:276
 msgid "It’s now possible to set a control input for literal values."
 msgstr ""
 
-#: data/scripts/upgrade.php:269
+#: data/scripts/upgrade.php:280
 msgid ""
 "It’s now possible to set a custom vocab open, so the user can complete the "
 "authority list when filiing data for a resource."
 msgstr ""
 
-#: data/scripts/upgrade.php:276
+#: data/scripts/upgrade.php:287
 msgid ""
 "It’s now possible to set resource template for annotations on each property."
 msgstr ""
 
-#: data/scripts/upgrade.php:280
+#: data/scripts/upgrade.php:291
 msgid ""
 "The format for automatic value and autofilling has changed slightly and "
 "upgrade is not automatic. You should check them if you use this feature. See "
 "{link}readme{link_end} for more info."
 msgstr ""
 
-#: data/scripts/upgrade.php:292
+#: data/scripts/upgrade.php:303
 msgid ""
 "It’s now possible to order linked resources by another property than title "
 "(require Omeka S v4.1)."
 msgstr ""
 
-#: data/scripts/upgrade.php:412
+#: data/scripts/upgrade.php:423
 msgid ""
 "It’s now possible to limit templates available by resource, for example the "
 "template \"Incunable\" for items only and the template \"Folio\" for medias "
 "only."
 msgstr ""
 
-#: data/scripts/upgrade.php:417
+#: data/scripts/upgrade.php:428
 msgid ""
 "It’s now possible to specify templates by property for value annotations."
 msgstr ""
 
-#: data/scripts/upgrade.php:422
+#: data/scripts/upgrade.php:433
 msgid ""
 "All existing templates are made available by items only. Check your "
 "templates if you need."
 msgstr ""
 
-#: data/scripts/upgrade.php:427
+#: data/scripts/upgrade.php:438
 msgid ""
 "If you use specific templates, you may have to check this new parameter."
 msgstr ""
 
-#: data/scripts/upgrade.php:434
+#: data/scripts/upgrade.php:445
 msgid ""
 "It’s now possible to specify templates for annotations of module Annotate."
 msgstr ""
 
-#: data/scripts/upgrade.php:442
+#: data/scripts/upgrade.php:453
 msgid "A new main setting was added to hide private values in public sites."
 msgstr ""
 
-#: data/scripts/upgrade.php:605
+#: data/scripts/upgrade.php:616
 msgid ""
 "Value annotations can now have a resource class and an alternative label or "
 "comment."
 msgstr ""
 
-#: data/scripts/upgrade.php:611
+#: data/scripts/upgrade.php:622
 msgid ""
 "A job is added in tasks of the module {link}Easy Admin{link_end} to fill the "
 "annotation templates and classes when needed."
 msgstr ""
 
-#: data/scripts/upgrade.php:641
+#: data/scripts/upgrade.php:652
 msgid ""
 "The feature to display the property select with all alternative labels of "
 "templates was moved to a new module {link}Alternative Label "
 "Select{link_end}. You should install it if you need it."
 msgstr ""
 
-#: data/scripts/upgrade.php:657
+#: data/scripts/upgrade.php:668
 msgid ""
 "A new option allows to display property values as search links, or to add a "
 "search icon to values, compatible with module {link}Advanced "
 "search{link_end}."
 msgstr ""
 
-#: data/scripts/upgrade.php:679
+#: data/scripts/upgrade.php:689
 msgid ""
 "A new resource block was added to display selected metadata, for example for "
 "a short record."
 msgstr ""
 
-#: data/scripts/upgrade.php:686
+#: data/scripts/upgrade.php:696
 msgid "A new check can be done on the number of attached medias."
 msgstr ""
 
-#: data/scripts/upgrade.php:693
+#: data/scripts/upgrade.php:703
 msgid ""
 "The feature to create dynamic item sets was moved to a new module {link}"
 "Dynamic Item Sets{link_end}. You should install it if you need it."
 msgstr ""
 
-#: data/scripts/upgrade.php:717
+#: data/scripts/upgrade.php:727
 msgid ""
 "Currently, the feature is used by {count} item sets: {item_sets}. Upgrade is "
 "automatic."
 msgstr ""
 
-#: data/scripts/upgrade.php:727
+#: data/scripts/upgrade.php:737
 msgid "Currently, the feature is not used by any item set."
 msgstr ""
 
-#: data/scripts/upgrade.php:735
+#: data/scripts/upgrade.php:745
 msgid "It is now possible to set item sets via the template."
 msgstr ""
 
-#: data/scripts/upgrade.php:742
+#: data/scripts/upgrade.php:752
 msgid ""
 "It is now possible to display fake values in record, like \"Unknown author\"."
 msgstr ""
 
-#: data/scripts/upgrade.php:747
+#: data/scripts/upgrade.php:757
 msgid ""
 "It is now possible to store the date when the the resource is issued for the "
 "first time."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:211
+#: data/scripts/upgrade.php:770
+msgid ""
+"A new site setting allows to hide private values in public interface even "
+"for admin users."
+msgstr ""
+
+#: data/scripts/upgrade.php:775
+msgid "A new template setting allows to set fallbacks properties for title."
+msgstr ""
+
+#: data/scripts/upgrade.php:817
+msgid ""
+"The autofiller feature has been moved to module {link}Mapper{link_end}. "
+"Please install and activate it before upgrading, then run the upgrade again."
+msgstr ""
+
+#: data/scripts/upgrade.php:829
+msgid ""
+"The autofiller feature has been moved to module {link}Mapper{link_end}. "
+"Default autofillers (IdRef, Geonames) are available there."
+msgstr ""
+
+#: data/scripts/upgrade.php:889
+msgid "Could not migrate autofiller \"{label}\": {error}"
+msgstr ""
+
+#: data/scripts/upgrade.php:897
+msgid ""
+"{count} custom autofillers have been migrated to module Mapper. Check them "
+"in {link}Mapper admin{link_end}."
+msgstr ""
+
+#: data/scripts/upgrade.php:912
+msgid ""
+"{count} templates use autofillers. You may need to update their "
+"configuration to reference Mapper mappings."
+msgstr ""
+
+#: data/scripts/upgrade.php:956
+msgid ""
+"The automatic values feature now requires module {link}Mapper{link_end}. The "
+"following templates use automatic values and need migration: {templates}. "
+"Please install and activate Mapper before upgrading."
+msgstr ""
+
+#: data/scripts/upgrade.php:1043
+msgid ""
+"Automatic values format migrated to Mapper format for {count} templates: "
+"{templates}."
+msgstr ""
+
+#: src/Listener/ResourceOnSave.php:352
 msgid "This template cannot be used for this resource."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:221
+#: src/Listener/ResourceOnSave.php:362
 msgid "A class is required."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:231
-msgid "The class should be {resource_class}."
-msgstr ""
-
-#: src/Listener/ResourceOnSave.php:237
-msgid "The class should be one of {resource_classes}."
-msgstr ""
-
-#: src/Listener/ResourceOnSave.php:252 src/Listener/ResourceOnSave.php:281
+#: src/Listener/ResourceOnSave.php:399 src/Listener/ResourceOnSave.php:420
 msgid "The minimum number of files or medias is {min}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:333
+#: src/Listener/ResourceOnSave.php:570
+msgid ""
+"Unable to append new descriptors to custom vocab \"{custom_vocab}\": {error}"
+msgstr ""
+
+#: src/Listener/ResourceValidator.php:114
 msgid ""
 "The html input pattern \"{pattern}\" for template {template} cannot be "
 "processed."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:342
+#: src/Listener/ResourceValidator.php:125
 msgid ""
 "The value \"{value}\" for term {property} does not follow the input pattern "
 "\"{pattern}\"."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:361
+#: src/Listener/ResourceValidator.php:158
 msgid ""
 "The value for term {property} is shorter ({length} characters) than the "
 "minimal size ({number} characters)."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:371
+#: src/Listener/ResourceValidator.php:169
 msgid ""
 "The value for term {property} is longer ({length} characters) than the "
 "maximal size ({number} characters)."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:393
+#: src/Listener/ResourceValidator.php:204
 msgid ""
 "The number of values ({count}) for term {property} is lower than the minimal "
 "number of {number}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:404
+#: src/Listener/ResourceValidator.php:215
 msgid ""
 "The number of values ({count}) for term {property} is greater than the "
 "maximal number of {number}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:463
+#: src/Listener/ResourceValidator.php:296
 msgid ""
 "The value for term {property} should be unique, but already set for resource "
 "#{resource_id}."
 msgstr ""
 
-#: src/Listener/ResourceOnSave.php:711
-msgid "New descriptor appended to custom vocab \"{custom_vocab}\": {value}."
-msgstr ""
-
-#: src/Listener/ResourceOnSave.php:716
-msgid "New descriptors appended to custom vocab \"{custom_vocab}\": {values}."
-msgstr ""
-
-#: src/Listener/ResourceOnSave.php:724
+#: src/Listener/AutomaticValuesHandler.php:109
 msgid ""
-"Unable to append new descriptors to custom vocab \"{custom_vocab}\":  {error}"
+"The automatic values feature requires the module Mapper. Please install it "
+"to use this feature."
+msgstr ""
+
+#: src/Listener/AutomaticValuesHandler.php:125
+msgid "Error applying automatic values: {error}"
+msgstr ""
+
+#: src/Listener/AutomaticValuesHandler.php:137
+msgid "Automatic values: unknown property term \"{term}\""
+msgstr ""
+
+#: src/Listener/AutomaticValuesHandler.php:363
+msgid ""
+"Automatic property value patterns require the module Mapper. Please install "
+"it to use this feature."
 msgstr ""
 
 #: src/Form/SiteSettingsFieldset.php:12 src/Form/SettingsFieldset.php:13
@@ -354,7 +421,7 @@ msgstr ""
 msgid "Default display"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:35
+#: src/Form/SiteSettingsFieldset.php:35 src/Form/SiteSettingsFieldset.php:52
 msgid "Use main settings"
 msgstr ""
 
@@ -362,11 +429,19 @@ msgstr ""
 msgid "Use site settings below"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:52
+#: src/Form/SiteSettingsFieldset.php:50
+msgid "Display private values even for admin"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:54
+msgid "Hide"
+msgstr ""
+
+#: src/Form/SiteSettingsFieldset.php:69
 msgid "Metadata for resource block Metadata"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:53
+#: src/Form/SiteSettingsFieldset.php:70
 msgid ""
 "This option may be used to display a short record. Each line is the term and "
 "the optional alternatif label. A specific label can be set on each line, "
@@ -374,19 +449,19 @@ msgid ""
 "added with \"# div-class\" and an optional label separated with a \"=\"."
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:85
+#: src/Form/SiteSettingsFieldset.php:102
 msgid "Element for block Metadata"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:87
+#: src/Form/SiteSettingsFieldset.php:104
 msgid "Metadata label"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:88
+#: src/Form/SiteSettingsFieldset.php:105
 msgid "Property term"
 msgstr ""
 
-#: src/Form/SiteSettingsFieldset.php:90
+#: src/Form/SiteSettingsFieldset.php:107
 msgid "Locale of the value"
 msgstr ""
 
@@ -456,91 +531,82 @@ msgstr ""
 msgid "Forbid"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:87
-#: src/Form/ResourceTemplateDataFieldset.php:184
-msgid "Autofillers"
+#: src/Form/SettingsFieldset.php:89
+msgid "Skip private values on sites, even for admin"
 msgstr ""
 
-#: src/Form/SettingsFieldset.php:88
-msgid "The autofillers should be set in selected templates params."
-msgstr ""
-
-#: src/Form/SettingsFieldset.php:102
-msgid "Skip private values on sites, even when user is connected"
-msgstr ""
-
-#: src/Form/SettingsFieldset.php:114
+#: src/Form/SettingsFieldset.php:101
 msgid "Use property display settings in admin board"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:26
+#: src/Form/ResourceTemplateDataFieldset.php:21
 msgid "Medias"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:40
+#: src/Form/ResourceTemplateDataFieldset.php:35
 msgid "Use for resources"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:55
+#: src/Form/ResourceTemplateDataFieldset.php:50
 msgid "Require a class"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:66
+#: src/Form/ResourceTemplateDataFieldset.php:61
 msgid "Limit to specified classes"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:77
+#: src/Form/ResourceTemplateDataFieldset.php:72
 msgid "Limit to specified properties"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:89
+#: src/Form/ResourceTemplateDataFieldset.php:84
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:226
 msgid "Allow quick creation of a resource"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:101
+#: src/Form/ResourceTemplateDataFieldset.php:96
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:248
 msgid "Autocomplete with existing values"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:104
+#: src/Form/ResourceTemplateDataFieldset.php:99
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:252
 msgid "Starts with"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:105
+#: src/Form/ResourceTemplateDataFieldset.php:100
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:253
 msgid "Contains"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:118
+#: src/Form/ResourceTemplateDataFieldset.php:113
 msgid "Languages for values"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:139
+#: src/Form/ResourceTemplateDataFieldset.php:134
 msgid "No language"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:151
+#: src/Form/ResourceTemplateDataFieldset.php:146
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:319
 msgid "Value Suggest: keep original label"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:162
+#: src/Form/ResourceTemplateDataFieldset.php:157
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:341
 msgid "Value Suggest: require uri"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:174
+#: src/Form/ResourceTemplateDataFieldset.php:169
+msgid "Properties used as fallback for title"
+msgstr ""
+
+#: src/Form/ResourceTemplateDataFieldset.php:185
 msgid "Automatic values (on save)"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:193
-msgid "Select autofillers…"
-msgstr ""
-
-#: src/Form/ResourceTemplateDataFieldset.php:194
-msgid "No configured autofiller."
+#: src/Form/ResourceTemplateDataFieldset.php:186
+msgid "Uses Mapper INI format. Requires module Mapper."
 msgstr ""
 
 #: src/Form/ResourceTemplateDataFieldset.php:207
@@ -795,102 +861,8 @@ msgstr ""
 msgid "The data type \"{data_type}\" is not available."
 msgstr ""
 
-#: src/Autofiller/GenericAutofiller.php:7
-msgid "Generic"
-msgstr ""
-
-#: src/Autofiller/GeonamesAutofiller.php:7
-msgid "Geonames"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:7 src/Autofiller/IdRefAutofiller.php:19
-msgid "IdRef"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:23
-msgid "IdRef: Person names"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:27
-msgid "IdRef: Collectivities"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:31
-msgid "IdRef: Conferences"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:35
-msgid "IdRef: Subjects"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:39
-msgid "IdRef: Subjects Rameau"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:43
-msgid "IdRef: Subjects F-MeSH"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:47
-msgid "IdRef: Geography"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:51
-msgid "IdRef: Family names"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:55
-msgid "IdRef: Uniform titles"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:59
-msgid "IdRef: Authors-Titles"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:63
-msgid "IdRef: Trademarks"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:67
-msgid "IdRef: PPN id"
-msgstr ""
-
-#: src/Autofiller/IdRefAutofiller.php:71
-msgid "IdRef: Library registry (RCR)"
-msgstr ""
-
-#: src/Autofiller/AbstractAutofiller.php:63
-#, php-format
-msgid "%1$s: %2$s"
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:47
-#: src/Controller/Admin/IndexController.php:89
+#: src/Controller/Admin/IndexController.php:34
 msgid "The query is empty."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:108
-msgid "The remote service \"{service}\" seems unavailable."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:147
-msgid "The service is empty."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:153
-msgid "The template is empty."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:164
-msgid "The template \"{template_id}\" is not available."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:174
-msgid "The service \"{service}\" has no mapping."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:183
-msgid "The service \"{service}\" is not available."
 msgstr ""
 
 #: src/Controller/Admin/ResourceTemplateControllerDelegator.php:51
@@ -937,8 +909,8 @@ msgid ""
 "among them."
 msgstr ""
 
-#: src/Service/Autofiller/AutofillerPluginManagerFactory.php:16
-msgid "Missing autofiller configuration."
+#: src/Site/ResourcePageBlockLayout/Metadata.php:16
+msgid "Advanced Resource Template: Metadata"
 msgstr ""
 
 #: src/Site/ResourcePageBlockLayout/Metadata.php:36
@@ -947,11 +919,11 @@ msgid ""
 "configured."
 msgstr ""
 
-#: config/module.config.php:191
+#: config/module.config.php:151
 msgid "New value"
 msgstr ""
 
-#: config/module.config.php:192
+#: config/module.config.php:152
 msgid "No results"
 msgstr ""
 
