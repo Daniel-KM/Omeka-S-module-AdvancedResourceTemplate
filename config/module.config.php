@@ -59,6 +59,7 @@ return [
     'service_manager' => [
         'factories' => [
             Autofiller\AutofillerPluginManager::class => Service\Autofiller\AutofillerPluginManagerFactory::class,
+            Listener\ValueDisplayListener::class => Service\Listener\ValueDisplayListenerFactory::class,
         ],
         'aliases' => [
             'Autofiller\Manager' => Autofiller\AutofillerPluginManager::class,
