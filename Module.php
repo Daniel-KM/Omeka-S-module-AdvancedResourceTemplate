@@ -67,7 +67,7 @@ class Module extends AbstractModule
     protected function postInstall(): void
     {
         $filepath = __DIR__ . '/data/mapping/mappings.ini';
-        if (!file_exists($filepath) || is_file($filepath) || !is_readable($filepath)) {
+        if (!file_exists($filepath) || !is_file($filepath) || !is_readable($filepath)) {
             return;
         }
         $mapping = $this->stringToAutofillers(file_get_contents($filepath));
