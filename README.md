@@ -596,14 +596,11 @@ and, more generally, to use and operate it in the same conditions of security.
 This Agreement may be freely reproduced and published, provided it is not
 altered, and that no provisions are either added or removed herefrom.
 
-* The library [jQuery-Autocomplete] is published under the license [MIT].
-
 
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2020-2025 (see [Daniel-KM] on GitLab)
-* Library [jQuery-Autocomplete]: Copyright 2012 DevBridge and other contributors
+* Copyright Daniel Berthereau, 2020-2026 (see [Daniel-KM] on GitLab)
 
 These features were built for the future digital library [Manioc] of the
 Université des Antilles and Université de la Guyane, currently managed with
@@ -637,7 +634,6 @@ and for the institutional repository of student works [Dante] of the [Universit�
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
 [MIT]: http://opensource.org/licenses/MIT
-[jQuery-Autocomplete]: https://www.devbridge.com/sourcery/components/jquery-autocomplete/
 [Manioc]: http://www.manioc.org
 [Greenstone]: http://www.greenstone.org
 [Le Menestrel]: http://www.menestrel.fr
