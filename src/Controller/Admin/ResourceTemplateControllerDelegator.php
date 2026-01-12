@@ -178,7 +178,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                     // Or the user modified the list, and it's not managed.
                     else {
                         foreach ($dataTypeListNew as $dataTypeNew) {
-                            if (strtok($dataTypeNew, ':') === 'customvocab') {
+                            if (strstr($dataTypeNew, ':', true) === 'customvocab') {
                                 $dataTypeListNewOrdered[$dataTypeNew] = ['name' => $dataTypeNew, 'label' => $dataTypeNew];
                                 unset($dataTypeListNew[$dataTypeNew]);
                                 break;
@@ -434,7 +434,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
     protected function prepareImportFile(array $fileData): bool
     {
         // In such a case, return to the parent check.
-        if (!$fileData['size'] || $fileData['error'] || !$fileData['size']) {
+        if (!$fileData['size'] || $fileData['error']) {
             return true;
         }
 
@@ -500,7 +500,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             if (trim((string) $v) === 'null') {
                 return 'null';
             }
-            if (mb_substr($k, 0, 19) === 'Template data list:' || mb_substr($k, 0, 19) === 'Template data list:') {
+            if (mb_substr($k, 0, 19) === 'Template data list:' || mb_substr($k, 0, 19) === 'Property data list:') {
                 return array_filter(array_map('trim', explode('|', $v)), 'strlen') ?: [];
             }
             if ($v === '' || $v === null || $v === []) {
@@ -1586,7 +1586,9 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         }
         // Some computers don't detect csv or tsv, so add excel too.
         elseif ($mediaType === 'application/vnd.ms-excel') {
-            $fileData['type'] = strpos($mediaType, "\t") !== false ? 'text/tab-separated-values' : 'text/csv';
+            // Check file content for tabs to detect TSV vs CSV.
+            $content = file_get_contents($fileData['tmp_name'], false, null, 0, 1024);
+            $fileData['type'] = strpos($content, "\t") !== false ? 'text/tab-separated-values' : 'text/csv';
         }
         // Manage an exception for a very common format, undetected by fileinfo.
         elseif ($mediaType === 'text/plain' || $mediaType === 'application/octet-stream') {
@@ -1617,12 +1619,13 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
 
     protected function fillTerm(?string $term, string $type = 'properties'): ?array
     {
-        if (empty($term)) {
+        if (empty($term) || strpos($term, ':') === false) {
             return null;
         }
+        [$prefix, $localName] = explode(':', $term, 2);
         try {
-            $vocabulary = $this->api()->read('vocabularies', ['prefix' => strtok($term, ':')])->getContent();
-            $member = $this->api()->read($type, ['vocabulary' => $vocabulary->id(), 'localName' => strtok(':')])->getContent();
+            $vocabulary = $this->api()->read('vocabularies', ['prefix' => $prefix])->getContent();
+            $member = $this->api()->read($type, ['vocabulary' => $vocabulary->id(), 'localName' => $localName])->getContent();
         } catch (\Exception $e) {
             return null;
         }
