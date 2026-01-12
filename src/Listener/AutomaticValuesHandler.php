@@ -100,7 +100,7 @@ class AutomaticValuesHandler
             return $resource;
         }
 
-        // Check if Mapper module is available for automatic values conversion.
+        // Check if Mapper module is available for automatic values.
         if (!$this->services->has('Mapper\Mapper')) {
             // Log warning only once per request.
             static $warningLogged = false;
@@ -113,26 +113,14 @@ class AutomaticValuesHandler
             return $resource;
         }
 
-        // The method is currently not available here, so use the module.
-        $mod = new \AdvancedResourceTemplate\Module();
-        $mod->setServiceLocator($this->services);
-        $mapping = $mod->stringToAutofillers("[automatic_values]\n$automaticValues");
-        if (!$mapping || !$mapping['automatic_values']['mapping']) {
-            return $resource;
-        }
-
         /** @var \Mapper\Stdlib\Mapper $mapper */
         $mapper = $this->services->get('Mapper\Mapper');
 
-        // Convert ART mapping format to Mapper format.
-        $mapperMapping = $this->convertArtMappingToMapper($mapping['automatic_values']['mapping']);
-
         try {
-            $mapper->setMapping('automatic_values', $mapperMapping);
-            $newResourceData = $mapper
-                ->setSource($resource)
-                ->convert();
-        } catch (Exception $e) {
+            // The automatic_values is now stored in Mapper INI format directly.
+            $mapper->setMapping('automatic_values', $automaticValues);
+            $newResourceData = $mapper->convert($resource);
+        } catch (\Exception $e) {
             $this->services->get('Omeka\Logger')->warn(
                 'Error applying automatic values: {error}', // @translate
                 ['error' => $e->getMessage()]
@@ -142,8 +130,18 @@ class AutomaticValuesHandler
 
         // Append only new data.
         foreach ($newResourceData as $propertyTerm => $newValues) {
+            // Get property ID from term.
+            $propertyId = $this->easyMeta->propertyId($propertyTerm);
+            if (!$propertyId) {
+                $this->services->get('Omeka\Logger')->warn(
+                    'Automatic values: unknown property term "{term}"', // @translate
+                    ['term' => $propertyTerm]
+                );
+                continue;
+            }
             foreach ($newValues as $newValue) {
                 if ($this->isNewValue($newValue, $resource[$propertyTerm] ?? [])) {
+                    $newValue['property_id'] = $propertyId;
                     $resource[$propertyTerm][] = $newValue;
                 }
             }
@@ -573,59 +571,5 @@ class AutomaticValuesHandler
         }
 
         return true;
-    }
-
-    /**
-     * Convert ART mapping format to Mapper INI format.
-     *
-     * ART format: [['from' => 'source', 'to' => ['field' => 'term', ...]]]
-     * Mapper INI format: string with [info] and [maps] sections
-     *
-     * @param array $artMapping
-     * @return array Mapper-compatible configuration array
-     */
-    protected function convertArtMappingToMapper(array $artMapping): array
-    {
-        $maps = [];
-        foreach ($artMapping as $rule) {
-            $from = $rule['from'] ?? '';
-            $to = $rule['to'] ?? [];
-            if (!$from || !$to) {
-                continue;
-            }
-
-            $field = $to['field'] ?? null;
-            if (!$field) {
-                continue;
-            }
-
-            $mapEntry = [
-                'from' => $from,
-                'to' => $field,
-            ];
-
-            if (!empty($to['type'])) {
-                $mapEntry['datatype'] = $to['type'];
-            }
-            if (!empty($to['pattern'])) {
-                $mapEntry['pattern'] = $to['pattern'];
-            }
-            if (isset($to['@language'])) {
-                $mapEntry['language'] = $to['@language'];
-            }
-            if (isset($to['is_public'])) {
-                $mapEntry['is_public'] = $to['is_public'];
-            }
-
-            $maps[] = $mapEntry;
-        }
-
-        return [
-            'info' => [
-                'label' => 'Automatic Values',
-                'querier' => 'jsdot',
-            ],
-            'maps' => $maps,
-        ];
     }
 }

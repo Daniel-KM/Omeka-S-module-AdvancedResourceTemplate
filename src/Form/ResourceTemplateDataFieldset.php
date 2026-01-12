@@ -183,9 +183,14 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Automatic values (on save)', // @translate
+                    'info' => 'Uses Mapper INI format. Requires module Mapper.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'automatic_values',
+                    'placeholder' => <<<'TXT'
+                        dcterms:type = "Document"
+                        dcterms:language = "en"
+                        TXT,
                 ],
             ])
             // Autofillers feature has been moved to module Mapper.
