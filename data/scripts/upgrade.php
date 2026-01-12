@@ -776,3 +776,277 @@ if (version_compare((string) $oldVersion, '3.4.47', '<')) {
     );
     $messenger->addSuccess($message);
 }
+
+if (version_compare((string) $oldVersion, '3.4.50', '<')) {
+    // Migration: Autofiller feature now requires module Mapper.
+    // Check if there are custom autofillers (different from default).
+    $autofillers = $settings->get('advancedresourcetemplate_autofillers', []);
+    $defaultAutofillerKeys = ['idref:person', 'geonames'];
+    $hasCustomAutofillers = false;
+
+    if (!empty($autofillers)) {
+        foreach (array_keys($autofillers) as $key) {
+            if (!in_array($key, $defaultAutofillerKeys, true)) {
+                $hasCustomAutofillers = true;
+                break;
+            }
+        }
+    }
+
+    // Check if autofillers are used in any template.
+    $templatesUsingAutofillers = [];
+    $qb = $connection->createQueryBuilder();
+    $qb
+        ->select('resource_template_data.resource_template_id', 'resource_template_data.data')
+        ->from('resource_template_data', 'resource_template_data')
+        ->where('resource_template_data.data LIKE \'%"autofillers"%\'')
+    ;
+    $templateDatas = $connection->executeQuery($qb)->fetchAllKeyValue();
+    foreach ($templateDatas as $templateId => $templateData) {
+        $data = json_decode($templateData, true);
+        if (!empty($data['autofillers'])) {
+            $templatesUsingAutofillers[$templateId] = $data['autofillers'];
+        }
+    }
+
+    $mapperIsActive = $this->isModuleActive('Mapper');
+
+    // If custom autofillers or templates use autofillers, require Mapper.
+    if (($hasCustomAutofillers || !empty($templatesUsingAutofillers)) && !$mapperIsActive) {
+        $message = new PsrMessage(
+            'The autofiller feature has been moved to module {link}Mapper{link_end}. Please install and activate it before upgrading, then run the upgrade again.', // @translate
+            [
+                'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper" target="_blank" rel="noopener">',
+                'link_end' => '</a>',
+            ]
+        );
+        $message->setEscapeHtml(false);
+        throw new ModuleCannotInstallException((string) $message);
+    }
+
+    // Inform about migration.
+    $message = new PsrMessage(
+        'The autofiller feature has been moved to module {link}Mapper{link_end}. Default autofillers (IdRef, Geonames) are available there.', // @translate
+        [
+            'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper" target="_blank" rel="noopener">',
+            'link_end' => '</a>',
+        ]
+    );
+    $message->setEscapeHtml(false);
+    $messenger->addWarning($message);
+
+    // If Mapper is active and there are custom autofillers, migrate them.
+    if ($mapperIsActive && $hasCustomAutofillers) {
+        $migratedCount = 0;
+        foreach ($autofillers as $key => $autofiller) {
+            if (in_array($key, $defaultAutofillerKeys, true)) {
+                continue;
+            }
+            // Create a mapper entity for each custom autofiller.
+            // Convert ART format to Mapper INI format.
+            $label = $autofiller['label'] ?? $key;
+            $mapping = $autofiller['mapping'] ?? '';
+            if (empty($mapping)) {
+                continue;
+            }
+
+            // Build Mapper INI format.
+            $mapperIni = "[info]\n";
+            $mapperIni .= 'label = "' . addslashes($label) . "\"\n";
+            $mapperIni .= "querier = " . ($autofiller['service'] ?? 'xpath') . "\n\n";
+            $mapperIni .= "[maps]\n";
+            // Convert ART mapping array to Mapper INI lines.
+            foreach ($mapping as $map) {
+                $to = $map['to'] ?? [];
+                $line = $map['from'] ?? '';
+                $line .= ' = ';
+                if (!empty($to['field'])) {
+                    $line .= $to['field'];
+                }
+                if (!empty($to['type'])) {
+                    $line .= ' ^^' . $to['type'];
+                }
+                if (!empty($to['@language'])) {
+                    $line .= ' @' . $to['@language'];
+                }
+                if (isset($to['is_public'])) {
+                    $line .= ' §' . ($to['is_public'] ? 'public' : 'private');
+                }
+                if (!empty($to['pattern'])) {
+                    $line .= ' ~ ' . $to['pattern'];
+                }
+                $mapperIni .= trim($line) . "\n";
+            }
+
+            try {
+                $api->create('mappers', [
+                    'o:label' => 'ART: ' . $label,
+                    'o:mapping' => $mapperIni,
+                ]);
+                $migratedCount++;
+            } catch (\Exception $e) {
+                $logger->warn(
+                    'Could not migrate autofiller "{label}": {error}', // @translate
+                    ['label' => $label, 'error' => $e->getMessage()]
+                );
+            }
+        }
+
+        if ($migratedCount > 0) {
+            $message = new PsrMessage(
+                '{count} custom autofillers have been migrated to module Mapper. Check them in {link}Mapper admin{link_end}.', // @translate
+                [
+                    'count' => $migratedCount,
+                    'link' => '<a href="' . $url->fromRoute('admin/mapper') . '">',
+                    'link_end' => '</a>',
+                ]
+            );
+            $message->setEscapeHtml(false);
+            $messenger->addSuccess($message);
+        }
+    }
+
+    // Update templates that use autofillers to reference Mapper mappings.
+    if (!empty($templatesUsingAutofillers) && $mapperIsActive) {
+        $message = new PsrMessage(
+            '{count} templates use autofillers. You may need to update their configuration to reference Mapper mappings.', // @translate
+            ['count' => count($templatesUsingAutofillers)]
+        );
+        $messenger->addWarning($message);
+    }
+
+    // Clean up old autofiller settings.
+    $settings->delete('advancedresourcetemplate_autofillers');
+
+    // Migration: automatic_values in templates now use Mapper format.
+    // Check if any templates have automatic_values set.
+    $qb = $connection->createQueryBuilder();
+    $qb
+        ->select(
+            'resource_template_data.id',
+            'resource_template_data.resource_template_id',
+            'resource_template_data.data',
+            'resource_template.label AS template_label'
+        )
+        ->from('resource_template_data', 'resource_template_data')
+        ->innerJoin('resource_template_data', 'resource_template', 'resource_template', 'resource_template.id = resource_template_data.resource_template_id')
+        ->where('resource_template_data.data LIKE \'%"automatic_values"%\'')
+    ;
+    $templatesWithAutomaticValues = $connection->executeQuery($qb)->fetchAllAssociative();
+
+    $affectedTemplates = [];
+    foreach ($templatesWithAutomaticValues as $row) {
+        $data = json_decode($row['data'], true);
+        if (!empty($data['automatic_values']) && trim($data['automatic_values'])) {
+            $affectedTemplates[] = [
+                'id' => $row['resource_template_id'],
+                'label' => $row['template_label'],
+                'automatic_values' => $data['automatic_values'],
+            ];
+        }
+    }
+
+    if (!empty($affectedTemplates) && !$mapperIsActive) {
+        // List affected templates in the error message.
+        $templateList = array_map(function ($t) {
+            return sprintf('"%s" (#%d)', $t['label'], $t['id']);
+        }, $affectedTemplates);
+
+        $message = new PsrMessage(
+            'The automatic values feature now requires module {link}Mapper{link_end}. The following templates use automatic values and need migration: {templates}. Please install and activate Mapper before upgrading.', // @translate
+            [
+                'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper" target="_blank" rel="noopener">',
+                'link_end' => '</a>',
+                'templates' => implode(', ', $templateList),
+            ]
+        );
+        $message->setEscapeHtml(false);
+        throw new ModuleCannotInstallException((string) $message);
+    }
+
+    // If Mapper is active and there are templates with automatic_values, migrate them.
+    if ($mapperIsActive && !empty($affectedTemplates)) {
+        $migratedTemplates = [];
+
+        foreach ($affectedTemplates as $template) {
+            $artFormat = $template['automatic_values'];
+
+            // Convert ART format to Mapper INI format.
+            // ART format: field = source ^^type @lang ~ pattern
+            // Mapper format: source = field ^^type @lang ~ pattern
+            $mapperFormat = "[info]\nquerier = jsdot\n\n[maps]\n";
+
+            $lines = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", $artFormat))));
+            foreach ($lines as $line) {
+                // Skip comments and section headers.
+                if (empty($line) || mb_substr($line, 0, 1) === '#' || mb_substr($line, 0, 1) === ';') {
+                    $mapperFormat .= $line . "\n";
+                    continue;
+                }
+
+                // Parse ART line: field = source ^^type @lang ~ pattern
+                // The source is before the first space/^/@/~ after =
+                $equalsPos = mb_strpos($line, '=');
+                if ($equalsPos === false) {
+                    $mapperFormat .= "; Invalid: " . $line . "\n";
+                    continue;
+                }
+
+                $field = trim(mb_substr($line, 0, $equalsPos));
+                $rest = trim(mb_substr($line, $equalsPos + 1));
+
+                // Extract source (first token before modifiers)
+                // Source can be ~, a path, or empty for default values.
+                $source = '';
+                $modifiers = '';
+
+                // Find where modifiers start (^^, @, ~)
+                $modStart = mb_strlen($rest);
+                foreach ([' ^^', ' @', ' ~', '^^', '@'] as $mod) {
+                    $pos = mb_strpos($rest, $mod);
+                    if ($pos !== false && $pos < $modStart) {
+                        $modStart = $pos;
+                    }
+                }
+
+                if ($modStart > 0) {
+                    $source = trim(mb_substr($rest, 0, $modStart));
+                    $modifiers = trim(mb_substr($rest, $modStart));
+                } else {
+                    $source = $rest;
+                }
+
+                // Build Mapper format line: source = field modifiers
+                if ($source === '') {
+                    $source = '~';
+                }
+                $mapperFormat .= $source . ' = ' . $field . ($modifiers ? ' ' . $modifiers : '') . "\n";
+            }
+
+            // Update the template data with the new format.
+            $templateId = (int) $template['id'];
+            $sql = "SELECT data FROM resource_template_data WHERE resource_template_id = $templateId";
+            $currentData = json_decode($connection->executeQuery($sql)->fetchOne(), true);
+            $currentData['automatic_values'] = $mapperFormat;
+
+            $sql = 'UPDATE resource_template_data SET data = :data WHERE resource_template_id = :id';
+            $connection->executeStatement($sql, [
+                'data' => json_encode($currentData),
+                'id' => $template['id'],
+            ]);
+
+            $migratedTemplates[] = sprintf('"%s" (#%d)', $template['label'], $template['id']);
+        }
+
+        if (!empty($migratedTemplates)) {
+            $message = new PsrMessage(
+                'Automatic values format migrated to Mapper format for {count} templates: {templates}.', // @translate
+                [
+                    'count' => count($migratedTemplates),
+                    'templates' => implode(', ', $migratedTemplates),
+                ]
+            );
+            $messenger->addSuccess($message);
+        }
+    }
+}

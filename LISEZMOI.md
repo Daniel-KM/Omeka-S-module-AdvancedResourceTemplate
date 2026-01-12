@@ -645,7 +645,7 @@ connaissance de la licence CeCILL et que vous en acceptez les termes.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2020-2025 (voir [Daniel-KM] sur GitLab)
+* Copyright Daniel Berthereau, 2020-2026 (voir [Daniel-KM] sur GitLab)
 * Library [jQuery-Autocomplete] : Copyright 2012 DevBridge et autres contributeurs
 
 Ces fonctionnalités sont destinées à la future bibliothèque numérique [Manioc]
