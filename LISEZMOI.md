@@ -341,6 +341,15 @@ en `AdvancedResourceTemplate`, puis allez à la racine du module et lancez :
 composer install --no-dev
 ```
 
+* Pour les tests
+
+Le module inclut une suite de tests unitaires et fonctionnels. Les lancer depuis
+la racine d'Omeka S :
+
+```sh
+vendor/bin/phpunit -c modules/AdvancedResourceTemplate/phpunit.xml --testdox
+```
+
 
 Utilisation
 -----------

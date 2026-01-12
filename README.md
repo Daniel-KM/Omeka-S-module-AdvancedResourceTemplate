@@ -317,6 +317,15 @@ the module to `AdvancedResourceTemplate`, go to the root module, and run:
 composer install --no-dev
 ```
 
+* For test
+
+The module includes a comprehensive test suite with unit and functional tests.
+Run them from the root of Omeka:
+
+```sh
+vendor/bin/phpunit -c modules/AdvancedResourceTemplate/phpunit.xml --testdox
+```
+
 
 Usage
 -----
