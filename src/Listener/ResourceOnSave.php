@@ -70,7 +70,7 @@ class ResourceOnSave
         // Prepare value annotations level.
         $vaTemplateDefault = null;
         $vaTemplateDefaultId = $template->dataValue('value_annotations_template');
-        if (is_numeric($vaTemplateDefault)) {
+        if (is_numeric($vaTemplateDefaultId)) {
             try {
                 /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $vaTemplateDefault */
                 $vaTemplateDefault = $this->api->read('resource_templates', ['id' => $vaTemplateDefaultId])->getContent();
