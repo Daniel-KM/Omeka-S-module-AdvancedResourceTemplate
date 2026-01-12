@@ -62,17 +62,20 @@ class Module extends AbstractModule
             $messenger = $services->get('ControllerPluginManager')->get('messenger');
             $messenger->addWarning($message);
         }
-    }
 
-    protected function postInstall(): void
-    {
-        $filepath = __DIR__ . '/data/mapping/mappings.ini';
-        if (!file_exists($filepath) || !is_file($filepath) || !is_readable($filepath)) {
-            return;
+        // Mapper is optional but recommended for autofiller features.
+        if (!$this->isModuleActive('Mapper')) {
+            $message = new \Common\Stdlib\PsrMessage(
+                $translate('The module {link}Mapper{link_end} is recommended for autofiller features (IdRef, Geonames, etc.).'), // @translate
+                [
+                    'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper" target="_blank" rel="noopener">',
+                    'link_end' => '</a>',
+                ]
+            );
+            $message->setEscapeHtml(false);
+            $messenger = $plugins->get('messenger');
+            $messenger->addWarning($message);
         }
-        $mapping = $this->stringToAutofillers(file_get_contents($filepath));
-        $settings = $this->getServiceLocator()->get('Omeka\Settings');
-        $settings->set('advancedresourcetemplate_autofillers', $mapping);
     }
 
     public function onBootstrap(MvcEvent $event): void
@@ -1087,23 +1090,30 @@ class Module extends AbstractModule
     {
         $this->handleAnySettings($event, 'settings');
 
-        $services = $this->getServiceLocator();
-        $settings = $services->get('Omeka\Settings');
-
-        $autofillers = $settings->get('advancedresourcetemplate_autofillers') ?: [];
-        $value = $this->autofillersToString($autofillers);
-
         /** @var \Omeka\Form\SettingForm $fieldset */
         $fieldset = $event->getTarget();
-        $fieldset
-            ->get('advancedresourcetemplate_autofillers')
-            ->setValue($value);
+
+        // Autofillers feature has been moved to module Mapper.
+        if ($fieldset->has('advancedresourcetemplate_autofillers')) {
+            $services = $this->getServiceLocator();
+            $settings = $services->get('Omeka\Settings');
+            $autofillers = $settings->get('advancedresourcetemplate_autofillers') ?: [];
+            $value = $this->autofillersToString($autofillers);
+            $fieldset
+                ->get('advancedresourcetemplate_autofillers')
+                ->setValue($value);
+        }
 
         $this->appendCssGroupMultiCheckbox();
     }
 
     public function handleMainSettingsFilters(Event $event): void
     {
+        // Autofillers feature has been moved to module Mapper.
+        if (!$this->isModuleActive('Mapper')) {
+            return;
+        }
+
         $inputFilter = $event->getParam('inputFilter');
         $inputFilter
             ->add([

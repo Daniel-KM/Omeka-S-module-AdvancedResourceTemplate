@@ -90,11 +90,26 @@ class AutomaticValuesHandler
 
     /**
      * Append automatic values from template data.
+     *
+     * This feature requires the module Mapper to be active.
      */
     public function appendAutomaticValuesFromTemplateData(ResourceTemplateRepresentation $template, array $resource): array
     {
         $automaticValues = trim((string) $template->dataValue('automatic_values'));
         if ($automaticValues === '') {
+            return $resource;
+        }
+
+        // Check if Mapper module is available for automatic values conversion.
+        if (!$this->services->has('Mapper\Mapper')) {
+            // Log warning only once per request.
+            static $warningLogged = false;
+            if (!$warningLogged) {
+                $this->services->get('Omeka\Logger')->warn(
+                    'The automatic values feature requires the module Mapper. Please install it to use this feature.' // @translate
+                );
+                $warningLogged = true;
+            }
             return $resource;
         }
 
@@ -106,14 +121,24 @@ class AutomaticValuesHandler
             return $resource;
         }
 
-        /** @var \AdvancedResourceTemplate\Mvc\Controller\Plugin\ArtMapper $mapper */
-        $mapper = $this->services->get('ControllerPluginManager')->get('artMapper');
+        /** @var \Mapper\Stdlib\Mapper $mapper */
+        $mapper = $this->services->get('Mapper\Mapper');
 
-        $newResourceData = $mapper
-            ->setMapping($mapping['automatic_values']['mapping'])
-            ->setIsSimpleExtract(false)
-            ->setIsInternalSource(true)
-            ->array($resource);
+        // Convert ART mapping format to Mapper format.
+        $mapperMapping = $this->convertArtMappingToMapper($mapping['automatic_values']['mapping']);
+
+        try {
+            $mapper->setMapping('automatic_values', $mapperMapping);
+            $newResourceData = $mapper
+                ->setSource($resource)
+                ->convert();
+        } catch (Exception $e) {
+            $this->services->get('Omeka\Logger')->warn(
+                'Error applying automatic values: {error}', // @translate
+                ['error' => $e->getMessage()]
+            );
+            return $resource;
+        }
 
         // Append only new data.
         foreach ($newResourceData as $propertyTerm => $newValues) {
@@ -309,6 +334,9 @@ class AutomaticValuesHandler
 
     /**
      * Create an automatic property value.
+     *
+     * This feature requires the module Mapper or artMapper plugin for pattern
+     * transformation. If not available, the feature is disabled.
      */
     protected function createAutomaticPropertyValue(array $resource, ?array $map): ?array
     {
@@ -325,7 +353,25 @@ class AutomaticValuesHandler
 
         $plugins = $this->services->get('ControllerPluginManager');
         $fieldNameToProperty = $plugins->get('fieldNameToProperty');
-        $mapper = $plugins->get('artMapper');
+
+        // Pattern transformation requires the Mapper module.
+        // This feature is temporarily disabled until full Mapper integration.
+        // TODO: Implement Mapper-based pattern transformation.
+        if (!$this->services->has('Mapper\Mapper')) {
+            // Log warning only once per request.
+            static $mapperWarningLogged = false;
+            if (!$mapperWarningLogged) {
+                $this->services->get('Omeka\Logger')->warn(
+                    'Automatic property value patterns require the module Mapper. Please install it to use this feature.' // @translate
+                );
+                $mapperWarningLogged = true;
+            }
+            return null;
+        }
+
+        // TODO: Implement proper Mapper integration for pattern transformation.
+        // For now, this feature is disabled.
+        return null;
 
         $automaticValueArray = json_decode($automaticValue, true);
 
@@ -527,5 +573,59 @@ class AutomaticValuesHandler
         }
 
         return true;
+    }
+
+    /**
+     * Convert ART mapping format to Mapper INI format.
+     *
+     * ART format: [['from' => 'source', 'to' => ['field' => 'term', ...]]]
+     * Mapper INI format: string with [info] and [maps] sections
+     *
+     * @param array $artMapping
+     * @return array Mapper-compatible configuration array
+     */
+    protected function convertArtMappingToMapper(array $artMapping): array
+    {
+        $maps = [];
+        foreach ($artMapping as $rule) {
+            $from = $rule['from'] ?? '';
+            $to = $rule['to'] ?? [];
+            if (!$from || !$to) {
+                continue;
+            }
+
+            $field = $to['field'] ?? null;
+            if (!$field) {
+                continue;
+            }
+
+            $mapEntry = [
+                'from' => $from,
+                'to' => $field,
+            ];
+
+            if (!empty($to['type'])) {
+                $mapEntry['datatype'] = $to['type'];
+            }
+            if (!empty($to['pattern'])) {
+                $mapEntry['pattern'] = $to['pattern'];
+            }
+            if (isset($to['@language'])) {
+                $mapEntry['language'] = $to['@language'];
+            }
+            if (isset($to['is_public'])) {
+                $mapEntry['is_public'] = $to['is_public'];
+            }
+
+            $maps[] = $mapEntry;
+        }
+
+        return [
+            'info' => [
+                'label' => 'Automatic Values',
+                'querier' => 'jsdot',
+            ],
+            'maps' => $maps,
+        ];
     }
 }

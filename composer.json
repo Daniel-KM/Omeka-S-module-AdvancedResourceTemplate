@@ -39,17 +39,20 @@
         "oomphinc/composer-installers-extender": "^2.0",
         "devbridge/jquery-autocomplete": "1.4.11"
     },
-    "extra": {
-        "installer-types": ["omeka-addon-asset"],
-        "installer-paths": {
-            "asset/vendor/{$name}/": [
-                "type:omeka-addon-asset"
-            ]
+    "autoload": {
+        "psr-4": {
+            "AdvancedResourceTemplate\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "AdvancedSearchTest\\": "test/AdvancedSearchTest/"
+            "AdvancedResourceTemplateTest\\": "test/AdvancedResourceTemplateTest/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "oomphinc/composer-installers-extender": true
         }
     },
     "scripts": {
@@ -60,10 +63,13 @@
             "@php -r '$f = __DIR__ . \"/asset/vendor/jquery-autocomplete/jquery.autocomplete.min.js\"; file_put_contents($f, strtr(file_get_contents($f), [\",200)\" => \",350)\"]));'"
         ]
     },
-    "config": {
-        "allow-plugins": {
-            "composer/installers": true,
-            "oomphinc/composer-installers-extender": true
-        }
+    "extra": {
+        "installer-types": ["omeka-addon-asset"],
+        "installer-paths": {
+            "asset/vendor/{$name}/": [
+                "type:omeka-addon-asset"
+            ]
+        },
+        "installer-name" : "AdvancedResourceTemplate"
     }
 }

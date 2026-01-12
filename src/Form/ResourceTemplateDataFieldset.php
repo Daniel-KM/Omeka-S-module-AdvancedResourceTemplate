@@ -10,11 +10,6 @@ use Omeka\Form\Element as OmekaElement;
 class ResourceTemplateDataFieldset extends Fieldset
 {
     /**
-     * @var array
-     */
-    protected $autofillers = [];
-
-    /**
      * @var bool
      */
     protected $hasAnnotations = false;
@@ -193,23 +188,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                     'id' => 'automatic_values',
                 ],
             ])
-            ->add([
-                'name' => 'autofillers',
-                'type' => CommonElement\OptionalSelect::class,
-                'options' => [
-                    'label' => 'Autofillers', // @translate
-                    'value_options' => $this->autofillers,
-                    'use_hidden_element' => true,
-                ],
-                'attributes' => [
-                    'id' => 'autofillers',
-                    'multiple' => true,
-                    'class' => 'chosen-select',
-                    'data-placeholder' => count($this->autofillers)
-                        ? 'Select autofillers…' // @translate
-                        : 'No configured autofiller.', // @translate
-                ],
-            ])
+            // Autofillers feature has been moved to module Mapper.
 
             // Value annotations.
 
@@ -343,12 +322,6 @@ class ResourceTemplateDataFieldset extends Fieldset
                 ],
             ])
         ;
-    }
-
-    public function setAutofillers(array $autofillers): self
-    {
-        $this->autofillers = $autofillers;
-        return $this;
     }
 
     public function setHasAnnotations(bool $hasAnnotations): self

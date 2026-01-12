@@ -44,26 +44,10 @@ $defaultPropertyBlacklist = [
 ];
 
 return [
-    'autofillers' => [
-        'factories' => [
-            Autofiller\GenericAutofiller::class => Service\Autofiller\AutofillerFactory::class,
-            Autofiller\GeonamesAutofiller::class => Service\Autofiller\AutofillerFactory::class,
-            Autofiller\IdRefAutofiller::class => Service\Autofiller\AutofillerFactory::class,
-        ],
-        'aliases' => [
-            'generic' => Autofiller\GenericAutofiller::class,
-            'geonames' => Autofiller\GeonamesAutofiller::class,
-            'idref' => Autofiller\IdRefAutofiller::class,
-        ],
-    ],
     'service_manager' => [
         'factories' => [
-            Autofiller\AutofillerPluginManager::class => Service\Autofiller\AutofillerPluginManagerFactory::class,
             Listener\ResourceOnSave::class => Service\Listener\ResourceOnSaveFactory::class,
             Listener\ValueDisplayListener::class => Service\Listener\ValueDisplayListenerFactory::class,
-        ],
-        'aliases' => [
-            'Autofiller\Manager' => Autofiller\AutofillerPluginManager::class,
         ],
     ],
     'api_adapters' => [
@@ -124,9 +108,6 @@ return [
         'invokables' => [
             'fieldNameToProperty' => Mvc\Controller\Plugin\FieldNameToProperty::class,
         ],
-        'factories' => [
-            'artMapper' => Service\ControllerPlugin\ArtMapperFactory::class,
-        ],
     ],
     'router' => [
         'routes' => [
@@ -140,29 +121,6 @@ return [
                                 '__NAMESPACE__' => 'AdvancedResourceTemplate\Controller\Admin',
                                 'controller' => 'Index',
                                 'action' => 'values',
-                            ],
-                        ],
-                    ],
-                    'autofiller' => [
-                        'type' => \Laminas\Router\Http\Literal::class,
-                        'options' => [
-                            'route' => '/autofiller',
-                            'defaults' => [
-                                '__NAMESPACE__' => 'AdvancedResourceTemplate\Controller\Admin',
-                                'controller' => 'Index',
-                                'action' => 'autofiller',
-                            ],
-                        ],
-                        'may_terminate' => true,
-                        'child_routes' => [
-                            'settings' => [
-                                'type' => \Laminas\Router\Http\Literal::class,
-                                'options' => [
-                                    'route' => '/settings',
-                                    'defaults' => [
-                                        'action' => 'autofillerSettings',
-                                    ],
-                                ],
                             ],
                         ],
                     ],
@@ -212,8 +170,6 @@ return [
                 'all',
             ],
             'advancedresourcetemplate_properties_as_search_blacklist' => $defaultPropertyBlacklist,
-            // The default autofillers are in /data/mapping/mappings.ini.
-            'advancedresourcetemplate_autofillers' => [],
             // Hidden settings.
             'advancedresourcetemplate_item_set_queries' => [],
             'advancedresourcetemplate_templates_by_resource' => [],

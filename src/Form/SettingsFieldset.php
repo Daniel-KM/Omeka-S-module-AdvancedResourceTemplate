@@ -79,20 +79,7 @@ class SettingsFieldset extends Fieldset
                 ],
             ])
 
-            ->add([
-                'name' => 'advancedresourcetemplate_autofillers',
-                'type' => Element\Textarea::class,
-                'options' => [
-                    'element_group' => 'resource_edit',
-                    'label' => 'Autofillers', // @translate
-                    'info' => 'The autofillers should be set in selected templates params.', // @translate
-                    'documentation' => 'https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate#autofilling',
-                ],
-                'attributes' => [
-                    'id' => 'advancedresourcetemplate_autofillers',
-                    'rows' => 8,
-                ],
-            ])
+            // Autofillers feature has been moved to module Mapper.
 
             ->add([
                 'name' => 'advancedresourcetemplate_skip_private_values',
