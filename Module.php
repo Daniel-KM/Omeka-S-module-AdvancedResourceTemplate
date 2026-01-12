@@ -1091,7 +1091,6 @@ class Module extends AbstractModule
             $controllerName = null;
         }
         if (!$controllerName) {
-            $display = false;
             return;
         }
 
@@ -1420,7 +1419,6 @@ class Module extends AbstractModule
             $controllerName = null;
         }
         if (!$controllerName) {
-            $display = false;
             return;
         }
 
