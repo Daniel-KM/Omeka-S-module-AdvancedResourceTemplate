@@ -6,7 +6,6 @@ if (!class_exists('Common\TraitModule', false)) {
     require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
-use AdvancedResourceTemplate\Listener\ResourceOnSave;
 use AdvancedResourceTemplate\Stdlib\CountableAppendIterator;
 use Common\TraitModule;
 use Laminas\EventManager\Event;
@@ -550,19 +549,19 @@ class Module extends AbstractModule
 
     public function handleTemplateSettingsOnSave(Event $event): void
     {
-        $resourceOnSave = new ResourceOnSave($this->getServiceLocator());
+        $resourceOnSave = $this->getServiceLocator()->get(Listener\ResourceOnSave::class);
         $resourceOnSave->handleTemplateSettingsOnSave($event);
     }
 
     public function validateEntityHydratePost(Event $event): void
     {
-        $resourceOnSave = new ResourceOnSave($this->getServiceLocator());
+        $resourceOnSave = $this->getServiceLocator()->get(Listener\ResourceOnSave::class);
         $resourceOnSave->validateEntityHydratePost($event);
     }
 
     public function storeVaTemplates(Event $event): void
     {
-        $resourceOnSave = new ResourceOnSave($this->getServiceLocator());
+        $resourceOnSave = $this->getServiceLocator()->get(Listener\ResourceOnSave::class);
         $resourceOnSave->storeVaTemplates($event);
     }
 
