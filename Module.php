@@ -137,6 +137,20 @@ class Module extends AbstractModule
             [$this, 'handleTemplateConfigOnSave']
         );
 
+        // Filter resource templates by resource type via event instead of override.
+        $sharedEventManager->attach(
+            \AdvancedResourceTemplate\Api\Adapter\ResourceTemplateAdapter::class,
+            'api.search.query',
+            [$this, 'filterTemplateSearchQuery']
+        );
+
+        // Hydrate template custom data (o:data) via event instead of override.
+        $sharedEventManager->attach(
+            \AdvancedResourceTemplate\Api\Adapter\ResourceTemplateAdapter::class,
+            'api.hydrate.post',
+            [$this, 'handleTemplateHydratePost']
+        );
+
         // Manage some settings (auto-value, exploding, order, etc.) for each
         // resource type.
         // ".pre" is used to allows to check validity in next event (hydrate).
@@ -481,6 +495,77 @@ class Module extends AbstractModule
     public function handleTemplateConfigOnSave(Event $event): void
     {
         $this->storeResourceTemplateSettings();
+    }
+
+    /**
+     * Filter resource templates by resource type.
+     *
+     * This replaces the buildQuery() override in the Adapter.
+     */
+    public function filterTemplateSearchQuery(Event $event): void
+    {
+        $query = $event->getParam('request')->getContent();
+        if (empty($query['resource'])) {
+            return;
+        }
+
+        $settings = $this->getServiceLocator()->get('Omeka\Settings');
+        $templateByResourceNames = $settings->get('advancedresourcetemplate_templates_by_resource', []);
+        if (!$templateByResourceNames) {
+            return;
+        }
+
+        $templateIds = $templateByResourceNames[$query['resource']] ?? [];
+        if (!$templateIds) {
+            return;
+        }
+
+        /** @var \Doctrine\ORM\QueryBuilder $qb */
+        $qb = $event->getParam('queryBuilder');
+        /** @var \Omeka\Api\Adapter\ResourceTemplateAdapter $adapter */
+        $adapter = $event->getTarget();
+        $qb->andWhere($qb->expr()->in(
+            'omeka_root.id',
+            $adapter->createNamedParameter($qb, $templateIds)
+        ));
+    }
+
+    /**
+     * Hydrate template custom data (o:data) via event.
+     *
+     * This replaces the hydrate() override in the Adapter.
+     */
+    public function handleTemplateHydratePost(Event $event): void
+    {
+        /** @var \Omeka\Api\Request $request */
+        $request = $event->getParam('request');
+
+        // Only handle o:data if it's present in the request.
+        if (!$request->getValue('o:data') && empty($request->getContent()['o:resource_template_property'])) {
+            return;
+        }
+
+        /** @var \Omeka\Entity\ResourceTemplate $entity */
+        $entity = $event->getParam('entity');
+        /** @var \AdvancedResourceTemplate\Api\Adapter\ResourceTemplateAdapter $adapter */
+        $adapter = $event->getTarget();
+
+        // Hydrate template-level data (o:data).
+        if ($adapter->shouldHydrate($request, 'o:data')) {
+            $hydrator = new Api\Adapter\ResourceTemplateDataHydrator();
+            $hydrator->hydrate($request, $entity, $adapter);
+        }
+
+        // Hydrate property-level data (o:data within o:resource_template_property).
+        $data = $request->getContent();
+        if ($adapter->shouldHydrate($request, 'o:resource_template_property')
+            && isset($data['o:resource_template_property'])
+            && is_array($data['o:resource_template_property'])
+        ) {
+            $rtpdHydrator = new Api\Adapter\ResourceTemplatePropertyDataHydrator();
+            // The hydrator will build the property mapping from entity if not set.
+            $rtpdHydrator->hydrate($request, $entity, $adapter);
+        }
     }
 
     public function handleTemplateSettingsOnSave(Event $event): void
