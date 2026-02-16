@@ -69,32 +69,7 @@
         display: none !important;
     }
 
-    .autocomplete-suggestions {
-        border: 1px solid #999;
-        background: #fff;
-        overflow: auto;
-    }
-    .autocomplete-suggestion {
-        padding: 2px 5px;
-        white-space: nowrap;
-        overflow: hidden;
-        margin-left: 2px;
-        margin-right: 6px;
-    }
-    .autocomplete-selected {
-        background: #f0f0f0;
-    }
-    .autocomplete-suggestions strong {
-        font-weight: normal;
-        color: #3399ff;
-    }
-    .autocomplete-group {
-        padding: 2px 5px;
-    }
-    .autocomplete-group strong {
-        display: block;
-        border-bottom: 1px solid #000;
-    }
+    /* Autocomplete base: see common-autocomplete.css (module Common). */
 
     .autocomplete-suggestion .suggest-info.autofill {
         font-size: 0.8rem;

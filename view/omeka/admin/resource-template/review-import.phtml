@@ -10,7 +10,9 @@
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 
-$this->headLink()->appendStylesheet($this->assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
+$this->headLink()
+    ->appendStylesheet($this->assetUrl('css/common-autocomplete.css', 'Common'))
+    ->appendStylesheet($this->assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
 
 $form->prepare();
 $this->htmlElement('body')->appendAttribute('class', 'resource-templates review');

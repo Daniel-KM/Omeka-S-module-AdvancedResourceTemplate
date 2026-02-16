@@ -9,7 +9,9 @@
 // Copy of original file + replace propertyRow by propertyFieldset + css.
 
 $translate = $this->plugin('translate');
-$this->headLink()->appendStylesheet($this->assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
+$this->headLink()
+    ->appendStylesheet($this->assetUrl('css/common-autocomplete.css', 'Common'))
+    ->appendStylesheet($this->assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
 ?>
 <?php $this->htmlElement('body')->appendAttribute('class', 'edit resource-templates'); ?>
 

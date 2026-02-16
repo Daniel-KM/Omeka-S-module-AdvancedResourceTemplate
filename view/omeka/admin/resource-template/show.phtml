@@ -18,7 +18,9 @@ $escape = $plugins->get('escapeHtml');
 $url = $plugins->get('url');
 $hyperlink = $plugins->get('hyperlink');
 
-$this->headLink()->appendStylesheet($this->assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
+$this->headLink()
+    ->appendStylesheet($this->assetUrl('css/common-autocomplete.css', 'Common'))
+    ->appendStylesheet($this->assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
 $this->htmlElement('body')->appendAttribute('class', 'resource-templates show');
 
 $matches = [];
