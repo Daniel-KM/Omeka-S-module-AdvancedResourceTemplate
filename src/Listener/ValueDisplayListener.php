@@ -2,6 +2,7 @@
 
 namespace AdvancedResourceTemplate\Listener;
 
+use Interop\Container\ContainerInterface;
 use Laminas\EventManager\Event;
 use Omeka\Mvc\Status;
 use Omeka\Settings\Settings;
@@ -36,6 +37,15 @@ class ValueDisplayListener
     protected $viewHelpers;
 
     /**
+     * Used for lazy-loading of site settings when the factory is called
+     * during bootstrap, before routing is complete. Required for modules
+     * like CleanUrl that forward routes after the initial route match.
+     *
+     * @var \Interop\Container\ContainerInterface
+     */
+    protected $services;
+
+    /**
      * Context initialized flag per mode.
      */
     protected $initialized = [
@@ -60,12 +70,14 @@ class ValueDisplayListener
         Status $status,
         Settings $settings,
         $siteSettings,
-        $viewHelpers
+        $viewHelpers,
+        ContainerInterface $services = null
     ) {
         $this->status = $status;
         $this->settings = $settings;
         $this->siteSettings = $siteSettings;
         $this->viewHelpers = $viewHelpers;
+        $this->services = $services;
     }
 
     /**
@@ -266,6 +278,21 @@ class ValueDisplayListener
         }
 
         if ($isSite) {
+            // Lazy-load site settings: the factory may have been created before
+            // routing (e.g., during bootstrap), when isSiteRequest() was false.
+            // After route forwarding (e.g., CleanUrl), site context is available.
+            if (!$this->siteSettings && $this->services) {
+                try {
+                    $this->siteSettings = $this->services->get('Omeka\Settings\Site');
+                } catch (\Exception $e) {
+                    $this->disabled[$mode] = true;
+                    return false;
+                }
+            }
+            if (!$this->siteSettings) {
+                $this->disabled[$mode] = true;
+                return false;
+            }
             $displaySite = $this->siteSettings->get('advancedresourcetemplate_properties_display_site');
             if ($displaySite === 'site') {
                 $sSettings = $this->siteSettings;

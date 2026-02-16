@@ -12,7 +12,12 @@ class ValueDisplayListenerFactory implements FactoryInterface
     {
         $status = $services->get('Omeka\Status');
 
-        // SiteSettings may not be available (e.g., in background jobs or admin without site context).
+        // SiteSettings may not be available (e.g., in background jobs or
+        // admin without site context).
+        // This factory is called during bootstrap (via attachListeners),
+        // before routing. For modules like CleanUrl that forward routes,
+        // isSiteRequest() may return false here and become true later.
+        // The container is passed to allow lazy-loading of site settings.
         $siteSettings = null;
         if ($status->isSiteRequest()) {
             $siteSettings = $services->get('Omeka\Settings\Site');
@@ -22,7 +27,8 @@ class ValueDisplayListenerFactory implements FactoryInterface
             $status,
             $services->get('Omeka\Settings'),
             $siteSettings,
-            $services->get('ViewHelperManager')
+            $services->get('ViewHelperManager'),
+            $services
         );
     }
 }
