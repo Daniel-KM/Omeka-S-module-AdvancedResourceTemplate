@@ -42,6 +42,8 @@ class Module extends AbstractModule
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
 
+        $errors = [];
+
         if ($this->isModuleActive('DynamicItemSets')
             && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.5')
         ) {
@@ -49,7 +51,11 @@ class Module extends AbstractModule
                 $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
                 ['module' => 'Dynamic Item Sets', 'version' => '3.4.5']
             );
-            throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+            $errors[] = (string) $message;
+        }
+
+        if ($errors) {
+            throw new \Omeka\Module\Exception\ModuleCannotInstallException(implode("\n", $errors));
         }
 
         if ($this->isModuleActive('AdvancedSearch')
@@ -1169,7 +1175,6 @@ class Module extends AbstractModule
                 ->setValue($value);
         }
 
-        $this->appendCssGroupMultiCheckbox();
     }
 
     public function handleMainSettingsFilters(Event $event): void
@@ -1198,25 +1203,6 @@ class Module extends AbstractModule
     public function handleSiteSettings(Event $event): void
     {
         $this->handleAnySettings($event, 'site_settings');
-        $this->appendCssGroupMultiCheckbox();
-    }
-
-    protected function appendCssGroupMultiCheckbox(): void
-    {
-        $css = <<<'CSS'
-            .group-br::before {
-                display: block;
-                content: "";
-            }
-            .group-label[data-group-label]::before {
-                content: attr(data-group-label);
-                font-style: italic;
-            }
-            CSS;
-
-        /** @var \Laminas\View\Helper\HeadStyle headStyle */
-        $headStyle = $this->getServiceLocator()->get('ViewHelperManager')->get('headStyle');
-        $headStyle->appendStyle($css);
     }
 
     public function handleViewLayoutResourceTemplate(Event $event): void

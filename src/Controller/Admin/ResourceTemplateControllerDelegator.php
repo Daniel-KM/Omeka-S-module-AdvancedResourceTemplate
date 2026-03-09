@@ -470,7 +470,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             $options = [
                 'type' => $fileData['type'],
                 'delimiter' => "\t",
-                'enclosure' => chr(0),
+                'enclosure' => "\0",
             ];
         } else {
             $options = [
@@ -1093,7 +1093,8 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
     protected function slugify(string $input): string
     {
         if (extension_loaded('intl')) {
-            $transliterator = \Transliterator::createFromRules(':: NFD; :: [:Nonspacing Mark:] Remove; :: NFC;');
+            static $transliterator;
+            $transliterator ??= \Transliterator::createFromRules(':: NFD; :: [:Nonspacing Mark:] Remove; :: NFC;');
             $slug = $transliterator->transliterate($input);
         } elseif (extension_loaded('iconv')) {
             $slug = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $input);
@@ -1523,7 +1524,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
     protected function appendCsvRow($stream, array $fields, string $type = 'csv'): void
     {
         $type === 'tsv'
-            ? fputcsv($stream, $fields, "\t", chr(0), chr(0))
+            ? fputcsv($stream, $fields, "\t", "\0", "\0")
             : fputcsv($stream, $fields);
     }
 
@@ -1718,14 +1719,26 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             'fix_max_values' => !empty($post['fix_max_values']),
         ];
 
-        $this->jobDispatcher()->dispatch(
+        $job = $this->jobDispatcher()->dispatch(
             \AdvancedResourceTemplate\Job\ApplyTemplate::class,
             $args
         );
 
-        $message = $fix
-            ? 'Applying template corrections to resources. See jobs for progress.' // @translate
-            : 'Auditing resources against template. See jobs for progress.'; // @translate
+        $urlPlugin = $this->url();
+        $message = new PsrMessage(
+            $fix
+                ? 'Applying template corrections to resources in background (job {link_job}#{job_id}{link_end}, {link_log}logs{link_end}).' // @translate
+                : 'Auditing resources against template in background (job {link_job}#{job_id}{link_end}, {link_log}logs{link_end}).', // @translate
+            [
+                'link_job' => sprintf('<a href="%s">', htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))),
+                'job_id' => $job->getId(),
+                'link_end' => '</a>',
+                'link_log' => class_exists('Log\Module', false)
+                    ? sprintf('<a href="%1$s">', $urlPlugin->fromRoute('admin/default', ['controller' => 'log'], ['query' => ['job_id' => $job->getId()]]))
+                    : sprintf('<a href="%1$s" target="_blank">', $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()])),
+            ]
+        );
+        $message->setEscapeHtml(false);
         $this->messenger()->addSuccess($message);
 
         return $this->redirect()->toRoute('admin/id', [
