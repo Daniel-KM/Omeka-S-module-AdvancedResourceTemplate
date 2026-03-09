@@ -41,8 +41,11 @@ if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActi
         'The module %1$s should be upgraded to version %2$s or later.', // @translate
         'Common', '3.4.81'
     );
-    throw new ModuleCannotInstallException((string) $message);
+    $messenger->addError($message);
+    throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $translate('Missing requirement. Unable to upgrade.')); // @translate
 }
+
+$hasError = false;
 
 if ($this->isModuleActive('DynamicItemSets')
     && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.5')
@@ -51,7 +54,8 @@ if ($this->isModuleActive('DynamicItemSets')
         $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
         ['module' => 'Dynamic Item Sets', 'version' => '3.4.5']
     );
-    throw new ModuleCannotInstallException((string) $message);
+    $messenger->addError($message);
+    $hasError = true;
 }
 
 if ($this->isModuleActive('AdvancedSearch')
@@ -63,6 +67,10 @@ if ($this->isModuleActive('AdvancedSearch')
     );
     $messenger = $services->get('ControllerPluginManager')->get('messenger');
     $messenger->addWarning($message);
+}
+
+if ($hasError) {
+    throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $translate('Missing requirement. Unable to upgrade.')); // @translate
 }
 
 if (version_compare((string) $oldVersion, '3.3.3.3', '<')) {
@@ -821,7 +829,8 @@ if (version_compare((string) $oldVersion, '3.4.50', '<')) {
             ]
         );
         $message->setEscapeHtml(false);
-        throw new ModuleCannotInstallException((string) $message);
+        $messenger->addError($message);
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $translate('Missing requirement. Unable to upgrade.')); // @translate
     }
 
     // Inform about migration.
@@ -961,7 +970,8 @@ if (version_compare((string) $oldVersion, '3.4.50', '<')) {
             ]
         );
         $message->setEscapeHtml(false);
-        throw new ModuleCannotInstallException((string) $message);
+        $messenger->addError($message);
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $translate('Missing requirement. Unable to upgrade.')); // @translate
     }
 
     // If Mapper is active and there are templates with automatic_values, migrate them.
