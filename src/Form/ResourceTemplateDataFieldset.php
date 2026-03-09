@@ -226,6 +226,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'type' => CommonElement\OptionalItemSetSelect::class,
                 'options' => [
                     'label' => 'Item sets to set for items', // @translate
+                    'disable_inarray_validator' => true,
                 ],
                 'attributes' => [
                     'id' => 'item_sets',

@@ -1,0 +1,101 @@
+<?php
+/**
+ * Sidebar partial for the ApplyTemplate job launcher.
+ *
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var int $templateId Resource template id (0 from browse).
+ * @var int $resourceCount Number of resources using
+ *     the template.
+ */
+
+$translate = $this->plugin('translate');
+$escape = $this->plugin('escapeHtml');
+$url = $this->plugin('url');
+$formElement = $this->plugin('formElement');
+
+// Build a generic form to get the CSRF token that the
+// controller expects (name "form" → element "form_csrf").
+$form = new \Laminas\Form\Form('form');
+$form->add(new \Laminas\Form\Element\Csrf('form_csrf'));
+$form->prepare();
+
+$formAction = $templateId
+    ? $url('admin/id', ['controller' => 'resource-template', 'id' => $templateId, 'action' => 'apply-template'])
+    : '#';
+
+$baseAction = $url('admin/id', [
+    'controller' => 'resource-template',
+    'id' => '__ID__',
+    'action' => 'apply-template',
+]);
+?>
+<div id="apply-template-sidebar" class="sidebar"
+    data-base-action="<?= $escape($baseAction) ?>">
+    <div class="confirm-main">
+        <?= $this->hyperlink('', '#', [
+            'class' => 'sidebar-close o-icon-close',
+            'title' => $translate('Close'),
+        ]) ?>
+        <div class="sidebar-content">
+            <h3><?= $translate('Apply template to resources') ?></h3>
+            <p>
+                <?= sprintf(
+                    $translate('This template is used by %s resources.'), // @translate
+                    '<span class="apply-template-resource-count">'
+                        . (int) $resourceCount
+                        . '</span>'
+                ) ?>
+            </p>
+            <form id="apply-template-form" method="post"
+                action="<?= $escape($formAction) ?>">
+                <?= $formElement($form->get('form_csrf')) ?>
+                <input type="hidden" name="template_id"
+                    value="<?= (int) $templateId ?>">
+                <div class="field">
+                    <label>
+                        <input type="checkbox"
+                            id="apply-template-fix"
+                            name="fix" value="1">
+                        <?= $translate('Apply corrections') // @translate ?>
+                    </label>
+                </div>
+                <fieldset id="apply-template-options" disabled>
+                    <div class="field">
+                        <label>
+                            <input type="checkbox"
+                                name="fix_default_values" value="1">
+                            <?= $translate('Add missing default values') // @translate ?>
+                        </label>
+                    </div>
+                    <div class="field">
+                        <label>
+                            <input type="checkbox"
+                                name="fix_automatic_values" value="1">
+                            <?= $translate('Recalculate automatic values') // @translate ?>
+                        </label>
+                    </div>
+                    <div class="field">
+                        <label>
+                            <input type="checkbox"
+                                name="fix_truncate" value="1">
+                            <?= $translate('Truncate values exceeding max length') // @translate ?>
+                        </label>
+                    </div>
+                    <div class="field">
+                        <label>
+                            <input type="checkbox"
+                                name="fix_max_values" value="1">
+                            <?= $translate('Remove values exceeding max count') // @translate ?>
+                        </label>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div class="confirm-panel">
+        <button type="submit" form="apply-template-form"
+            data-label-audit="<?= $escape($translate('Audit')) ?>"
+            data-label-fix="<?= $escape($translate('Apply corrections')) ?>"
+        ><?= $translate('Audit') // @translate ?></button>
+    </div>
+</div>

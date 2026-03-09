@@ -55,6 +55,9 @@ $matches = [];
             <li><a class="link" href="<?= $escape($url(null, ['action' => 'export'], ['query' => ['output' => 'tsv']], true)) ?>"><?= $translate('As tsv') ?></a></li>
             <li><a class="link" href="<?= $escape($url(null, ['action' => 'export'], ['query' => ['output' => 'json']], true)) ?>"><?= $translate('As json') ?></a></li>
         </ul>
+        <?php if ($this->userIsAllowed('Omeka\Controller\Admin\Item', 'batch-edit')): ?>
+        <a class="button apply-template-trigger" href="#" data-template-id="<?= $resourceTemplate->id() ?>"><?= $translate('Apply to resources') ?></a>
+        <?php endif; ?>
         <?php if ($resourceTemplate->userIsAllowed('update')): ?>
         <a class="button" href="<?= $escape($resourceTemplate->url('edit')) ?>"><?= $translate('Edit') ?></a>
         <?php endif; ?>
@@ -165,3 +168,9 @@ $matches = [];
 <?php endif; ?>
 
 <?php $this->trigger('view.show.after'); ?>
+
+<?php
+$applyResourceCount = $api->search('resources', ['resource_template_id' => $resourceTemplate->id(), 'limit' => 0])->getTotalResults();
+echo $this->partial('common/apply-template-sidebar', ['templateId' => $resourceTemplate->id(), 'resourceCount' => $applyResourceCount]);
+$this->headScript()->appendFile($this->assetUrl('js/apply-template.js', 'AdvancedResourceTemplate'));
+?>

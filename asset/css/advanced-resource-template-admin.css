@@ -308,6 +308,29 @@
     }
 }
 
+    /* Apply template sidebar */
+
+    #apply-template-sidebar .field label {
+        background-color: transparent;
+        font-weight: normal;
+        padding: 0;
+        margin: 0 0 6px;
+        cursor: pointer;
+    }
+
+    #apply-template-sidebar .field label:after {
+        content: none;
+    }
+
+    #apply-template-sidebar .field {
+        margin-bottom: 6px;
+    }
+
+    #apply-template-sidebar fieldset[disabled] label {
+        opacity: .5;
+        cursor: default;
+    }
+
 @media screen and (max-width: 640px) {
     body.modal.sidebar-open #content {
          width: 100%;

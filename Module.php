@@ -458,6 +458,11 @@ class Module extends AbstractModule
             'view.browse.actions',
             [$this, 'handleResourceTemplateBrowseActions']
         );
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\ResourceTemplate',
+            'view.browse.after',
+            [$this, 'handleResourceTemplateBrowseAfter']
+        );
 
         // Add elements to the resource template form.
         $sharedEventManager->attach(
@@ -1295,6 +1300,30 @@ class Module extends AbstractModule
         } else {
             echo '<li><span class="no-action" style="display: inline-block; width: 24px;"></span></li>';
         }
+
+        $controllerClass = 'Omeka\Controller\Admin\\' . strtr(
+            ucwords($controllerName, '-'), ['-' => '']
+        );
+        if ($resourceEntity && $userIsAllowed($controllerClass, 'batch-edit')) {
+            echo sprintf(
+                '<li><a class="apply-template-trigger" href="#" data-template-id="%d" data-resource-count="%d" title="%s"><span class="o-icon-sync" aria-hidden="true"></span></a></li>',
+                $resourceTemplate->id(),
+                $total,
+                $translate('Apply template to resources')
+            );
+        }
+    }
+
+    public function handleResourceTemplateBrowseAfter(Event $event): void
+    {
+        $view = $event->getTarget();
+        echo $view->partial('common/apply-template-sidebar', [
+            'templateId' => 0,
+            'resourceCount' => 0,
+        ]);
+        $view->headScript()->appendFile(
+            $view->assetUrl('js/apply-template.js', 'AdvancedResourceTemplate')
+        );
     }
 
     public function addResourceTemplateFormElements(Event $event): void

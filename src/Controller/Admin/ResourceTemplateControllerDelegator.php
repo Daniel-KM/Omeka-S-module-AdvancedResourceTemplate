@@ -1204,6 +1204,35 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                             $successMessage->setEscapeHtml(false);
                         }
                         $this->messenger()->addSuccess($successMessage);
+                        if ($isUpdate) {
+                            $resourceCount = $this->api()
+                                ->search('resources', [
+                                    'resource_template_id' => $resourceTemplate->id(),
+                                    'limit' => 0,
+                                ])->getTotalResults();
+                            if ($resourceCount > 0) {
+                                $acl = $this->getEvent()->getApplication()
+                                    ->getServiceManager()->get('Omeka\Acl');
+                                if ($acl->userIsAllowed('Omeka\Controller\Admin\Item', 'batch-edit')) {
+                                    $applyMessage = new PsrMessage(
+                                        '{info} <a href="#" class="apply-template-trigger" data-template-id="{id}">{action}</a>', // @translate
+                                        [
+                                            'info' => sprintf($this->translate('This template is used by %d resources.'), $resourceCount),
+                                            'id' => $resourceTemplate->id(),
+                                            'action' => $this->translate('Apply changes to existing resources?'), // @translate
+                                        ]
+                                    );
+                                    $applyMessage->setEscapeHtml(false);
+                                    $this->messenger()->addWarning($applyMessage);
+                                } else {
+                                    $applyMessage = sprintf(
+                                        $this->translate('This template is used by %d resources.'), // @translate
+                                        $resourceCount
+                                    );
+                                    $this->messenger()->addNotice($applyMessage);
+                                }
+                            }
+                        }
                         return $this->redirect()->toUrl($response->getContent()->url());
                     }
                     $this->messenger()->addFormErrors($form);
@@ -1636,5 +1665,73 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             'local_name' => $member->localName(),
             'label' => $member->label(),
         ];
+    }
+
+    /**
+     * Dispatch a background job to audit or fix resources
+     * according to the constraints of a resource template.
+     */
+    public function applyTemplateAction()
+    {
+        $id = (int) $this->params('id');
+
+        // Require batch-edit permission on item controller.
+        $acl = $this->getEvent()->getApplication()
+            ->getServiceManager()->get('Omeka\Acl');
+        if (!$acl->userIsAllowed('Omeka\Controller\Admin\Item', 'batch-edit')) {
+            return $this->redirect()->toRoute('admin/default', [
+                'controller' => 'resource-template',
+                'action' => 'browse',
+            ]);
+        }
+
+        if (!$this->getRequest()->isPost()) {
+            return $this->redirect()->toRoute('admin/default', [
+                'controller' => 'resource-template',
+                'action' => 'browse',
+            ]);
+        }
+
+        $post = $this->params()->fromPost();
+
+        // Validate CSRF via a generic form.
+        $form = $this->getForm(\Laminas\Form\Form::class);
+        $form->setData($post);
+        if (!$form->isValid()) {
+            $this->messenger()->addError(
+                'Invalid or missing CSRF token.' // @translate
+            );
+            return $this->redirect()->toRoute('admin/id', [
+                'controller' => 'resource-template',
+                'action' => 'show',
+                'id' => $id,
+            ]);
+        }
+
+        $fix = !empty($post['fix']);
+        $args = [
+            'template_id' => $id,
+            'fix' => $fix,
+            'fix_default_values' => !empty($post['fix_default_values']),
+            'fix_automatic_values' => !empty($post['fix_automatic_values']),
+            'fix_truncate' => !empty($post['fix_truncate']),
+            'fix_max_values' => !empty($post['fix_max_values']),
+        ];
+
+        $this->jobDispatcher()->dispatch(
+            \AdvancedResourceTemplate\Job\ApplyTemplate::class,
+            $args
+        );
+
+        $message = $fix
+            ? 'Applying template corrections to resources. See jobs for progress.' // @translate
+            : 'Auditing resources against template. See jobs for progress.'; // @translate
+        $this->messenger()->addSuccess($message);
+
+        return $this->redirect()->toRoute('admin/id', [
+            'controller' => 'resource-template',
+            'action' => 'show',
+            'id' => $id,
+        ]);
     }
 }
