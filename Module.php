@@ -597,6 +597,10 @@ class Module extends AbstractModule
 
         $services = $this->getServiceLocator();
         $status = $services->get('Omeka\Status');
+
+        $resource = $event->getTarget();
+        $template = $resource->resourceTemplate();
+
         if ($status->isSiteRequest()) {
             $skipPrivate = $services->get('Omeka\Settings\Site')->get('advancedresourcetemplate_skip_private_values');
             $skipPrivate = is_numeric($skipPrivate)
@@ -608,10 +612,40 @@ class Module extends AbstractModule
                     return;
                 }
             }
-        }
 
-        $resource = $event->getTarget();
-        $template = $resource->resourceTemplate();
+            // Filter properties hidden on public site per
+            // resource template settings.
+            if ($template) {
+                $hasCheckedUser = false;
+                $user = null;
+                foreach ($template->resourceTemplateProperties() as $rtp) {
+                    $display = $rtp->mainDataValue('display_on_public_site');
+                    if (!$display) {
+                        continue;
+                    }
+                    $term = $rtp->property()->term();
+                    if (!isset($values[$term])) {
+                        continue;
+                    }
+                    if ($display === 'no') {
+                        unset($values[$term]);
+                    } elseif ($display === 'authenticated') {
+                        if (!$hasCheckedUser) {
+                            $user = $services
+                                ->get('Omeka\AuthenticationService')
+                                ->getIdentity();
+                            $hasCheckedUser = true;
+                        }
+                        if (!$user) {
+                            unset($values[$term]);
+                        }
+                    }
+                }
+                if (!count($values)) {
+                    return;
+                }
+            }
+        }
 
         if ($template) {
             $groups = $template->dataValue('groups') ?: [];

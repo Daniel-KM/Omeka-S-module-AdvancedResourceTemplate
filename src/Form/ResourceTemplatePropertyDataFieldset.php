@@ -143,6 +143,27 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'display_on_public_site',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Display values on the public site', // @translate
+                    'value_options' => [
+                        '' => 'Yes (default)', // @translate
+                        'authenticated' => 'No, except for authenticated users', // @translate
+                        'no' => 'No', // @translate
+                    ],
+                    // Fix the formatting issue of the radio label.
+                    'label_attributes' => [
+                        'class' => 'radio',
+                    ],
+                ],
+                'attributes' => [
+                    'class' => 'setting',
+                    'data-setting-key' => 'display_on_public_site',
+                    'value' => '',
+                ],
+            ])
+            ->add([
                 'name' => 'unique_value',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
