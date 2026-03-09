@@ -333,8 +333,9 @@ class AutomaticValuesHandler
     /**
      * Create an automatic property value.
      *
-     * This feature requires the module Mapper or artMapper plugin for pattern
-     * transformation. If not available, the feature is disabled.
+     * When the module Mapper is available, patterns like
+     * `{dcterms:title}` are resolved from the resource data.
+     * Otherwise the value is used as a plain literal.
      */
     protected function createAutomaticPropertyValue(array $resource, ?array $map): ?array
     {
@@ -349,31 +350,59 @@ class AutomaticValuesHandler
         $isPublic = $map['is_public'] ?? true;
         $dataType = count($dataTypes) ? reset($dataTypes) : 'literal';
 
-        $plugins = $this->services->get('ControllerPluginManager');
-        $fieldNameToProperty = $plugins->get('fieldNameToProperty');
-
         $automaticValueArray = json_decode($automaticValue, true);
 
         if (is_array($automaticValueArray)) {
-            // Array format: may use Mapper patterns.
-            $mapper = null;
-            if ($this->services->has('Mapper\Mapper')) {
-                $mapper = $this->services->get('Mapper\Mapper');
-            }
             return $this->createAutomaticPropertyValueFromArray(
-                $resource, $automaticValueArray, $propertyTerm, $propertyId, $dataType, $dataTypes, $isPublic, $fieldNameToProperty, $mapper
+                $resource, $automaticValueArray, $propertyTerm,
+                $propertyId, $dataType, $dataTypes, $isPublic
             );
         }
 
-        // Simple string: may use Mapper patterns for
-        // transformation, or be a plain literal value.
-        $mapper = null;
-        if ($this->services->has('Mapper\Mapper')) {
-            $mapper = $this->services->get('Mapper\Mapper');
-        }
         return $this->createAutomaticPropertyValueFromString(
-            $resource, $automaticValue, $propertyTerm, $propertyId, $dataType, $isPublic, $fieldNameToProperty, $mapper
+            $resource, $automaticValue, $propertyTerm,
+            $propertyId, $dataType, $isPublic
         );
+    }
+
+    /**
+     * Transform a value string using Mapper patterns if available or return it.
+     *
+     * The value may contain Mapper patterns like `{dcterms:creator.0.@value}`
+     * that are resolved from the resource data.
+     */
+    protected function transformValue(
+        string $val,
+        string $propertyTerm,
+        string $dataType,
+        array $resource
+    ): ?string {
+        if (!$this->services->has('Mapper\Mapper')) {
+            return $val;
+        }
+
+        // Build a one-line INI mapping for Mapper.
+        $iniLine = "~ = $propertyTerm ^^$dataType ~ $val";
+
+        /** @var \Mapper\Stdlib\Mapper $mapper */
+        $mapper = $this->services->get('Mapper\Mapper');
+        try {
+            $mapper->setMapping('_art_auto', $iniLine);
+            $result = $mapper->convert($resource);
+        } catch (\Exception $e) {
+            return $val;
+        }
+
+        $values = $result[$propertyTerm] ?? [];
+        if (empty($values)) {
+            return null;
+        }
+
+        $first = reset($values);
+        return (string) ($first['@value']
+            ?? $first['@id']
+            ?? $first['value_resource_id']
+            ?? $val);
     }
 
     /**
@@ -386,9 +415,7 @@ class AutomaticValuesHandler
         int $propertyId,
         string $dataType,
         array $dataTypes,
-        bool $isPublic,
-        $fieldNameToProperty,
-        $mapper
+        bool $isPublic
     ): ?array {
         if (empty($automaticValueArray['type'])) {
             $automaticValueArray['type'] = $dataType;
@@ -405,26 +432,12 @@ class AutomaticValuesHandler
         $dataType = $automaticValueArray['type'];
         $mainType = $this->easyMeta->dataTypeMain($dataType);
 
-        // Helper to transform a value via Mapper or use as-is.
         $transform = function (string $val) use (
-            $mapper, $fieldNameToProperty, $propertyTerm,
-            $dataType, $resource
+            $propertyTerm, $dataType, $resource
         ): ?string {
-            if (!$mapper) {
-                return $val;
-            }
-            $to = "$propertyTerm ^^$dataType ~ $val";
-            $to = $fieldNameToProperty($to);
-            if (!$to) {
-                return null;
-            }
-            return $mapper
-                ->setMapping([])
-                ->setIsSimpleExtract(false)
-                ->setIsInternalSource(true)
-                ->extractValueOnly(
-                    $resource, ['from' => '~', 'to' => $to]
-                );
+            return $this->transformValue(
+                $val, $propertyTerm, $dataType, $resource
+            );
         };
 
         switch ($mainType) {
@@ -492,28 +505,15 @@ class AutomaticValuesHandler
         string $propertyTerm,
         int $propertyId,
         string $dataType,
-        bool $isPublic,
-        $fieldNameToProperty,
-        $mapper
+        bool $isPublic
     ): ?array {
         $mainType = $this->easyMeta->dataTypeMain($dataType);
 
-        // Without Mapper, use the value as-is (plain literal).
-        if ($mapper) {
-            $to = "$propertyTerm ^^$dataType ~ $automaticValue";
-            $to = $fieldNameToProperty($to);
-            if (!$to) {
-                return null;
-            }
-            $automaticValueTransformed = $mapper
-                ->setMapping([])
-                ->setIsSimpleExtract(false)
-                ->setIsInternalSource(true)
-                ->extractValueOnly(
-                    $resource, ['from' => '~', 'to' => $to]
-                );
-        } else {
-            $automaticValueTransformed = $automaticValue;
+        $automaticValueTransformed = $this->transformValue(
+            $automaticValue, $propertyTerm, $dataType, $resource
+        );
+        if ($automaticValueTransformed === null) {
+            return null;
         }
 
         switch ($mainType) {
