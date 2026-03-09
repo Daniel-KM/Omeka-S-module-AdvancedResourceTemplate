@@ -645,6 +645,32 @@ class Module extends AbstractModule
                     return;
                 }
             }
+
+            // Filter properties hidden via site settings.
+            $hideProperties = $services->get('Omeka\Settings\Site')
+                ->get('advancedresourcetemplate_hide_properties') ?: [];
+            if ($hideProperties) {
+                $values = array_diff_key(
+                    $values,
+                    array_flip($hideProperties)
+                );
+                if (!count($values)) {
+                    return;
+                }
+            }
+        } else {
+            // Filter properties hidden via global settings (admin).
+            $hideProperties = $services->get('Omeka\Settings')
+                ->get('advancedresourcetemplate_hide_properties') ?: [];
+            if ($hideProperties) {
+                $values = array_diff_key(
+                    $values,
+                    array_flip($hideProperties)
+                );
+                if (!count($values)) {
+                    return;
+                }
+            }
         }
 
         if ($template) {

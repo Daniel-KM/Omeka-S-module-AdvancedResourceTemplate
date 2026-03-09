@@ -144,6 +144,22 @@ trait TraitPropertyValuesDisplay
                 ],
             ])
             ->add([
+                'name' => 'advancedresourcetemplate_hide_properties',
+                'type' => CommonElement\OptionalPropertySelect::class,
+                'options' => [
+                    'element_group' => 'metadata_display',
+                    'label' => 'Properties to hide on public sites', // @translate
+                    'info' => 'These properties will be hidden on public pages. This setting is cumulative with per-template settings.', // @translate
+                    'term_as_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'advancedresourcetemplate_hide_properties',
+                    'multiple' => true,
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select properties…', // @translate
+                ],
+            ])
+            ->add([
                 'name' => 'advancedresourcetemplate_properties_as_search_whitelist',
                 'type' => CommonElement\OptionalPropertySelect::class,
                 'options' => [

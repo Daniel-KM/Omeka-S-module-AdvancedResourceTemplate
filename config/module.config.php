@@ -166,6 +166,7 @@ return [
             'advancedresourcetemplate_skip_private_values' => false,
             'advancedresourcetemplate_properties_display_admin' => false,
             'advancedresourcetemplate_properties_display' => [],
+            'advancedresourcetemplate_hide_properties' => [],
             'advancedresourcetemplate_properties_as_search_whitelist' => [
                 'all',
             ],
@@ -177,6 +178,7 @@ return [
         'site_settings' => [
             'advancedresourcetemplate_properties_display_site' => '',
             'advancedresourcetemplate_properties_display' => [],
+            'advancedresourcetemplate_hide_properties' => [],
             'advancedresourcetemplate_properties_as_search_whitelist' => [
                 'all',
             ],
