@@ -352,33 +352,25 @@ class AutomaticValuesHandler
         $plugins = $this->services->get('ControllerPluginManager');
         $fieldNameToProperty = $plugins->get('fieldNameToProperty');
 
-        // Pattern transformation requires the Mapper module.
-        // This feature is temporarily disabled until full Mapper integration.
-        // TODO: Implement Mapper-based pattern transformation.
-        if (!$this->services->has('Mapper\Mapper')) {
-            // Log warning only once per request.
-            static $mapperWarningLogged = false;
-            if (!$mapperWarningLogged) {
-                $this->services->get('Omeka\Logger')->warn(
-                    'Automatic property value patterns require the module Mapper. Please install it to use this feature.' // @translate
-                );
-                $mapperWarningLogged = true;
-            }
-            return null;
-        }
-
-        // TODO: Implement proper Mapper integration for pattern transformation.
-        // For now, this feature is disabled.
-        return null;
-
         $automaticValueArray = json_decode($automaticValue, true);
 
         if (is_array($automaticValueArray)) {
+            // Array format: may use Mapper patterns.
+            $mapper = null;
+            if ($this->services->has('Mapper\Mapper')) {
+                $mapper = $this->services->get('Mapper\Mapper');
+            }
             return $this->createAutomaticPropertyValueFromArray(
                 $resource, $automaticValueArray, $propertyTerm, $propertyId, $dataType, $dataTypes, $isPublic, $fieldNameToProperty, $mapper
             );
         }
 
+        // Simple string: may use Mapper patterns for
+        // transformation, or be a plain literal value.
+        $mapper = null;
+        if ($this->services->has('Mapper\Mapper')) {
+            $mapper = $this->services->get('Mapper\Mapper');
+        }
         return $this->createAutomaticPropertyValueFromString(
             $resource, $automaticValue, $propertyTerm, $propertyId, $dataType, $isPublic, $fieldNameToProperty, $mapper
         );
@@ -413,25 +405,43 @@ class AutomaticValuesHandler
         $dataType = $automaticValueArray['type'];
         $mainType = $this->easyMeta->dataTypeMain($dataType);
 
+        // Helper to transform a value via Mapper or use as-is.
+        $transform = function (string $val) use (
+            $mapper, $fieldNameToProperty, $propertyTerm,
+            $dataType, $resource
+        ): ?string {
+            if (!$mapper) {
+                return $val;
+            }
+            $to = "$propertyTerm ^^$dataType ~ $val";
+            $to = $fieldNameToProperty($to);
+            if (!$to) {
+                return null;
+            }
+            return $mapper
+                ->setMapping([])
+                ->setIsSimpleExtract(false)
+                ->setIsInternalSource(true)
+                ->extractValueOnly(
+                    $resource, ['from' => '~', 'to' => $to]
+                );
+        };
+
         switch ($mainType) {
             case 'resource':
                 if (empty($automaticValueArray['value_resource_id'])) {
                     return null;
                 }
-                $vrid = $automaticValueArray['value_resource_id'];
-                $to = "$propertyTerm ^^$dataType ~ $vrid";
-                $to = $fieldNameToProperty($to);
-                if (!$to) {
+                $vrid = $transform(
+                    (string) $automaticValueArray['value_resource_id']
+                );
+                if ($vrid === null) {
                     return null;
                 }
-                $automaticValueArray['value_resource_id'] = (int) $mapper
-                    ->setMapping([])
-                    ->setIsSimpleExtract(false)
-                    ->setIsInternalSource(true)
-                    ->extractValueOnly($resource, ['from' => '~', 'to' => $to]);
+                $automaticValueArray['value_resource_id'] = (int) $vrid;
                 try {
-                    $this->api->read('resources', ['id' => $vrid], ['initialize' => false, 'finalize' => false]);
-                } catch (Exception $e) {
+                    $this->api->read('resources', ['id' => (int) $vrid], ['initialize' => false, 'finalize' => false]);
+                } catch (\Exception $e) {
                     return null;
                 }
                 $check = array_intersect_key($automaticValueArray, ['type' => null, 'value_resource_id' => null]);
@@ -441,17 +451,11 @@ class AutomaticValuesHandler
                 if (empty($automaticValueArray['@id'])) {
                     return null;
                 }
-                $uri = $automaticValueArray['@id'];
-                $to = "$propertyTerm ^^$dataType ~ $uri";
-                $to = $fieldNameToProperty($to);
-                if (!$to) {
+                $uri = $transform($automaticValueArray['@id']);
+                if ($uri === null) {
                     return null;
                 }
-                $automaticValueArray['@id'] = $mapper
-                    ->setMapping([])
-                    ->setIsSimpleExtract(false)
-                    ->setIsInternalSource(true)
-                    ->extractValueOnly($resource, ['from' => '~', 'to' => $to]);
+                $automaticValueArray['@id'] = $uri;
                 $check = array_intersect_key($automaticValueArray, ['type' => null, '@id' => null]);
                 break;
 
@@ -460,17 +464,13 @@ class AutomaticValuesHandler
                 if (!isset($automaticValueArray['@value']) || !strlen((string) $automaticValueArray['@value'])) {
                     return null;
                 }
-                $val = $automaticValueArray['@value'];
-                $to = "$propertyTerm ^^$dataType ~ $val";
-                $to = $fieldNameToProperty($to);
-                if (!$to) {
+                $val = $transform(
+                    (string) $automaticValueArray['@value']
+                );
+                if ($val === null) {
                     return null;
                 }
-                $automaticValueArray['@value'] = $mapper
-                    ->setMapping([])
-                    ->setIsSimpleExtract(false)
-                    ->setIsInternalSource(true)
-                    ->extractValueOnly($resource, ['from' => '~', 'to' => $to]);
+                $automaticValueArray['@value'] = $val;
                 $check = array_intersect_key($automaticValueArray, ['type' => null, '@value' => null]);
                 break;
         }
@@ -497,24 +497,31 @@ class AutomaticValuesHandler
         $mapper
     ): ?array {
         $mainType = $this->easyMeta->dataTypeMain($dataType);
-        $to = "$propertyTerm ^^$dataType ~ $automaticValue";
-        $to = $fieldNameToProperty($to);
-        if (!$to) {
-            return null;
-        }
 
-        $automaticValueTransformed = $mapper
-            ->setMapping([])
-            ->setIsSimpleExtract(false)
-            ->setIsInternalSource(true)
-            ->extractValueOnly($resource, ['from' => '~', 'to' => $to]);
+        // Without Mapper, use the value as-is (plain literal).
+        if ($mapper) {
+            $to = "$propertyTerm ^^$dataType ~ $automaticValue";
+            $to = $fieldNameToProperty($to);
+            if (!$to) {
+                return null;
+            }
+            $automaticValueTransformed = $mapper
+                ->setMapping([])
+                ->setIsSimpleExtract(false)
+                ->setIsInternalSource(true)
+                ->extractValueOnly(
+                    $resource, ['from' => '~', 'to' => $to]
+                );
+        } else {
+            $automaticValueTransformed = $automaticValue;
+        }
 
         switch ($mainType) {
             case 'resource':
                 $automaticValueTransformed = (int) $automaticValueTransformed;
                 try {
                     $this->api->read('resources', ['id' => $automaticValueTransformed], ['initialize' => false, 'finalize' => false]);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     return null;
                 }
                 $automaticValueArray = [
@@ -542,11 +549,15 @@ class AutomaticValuesHandler
         $check = $automaticValueArray;
 
         // Check if the value already exists.
-        if (!$this->isNewValueByCheck($check, $resource[$propertyTerm] ?? [])) {
+        if (!$this->isNewValueByCheck(
+            $check, $resource[$propertyTerm] ?? []
+        )) {
             return null;
         }
 
-        return ['property_id' => $propertyId] + $automaticValueArray + ['is_public' => $isPublic];
+        return ['property_id' => $propertyId]
+            + $automaticValueArray
+            + ['is_public' => $isPublic];
     }
 
     /**
