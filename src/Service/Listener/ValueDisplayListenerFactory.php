@@ -3,7 +3,7 @@
 namespace AdvancedResourceTemplate\Service\Listener;
 
 use AdvancedResourceTemplate\Listener\ValueDisplayListener;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class ValueDisplayListenerFactory implements FactoryInterface

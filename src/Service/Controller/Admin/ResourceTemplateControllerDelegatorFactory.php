@@ -3,7 +3,7 @@
 namespace AdvancedResourceTemplate\Service\Controller\Admin;
 
 use AdvancedResourceTemplate\Controller\Admin\ResourceTemplateControllerDelegator;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\DelegatorFactoryInterface;
 
 class ResourceTemplateControllerDelegatorFactory implements DelegatorFactoryInterface

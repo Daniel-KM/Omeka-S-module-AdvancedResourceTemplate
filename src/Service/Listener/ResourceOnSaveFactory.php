@@ -5,7 +5,7 @@ namespace AdvancedResourceTemplate\Service\Listener;
 use AdvancedResourceTemplate\Listener\AutomaticValuesHandler;
 use AdvancedResourceTemplate\Listener\ResourceOnSave;
 use AdvancedResourceTemplate\Listener\ResourceValidator;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class ResourceOnSaveFactory implements FactoryInterface

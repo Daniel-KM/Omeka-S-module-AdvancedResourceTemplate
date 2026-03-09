@@ -3,7 +3,7 @@
 namespace AdvancedResourceTemplate\Service\Form;
 
 use AdvancedResourceTemplate\Form\ResourceTemplateDataFieldset;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class ResourceTemplateDataFieldsetFactory implements FactoryInterface

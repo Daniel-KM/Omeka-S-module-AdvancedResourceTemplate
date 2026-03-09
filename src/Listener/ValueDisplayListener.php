@@ -2,7 +2,7 @@
 
 namespace AdvancedResourceTemplate\Listener;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Laminas\EventManager\Event;
 use Omeka\Mvc\Status;
 use Omeka\Settings\Settings;
@@ -41,7 +41,7 @@ class ValueDisplayListener
      * during bootstrap, before routing is complete. Required for modules
      * like CleanUrl that forward routes after the initial route match.
      *
-     * @var \Interop\Container\ContainerInterface
+     * @var \Psr\Container\ContainerInterface
      */
     protected $services;
 
