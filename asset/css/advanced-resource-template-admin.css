@@ -210,7 +210,11 @@
 
     #page-action-menu {
         display: inline-block;
-        position: relative;
+
+        .action-menu-dropdown {
+            display: inline-block;
+            position: relative;
+        }
 
         ul {
             display: none;
@@ -223,6 +227,7 @@
             position: relative;
             box-shadow: 0 0 5px #dfdfdf;
             position: absolute;
+            right: 0;
             width: auto;
             white-space: nowrap;
             margin: 12px 0;

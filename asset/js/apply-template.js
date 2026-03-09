@@ -23,6 +23,16 @@
             }
         });
 
+        // Close other dropdowns when opening one.
+        $('#page-action-menu').on('click', 'a.expand, a.collapse', function() {
+            $(this).closest('.action-menu-dropdown')
+                .siblings('.action-menu-dropdown')
+                .find('a.collapse')
+                .removeClass('collapse').addClass('expand')
+                .attr('aria-label', Omeka.jsTranslate('Expand'))
+                .attr('title', Omeka.jsTranslate('Expand'));
+        });
+
         // Open the sidebar when a trigger button is clicked.
         // Use event delegation so dynamically added triggers
         // work too.
