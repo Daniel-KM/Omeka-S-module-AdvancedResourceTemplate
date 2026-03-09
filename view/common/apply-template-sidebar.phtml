@@ -88,6 +88,13 @@ $baseAction = $url('admin/id', [
                             <?= $translate('Remove values exceeding max count') // @translate ?>
                         </label>
                     </div>
+                    <div class="field">
+                        <label>
+                            <input type="checkbox"
+                                name="fix_visibility" value="1">
+                            <?= $translate('Fix visibility (public/private)') // @translate ?>
+                        </label>
+                    </div>
                 </fieldset>
             </form>
         </div>

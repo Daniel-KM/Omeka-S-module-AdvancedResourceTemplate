@@ -81,6 +81,11 @@ class ApplyTemplate extends AbstractJob
     protected $fixMaxValues;
 
     /**
+     * @var bool
+     */
+    protected $fixVisibility;
+
+    /**
      * Indexed constraints by property term. Each entry is an
      * array with keys: property_id, required, default_value,
      * automatic_value, max_length, min_length, max_values,
@@ -132,6 +137,7 @@ class ApplyTemplate extends AbstractJob
         $this->fixAutomaticValues = (bool) $this->getArg('fix_automatic_values', false);
         $this->fixTruncate = (bool) $this->getArg('fix_truncate', false);
         $this->fixMaxValues = (bool) $this->getArg('fix_max_values', false);
+        $this->fixVisibility = (bool) $this->getArg('fix_visibility', false);
 
         /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
         try {
@@ -209,6 +215,7 @@ class ApplyTemplate extends AbstractJob
                 $minValues = (int) $rtpData->dataValue('min_values');
                 $inputControl = (string) $rtpData->dataValue('input_control');
                 $uniqueValue = (bool) $rtpData->dataValue('unique_value');
+                $isPrivate = $rtpData->isPrivate();
 
                 // Keep only properties that have at least one
                 // constraint, to avoid unnecessary processing.
@@ -221,6 +228,7 @@ class ApplyTemplate extends AbstractJob
                     && !$minValues
                     && !strlen($inputControl)
                     && !$uniqueValue
+                    && !$isPrivate
                 ) {
                     continue;
                 }
@@ -397,8 +405,9 @@ SQL;
         $modified = false;
         $values = $data[$term] ?? [];
 
-        // --- Required check (report only, unless default exists).
+        // --- Required check.
         if ($constraint['required'] && !count($values)) {
+            ++$this->totals['issues'];
             if ($this->fix
                 && $this->fixDefaultValues
                 && $constraint['default_value']
@@ -410,7 +419,6 @@ SQL;
                     $data[$term][] = $newValue;
                     $values = $data[$term];
                     $modified = true;
-                    ++$this->totals['issues'];
                     ++$this->totals['fixed'];
                     $this->logger->info(
                         'Resource #{resource_id}: {term}: added default value for required property.', // @translate
@@ -420,11 +428,19 @@ SQL;
                         ]
                     );
                 }
-            } else {
-                ++$this->totals['issues'];
+            } elseif ($constraint['default_value']) {
                 ++$this->totals['skipped'];
                 $this->logger->info(
-                    'Resource #{resource_id}: {term}: required but empty (not fixable without default).', // @translate
+                    'Resource #{resource_id}: {term}: required but empty (fixable with default value).', // @translate
+                    [
+                        'resource_id' => $resourceId,
+                        'term' => $term,
+                    ]
+                );
+            } else {
+                ++$this->totals['skipped'];
+                $this->logger->info(
+                    'Resource #{resource_id}: {term}: required but empty (no default value).', // @translate
                     [
                         'resource_id' => $resourceId,
                         'term' => $term,
@@ -438,18 +454,29 @@ SQL;
         if (!$constraint['required']
             && !count($values)
             && $constraint['default_value']
-            && $this->fix
-            && $this->fixDefaultValues
         ) {
-            $newValue = $this->buildDefaultValue($constraint, $term);
-            if ($newValue) {
-                $data[$term][] = $newValue;
-                $values = $data[$term];
-                $modified = true;
-                ++$this->totals['issues'];
-                ++$this->totals['fixed'];
+            ++$this->totals['issues'];
+            if ($this->fix && $this->fixDefaultValues) {
+                $newValue = $this->buildDefaultValue(
+                    $constraint, $term
+                );
+                if ($newValue) {
+                    $data[$term][] = $newValue;
+                    $values = $data[$term];
+                    $modified = true;
+                    ++$this->totals['fixed'];
+                    $this->logger->info(
+                        'Resource #{resource_id}: {term}: added default value.', // @translate
+                        [
+                            'resource_id' => $resourceId,
+                            'term' => $term,
+                        ]
+                    );
+                }
+            } else {
+                ++$this->totals['skipped'];
                 $this->logger->info(
-                    'Resource #{resource_id}: {term}: added default value.', // @translate
+                    'Resource #{resource_id}: {term}: empty, has default value.', // @translate
                     [
                         'resource_id' => $resourceId,
                         'term' => $term,
@@ -623,6 +650,43 @@ SQL;
                     }
                 }
             }
+        }
+
+        // --- Visibility: fix values whose visibility differs
+        // from the template constraint.
+        if ($constraint['is_private'] && count($values)) {
+            $expectedPublic = !$constraint['is_private'];
+            foreach ($values as $k => $value) {
+                $isPublic = $value['is_public'] ?? true;
+                if ($isPublic !== $expectedPublic) {
+                    ++$this->totals['issues'];
+                    if ($this->fix && $this->fixVisibility) {
+                        $data[$term][$k]['is_public'] = $expectedPublic;
+                        $modified = true;
+                        ++$this->totals['fixed'];
+                        $this->logger->info(
+                            'Resource #{resource_id}: {term}: visibility changed to {visibility}.', // @translate
+                            [
+                                'resource_id' => $resourceId,
+                                'term' => $term,
+                                'visibility' => $expectedPublic ? 'public' : 'private',
+                            ]
+                        );
+                    } else {
+                        ++$this->totals['skipped'];
+                        $this->logger->info(
+                            'Resource #{resource_id}: {term}: value is {actual}, should be {expected}.', // @translate
+                            [
+                                'resource_id' => $resourceId,
+                                'term' => $term,
+                                'actual' => $isPublic ? 'public' : 'private',
+                                'expected' => $expectedPublic ? 'public' : 'private',
+                            ]
+                        );
+                    }
+                }
+            }
+            $values = $data[$term] ?? [];
         }
 
         // --- Unique value: report only (not fixable).
