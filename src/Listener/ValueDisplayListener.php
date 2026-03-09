@@ -71,7 +71,7 @@ class ValueDisplayListener
         Settings $settings,
         $siteSettings,
         $viewHelpers,
-        ContainerInterface $services = null
+        ?ContainerInterface $services = null
     ) {
         $this->status = $status;
         $this->settings = $settings;
