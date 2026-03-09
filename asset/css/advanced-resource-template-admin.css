@@ -173,23 +173,25 @@
     /* Template form */
     /* Adaptation from module DataVisualization */
 
+    form #properties .property.row .property-label-group {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        flex: 1 1 0;
+        min-width: 0;
+    }
     form #properties .property.row .visibility {
-        margin-left: 12px;
-        margin-right: 12px;
-        padding: 0 6px;
-    }
-    form #properties .property.row .visibility.o-icon-public {
-        display: none;
-    }
-    form #properties .property.row .visibility.o-icon-private {
+        flex-shrink: 0;
+        margin-left: 4px;
         opacity: 0.5;
     }
     form #properties .property.row .property-term {
-        display: inherit;
+        flex-shrink: 0;
         font-size: small;
         margin-left: auto;
         margin-right: 12px;
         opacity: 0.8;
+        white-space: nowrap;
     }
     form #properties .property.row .property-term ~ .actions,
     form #properties .property.row .property-term ~ .title-property-cell,

@@ -28,13 +28,13 @@ $formElement = $this->plugin('formElement');
     </div>
 
     <span class="sortable-handle"></span>
-    <span class="original-label-cell" title="<?= $property->term() ?>"><?= $escape($translate($property->label())) ?></span>
-    <span class="alternate-label-cell"><?= $escape($propertyFieldset->get('o:alternate_label')->getValue()) ?></span>
-    <?php if ($propertyFieldset->get('o:is_private')->getValue()): ?>
-    <span class="visibility o-icon-private" aria-label="<?= $translate('Private')?>"></span>
-    <?php else: ?>
-    <span class="visibility o-icon-public" aria-label="<?= $translate('Public')?>"></span>
-    <?php endif; ?>
+    <span class="property-label-group">
+        <span class="original-label-cell" title="<?= $property->term() ?>"><?= $escape($translate($property->label())) ?></span>
+        <span class="alternate-label-cell"><?= $escape($propertyFieldset->get('o:alternate_label')->getValue()) ?></span>
+        <?php if ($propertyFieldset->get('o:is_private')->getValue()): ?>
+        <span class="visibility o-icon-private" aria-label="<?= $translate('Private')?>"></span>
+        <?php endif; ?>
+    </span>
     <span class="property-term"><?= $escape($property->term()) ?></span>
 
     <ul class="actions">
