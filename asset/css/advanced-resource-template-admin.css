@@ -358,14 +358,3 @@
          width: 100%;
     }
 }
-
-/* Group labels for multi-checkbox settings. */
-label.filter-type-group-start {
-    clear: left;
-}
-label.filter-type-group-start::before {
-    content: attr(data-group-label);
-    display: block;
-    font-weight: bold;
-    margin: 0.75em 0 0.25em;
-}

@@ -16,85 +16,41 @@ trait TraitPropertyValuesDisplay
                     'element_group' => 'metadata_display',
                     'label' => 'Display of property values', // @translate
                     'value_options' => [
-                        [
-                            'value' => 'value_search',
-                            'label' => 'Value as search', // @translate
-                            'label_attributes' => [
-                                'class' => 'filter-type-group-start',
-                                'data-group-label' => 'Transform value', // @translate
+                        'transform' => [
+                            'label' => 'Transform value', // @translate
+                            'options' => [
+                                'value_search' => 'Value as search', // @translate
+                                'value_advanced_search' => 'Value as advanced search (module or fallback)', // @translate
+                                'value_text_resource' => 'Display linked resource as simple text', // @translate
+                                'value_text_uri' => 'Display uri as simple text', // @translate
                             ],
                         ],
-                        [
-                            'value' => 'value_advanced_search',
-                            'label' => 'Value as advanced search (module or fallback)', // @translate
-                        ],
-                        [
-                            'value' => 'value_text_resource',
-                            'label' => 'Display linked resource as simple text', // @translate
-                        ],
-                        [
-                            'value' => 'value_text_uri',
-                            'label' => 'Display uri as simple text', // @translate
-                        ],
-                        [
-                            'value' => 'prepend_icon_search',
-                            'label' => 'Prepend an icon for search link', // @translate
-                            'label_attributes' => [
-                                'class' => 'filter-type-group-start',
-                                'data-group-label' => 'Prepend icon', // @translate
+                        'prepend' => [
+                            'label' => 'Prepend icon', // @translate
+                            'options' => [
+                                'prepend_icon_search' => 'Prepend an icon for search link', // @translate
+                                'prepend_icon_advanced_search' => 'Prepend an icon for advanced search link (module or fallback)', // @translate
+                                'prepend_icon_resource' => 'Prepend an icon for linked resource', // @translate
+                                'prepend_icon_uri' => 'Prepend an icon for external uri', // @translate
                             ],
                         ],
-                        [
-                            'value' => 'prepend_icon_advanced_search',
-                            'label' => 'Prepend an icon for advanced search link (module or fallback)', // @translate
-                        ],
-                        [
-                            'value' => 'prepend_icon_resource',
-                            'label' => 'Prepend an icon for linked resource', // @translate
-                        ],
-                        [
-                            'value' => 'prepend_icon_uri',
-                            'label' => 'Prepend an icon for external uri', // @translate
-                        ],
-                        [
-                            'value' => 'append_icon_search',
-                            'label' => 'Append an icon for search link', // @translate
-                            'label_attributes' => [
-                                'class' => 'filter-type-group-start',
-                                'data-group-label' => 'Append icon', // @translate
+                        'append' => [
+                            'label' => 'Append icon', // @translate
+                            'options' => [
+                                'append_icon_search' => 'Append an icon for search link', // @translate
+                                'append_icon_advanced_search' => 'Append an icon for advanced search link (module or fallback)', // @translate
+                                'append_icon_resource' => 'Append an icon for linked resource', // @translate
+                                'append_icon_uri' => 'Append an icon for external uri', // @translate
                             ],
                         ],
-                        [
-                            'value' => 'append_icon_advanced_search',
-                            'label' => 'Append an icon for advanced search link (module or fallback)', // @translate
-                        ],
-                        [
-                            'value' => 'append_icon_resource',
-                            'label' => 'Append an icon for linked resource', // @translate
-                        ],
-                        [
-                            'value' => 'append_icon_uri',
-                            'label' => 'Append an icon for external uri', // @translate
-                        ],
-                        [
-                            'value' => 'record_append_icon_search',
-                            'label' => 'Append an icon for search link, only in record', // @translate
-                            'label_attributes' => [
-                                'class' => 'filter-type-group-start',
-                                'data-group-label' => 'Append icon only in record', // @translate
+                        'record_append' => [
+                            'label' => 'Append icon only in record', // @translate
+                            'options' => [
+                                'record_append_icon_search' => 'Append an icon for search link, only in record', // @translate
+                                'record_append_icon_advanced_search' => 'Append an icon for advanced search link, only in record (module or fallback)', // @translate
+                                'record_append_icon_resource' => 'Append an icon for linked resource, only in record', // @translate
+                                'record_append_icon_uri' => 'Append an icon for external uri, only in record', // @translate
                             ],
-                        ],
-                        [
-                            'value' => 'record_append_icon_advanced_search',
-                            'label' => 'Append an icon for advanced search link, only in record (module or fallback)', // @translate
-                        ],
-                        [
-                            'value' => 'record_append_icon_resource',
-                            'label' => 'Append an icon for linked resource, only in record', // @translate
-                        ],
-                        [
-                            'value' => 'record_append_icon_uri',
-                            'label' => 'Append an icon for external uri, only in record', // @translate
                         ],
                     ],
                 ],
