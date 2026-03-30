@@ -315,6 +315,21 @@
     }
 }
 
+    /* Template settings in Details sidebar */
+
+    .art-details-settings .meta-group {
+        margin: 0;
+    }
+
+    .art-details-settings .meta-group dt,
+    .art-details-settings .meta-group dd {
+        width: 100%;
+    }
+
+    .art-details-settings .meta-group dd {
+        padding-left: 12px;
+    }
+
     /* Apply template sidebar */
 
     #apply-template-sidebar .field label {

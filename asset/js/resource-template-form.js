@@ -170,6 +170,117 @@ propertyList.on('click', '.property-edit', function(e) {
     Omeka.openSidebar($('#edit-sidebar'));
 });
 
+// Append template property settings to the Details sidebar.
+var detailsSidebar = $('#details');
+var detailsPropertyRow = null;
+
+propertyList.on('click', '.o-icon-more.sidebar-content', function() {
+    detailsPropertyRow = $(this).closest('.property.row');
+});
+
+detailsSidebar.on('o:sidebar-content-loaded', function() {
+    if (!detailsPropertyRow) {
+        return;
+    }
+
+    var fieldset = detailsPropertyRow.find('.row-fieldset');
+    var items = [];
+
+    // Data types.
+    var typeValues = fieldset.find('[name="o\\:data_type\\[\\]"]').val()
+        || fieldset.find('select[name$="[o\\:data_type][]"]').val();
+    if (!typeValues) {
+        var vals = [];
+        fieldset.find('input[name$="[o\\:data_type][]"], select[name$="[o\\:data_type][]"] option:selected').each(function() {
+            var v = $(this).val();
+            if (v) vals.push(v);
+        });
+        typeValues = vals;
+    }
+    if (typeValues && typeValues.length) {
+        var dataTypeSelect = $('#edit-sidebar #data-type');
+        var labels = [];
+        $.each(typeValues, function(i, val) {
+            var optionText = dataTypeSelect.find('option[value="' + val + '"]').text();
+            labels.push(optionText || val);
+        });
+        items.push({
+            label: Omeka.jsTranslate('Data types'),
+            value: labels.join(', ')
+        });
+    }
+
+    // Required.
+    if (fieldset.find('[data-property-key="o\\:is_required"]').prop('checked')) {
+        items.push({
+            label: Omeka.jsTranslate('Required'),
+            value: Omeka.jsTranslate('Yes')
+        });
+    }
+
+    // Private.
+    if (fieldset.find('[data-property-key="o\\:is_private"]').prop('checked')) {
+        items.push({
+            label: Omeka.jsTranslate('Private'),
+            value: Omeka.jsTranslate('Yes')
+        });
+    }
+
+    // Default language.
+    var defaultLang = fieldset.find('[data-property-key="o\\:default_lang"]').val();
+    if (defaultLang) {
+        items.push({
+            label: Omeka.jsTranslate('Default language'),
+            value: defaultLang
+        });
+    }
+
+    // Other settings (data-setting-key): same filter as
+    // show view "Other settings" column: skip empty, "0",
+    // and false values.
+    fieldset.find('[data-setting-key]').each(function() {
+        var el = $(this);
+        var key = el.data('setting-key');
+        var type = el.prop('type') || el.prop('nodeName').toLowerCase();
+        var val;
+        if (type === 'checkbox') {
+            if (!el.prop('checked')) return;
+            val = Omeka.jsTranslate('Yes');
+        } else if (type === 'radio') {
+            val = fieldset.find('[data-setting-key="' + key + '"]:checked').val();
+            if (!val || val === '0') return;
+        } else if (type === 'select-multiple') {
+            var selected = el.find('option:selected');
+            if (!selected.length) return;
+            val = selected.map(function() {
+                return $(this).text();
+            }).get().join(', ');
+        } else {
+            val = el.val();
+            if (!val || val === '0') return;
+        }
+        items.push({
+            label: key.replace(/_/g, ' '),
+            value: val
+        });
+    });
+
+    if (!items.length) {
+        return;
+    }
+
+    var html = '<div class="meta-group art-details-settings">'
+        + '<h4>' + Omeka.jsTranslate('Template settings') + '</h4>'
+        + '<dl class="meta-group">';
+    $.each(items, function(i, item) {
+        html += '<dt>' + item.label + '</dt>'
+            + '<dd>' + item.value + '</dd>';
+    });
+    html += '</dl></div>';
+
+    detailsSidebar.find('.sidebar-content').append(html);
+});
+
 $('#resource-template-form').on('submit', function () {
     // Prepend the full form data first to allow to pass more than 1000 variables
     // (default on servers).
