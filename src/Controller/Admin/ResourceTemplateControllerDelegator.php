@@ -251,7 +251,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         $getVocab = function ($namespaceUri): ?VocabularyRepresentation {
             try {
                 return $this->api()->read('vocabularies', ['namespaceUri' => $namespaceUri])->getContent();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 return null;
             }
         };
@@ -316,7 +316,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                         'vocabulary' => $vocab->id(),
                         'localName' => $import['o:resource_class']['local_name'],
                     ])->getContent();
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $class = null;
                 }
                 if ($class) {
@@ -334,7 +334,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                             'vocabulary' => $vocab->id(),
                             'localName' => $import[$property]['local_name'],
                         ])->getContent();
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         $prop = null;
                     }
                     if ($prop) {
@@ -352,7 +352,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                         'vocabulary' => $vocab->id(),
                         'localName' => $property['local_name'],
                     ])->getContent();
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $prop = null;
                 }
                 if ($prop) {
@@ -1656,7 +1656,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         try {
             $vocabulary = $this->api()->read('vocabularies', ['prefix' => $prefix])->getContent();
             $member = $this->api()->read($type, ['vocabulary' => $vocabulary->id(), 'localName' => $localName])->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return null;
         }
         return [

@@ -100,7 +100,7 @@ class ValueDisplayListener
         try {
             $resource = $value->resource();
             $controllerName = $resource ? $resource->getControllerName() : null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $resource = null;
             $controllerName = null;
         }
@@ -205,7 +205,7 @@ class ValueDisplayListener
         try {
             $resource = $value->resource();
             $controllerName = $resource ? $resource->getControllerName() : null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $resource = null;
             $controllerName = null;
         }
@@ -284,7 +284,7 @@ class ValueDisplayListener
             if (!$this->siteSettings && $this->services) {
                 try {
                     $this->siteSettings = $this->services->get('Omeka\Settings\Site');
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $this->disabled[$mode] = true;
                     return false;
                 }

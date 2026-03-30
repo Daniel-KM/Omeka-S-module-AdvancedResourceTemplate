@@ -167,7 +167,7 @@ class ApplyTemplate extends AbstractJob
             $template = $this->api
                 ->read('resource_templates', ['id' => $templateId])
                 ->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->err(
                 'Template #{template_id} not found.', // @translate
                 ['template_id' => $templateId]
@@ -382,7 +382,7 @@ SQL;
             $resource = $this->api
                 ->read($resourceType, $resourceId)
                 ->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->warn(
                 'Resource #{resource_id} cannot be read: {error}', // @translate
                 [
@@ -431,7 +431,7 @@ SQL;
                     [],
                     ['isPartial' => true]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->logger->err(
                     'Resource #{resource_id}: update failed: {error}', // @translate
                     [

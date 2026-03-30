@@ -84,7 +84,7 @@ if (version_compare((string) $oldVersion, '3.3.4', '<')) {
         SQL;
     try {
         $connection->executeStatement($sql);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
     }
     $sql = <<<'SQL'
         ALTER TABLE `resource_template_property_data`
@@ -92,7 +92,7 @@ if (version_compare((string) $oldVersion, '3.3.4', '<')) {
         SQL;
     try {
         $connection->executeStatement($sql);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
     }
 }
 
@@ -345,7 +345,7 @@ if (version_compare((string) $oldVersion, '3.4.22', '<')) {
         $property = 'oa:Annotation';
         $vocabularyId = $api->read('vocabularies', ['prefix' => strtok($property, ':')])->getContent()->id();
         $classAnnotation = $api->read('resource_classes', ['vocabulary' => $vocabularyId, 'localName' => strtok(':')])->getContent();
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         $classAnnotation = null;
     }
     if ($classAnnotation) {
@@ -364,12 +364,12 @@ if (version_compare((string) $oldVersion, '3.4.22', '<')) {
     $thesaurusTemplates = [];
     try {
         $thesaurusTemplateScheme = $api->read('resource_templates', ['label' => 'Thesaurus Scheme'])->getContent();
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         $thesaurusTemplateScheme = null;
     }
     try {
         $thesaurusTemplateConcept = $api->read('resource_templates', ['label' => 'Thesaurus Concept'])->getContent();
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         $thesaurusTemplateConcept = null;
     }
     if ($thesaurusTemplateScheme) {
@@ -382,7 +382,7 @@ if (version_compare((string) $oldVersion, '3.4.22', '<')) {
     if ($thesaurusTemplateSchemeId) {
         try {
             $thesaurusTemplateScheme = $api->read('resource_templates', ['id' => $thesaurusTemplateSchemeId])->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $thesaurusTemplateScheme = null;
         }
         if ($thesaurusTemplateScheme) {
@@ -393,7 +393,7 @@ if (version_compare((string) $oldVersion, '3.4.22', '<')) {
     if ($thesaurusTemplateConceptId) {
         try {
             $thesaurusTemplateConcept = $api->read('resource_templates', ['id' => $thesaurusTemplateConceptId])->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $thesaurusTemplateConcept = null;
         }
         if ($thesaurusTemplateConcept) {
@@ -471,7 +471,7 @@ if (version_compare((string) $oldVersion, '3.4.26', '<')) {
         SQL;
     try {
         $connection->executeStatement($sql);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
     }
     $sql = <<<'SQL'
         ALTER TABLE `resource_template_property_data`
@@ -480,7 +480,7 @@ if (version_compare((string) $oldVersion, '3.4.26', '<')) {
         SQL;
     try {
         $connection->executeStatement($sql);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
     }
     $sql = <<<'SQL'
         ALTER TABLE `resource_template_data`
@@ -488,7 +488,7 @@ if (version_compare((string) $oldVersion, '3.4.26', '<')) {
         SQL;
     try {
         $connection->executeStatement($sql);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
     }
     $sql = <<<'SQL'
         ALTER TABLE `resource_template_property_data`
@@ -497,7 +497,7 @@ if (version_compare((string) $oldVersion, '3.4.26', '<')) {
         SQL;
     try {
         $connection->executeStatement($sql);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
     }
 
     // Add the resource template and resource class to value annotations.
@@ -893,7 +893,7 @@ if (version_compare((string) $oldVersion, '3.4.50', '<')) {
                     'o:mapping' => $mapperIni,
                 ]);
                 $migratedCount++;
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $logger->warn(
                     'Could not migrate autofiller "{label}": {error}', // @translate
                     ['label' => $label, 'error' => $e->getMessage()]

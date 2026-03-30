@@ -120,7 +120,7 @@ class AutomaticValuesHandler
             // The automatic_values is now stored in Mapper INI format directly.
             $mapper->setMapping('automatic_values', $automaticValues);
             $newResourceData = $mapper->convert($resource);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->services->get('Omeka\Logger')->warn(
                 'Error applying automatic values: {error}', // @translate
                 ['error' => $e->getMessage()]
@@ -389,7 +389,7 @@ class AutomaticValuesHandler
         try {
             $mapper->setMapping('_art_auto', $iniLine);
             $result = $mapper->convert($resource);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $val;
         }
 
@@ -454,7 +454,7 @@ class AutomaticValuesHandler
                 $automaticValueArray['value_resource_id'] = (int) $vrid;
                 try {
                     $this->api->read('resources', ['id' => (int) $vrid], ['initialize' => false, 'finalize' => false]);
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     return null;
                 }
                 $check = array_intersect_key($automaticValueArray, ['type' => null, 'value_resource_id' => null]);
@@ -521,7 +521,7 @@ class AutomaticValuesHandler
                 $automaticValueTransformed = (int) $automaticValueTransformed;
                 try {
                     $this->api->read('resources', ['id' => $automaticValueTransformed], ['initialize' => false, 'finalize' => false]);
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     return null;
                 }
                 $automaticValueArray = [
