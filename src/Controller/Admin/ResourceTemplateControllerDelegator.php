@@ -1717,6 +1717,8 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             'fix_automatic_values' => !empty($post['fix_automatic_values']),
             'fix_truncate' => !empty($post['fix_truncate']),
             'fix_max_values' => !empty($post['fix_max_values']),
+            'fix_visibility' => !empty($post['fix_visibility']),
+            'fix_data_types' => !empty($post['fix_data_types']),
             'fix_extra_properties' => !empty($post['fix_extra_properties']),
         ];
 

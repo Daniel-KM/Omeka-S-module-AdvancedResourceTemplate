@@ -98,6 +98,13 @@ $baseAction = $url('admin/id', [
                     <div class="field">
                         <label>
                             <input type="checkbox"
+                                name="fix_data_types" value="1">
+                            <?= $translate('Fix wrong data types when possible') // @translate ?>
+                        </label>
+                    </div>
+                    <div class="field">
+                        <label>
+                            <input type="checkbox"
                                 name="fix_extra_properties" value="1">
                             <?= $translate('Remove values of properties not in template') // @translate ?>
                         </label>

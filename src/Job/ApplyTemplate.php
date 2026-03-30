@@ -9,12 +9,11 @@ use Doctrine\DBAL\Connection;
 use Omeka\Job\AbstractJob;
 
 /**
- * Background job to check and fix resources according to
- * constraints defined in a resource template (required, default,
- * automatic, length, value count, etc.).
+ * Background job to check and fix resources according to constraints defined in
+ * a resource template (required, default, automatic, length, value count, etc.).
  *
- * In audit mode (fix=false) issues are only logged. In fix mode
- * (fix=true) correctable issues are fixed and then logged.
+ * In audit mode (fix=false) issues are only logged.
+ * In fix mode (fix=true) correctable issues are fixed and then logged.
  */
 class ApplyTemplate extends AbstractJob
 {
@@ -91,20 +90,24 @@ class ApplyTemplate extends AbstractJob
     protected $fixExtraProperties;
 
     /**
-     * Indexed constraints by property term. Each entry is an
-     * array with keys: property_id, required, default_value,
-     * automatic_value, max_length, min_length, max_values,
-     * min_values, input_control, unique_value, data_types,
-     * is_private, rtp_data.
+     * @var bool
+     */
+    protected $fixDataTypes;
+
+    /**
+     * Indexed constraints by property term.
+     *
+     * Each entry is an array with keys: property_id, required, default_value,
+     * automatic_value, max_length, min_length, max_values, min_values,
+     * input_control, unique_value, data_types, is_private, rtp_data.
      *
      * @var array
      */
     protected $constraints = [];
 
     /**
-     * All template properties indexed by term, with their allowed data
-     * types. Used to detect extra properties and wrong data types on
-     * resources.
+     * All template properties indexed by term, with their allowed data types.
+     * Used to detect extra properties and wrong data types on resources.
      *
      * @var array<string, array{property_id: int, data_types: string[]}>
      */
@@ -127,8 +130,8 @@ class ApplyTemplate extends AbstractJob
     protected $extraPropertyIds = [];
 
     /**
-     * Missing required property terms, with their property ID. Used to
-     * build browse links.
+     * Missing required property terms, with their property ID.
+     * Used to build browse links.
      *
      * @var array<string, int>
      */
@@ -184,6 +187,7 @@ class ApplyTemplate extends AbstractJob
         $this->fixMaxValues = (bool) $this->getArg('fix_max_values', false);
         $this->fixVisibility = (bool) $this->getArg('fix_visibility', false);
         $this->fixExtraProperties = (bool) $this->getArg('fix_extra_properties', false);
+        $this->fixDataTypes = (bool) $this->getArg('fix_data_types', false);
 
         /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
         try {
@@ -236,8 +240,8 @@ class ApplyTemplate extends AbstractJob
     }
 
     /**
-     * Index all constrained properties from the template into
-     * $this->constraints, keyed by property term.
+     * Index all constrained properties from the template into constraints,
+     * keyed by property term.
      */
     protected function indexConstraints(
         ResourceTemplateRepresentation $template
@@ -259,8 +263,8 @@ class ApplyTemplate extends AbstractJob
                 $uniqueValue = (bool) $rtpData->dataValue('unique_value');
                 $isPrivate = $rtpData->isPrivate();
 
-                // Keep only properties that have at least one
-                // constraint, to avoid unnecessary processing.
+                // Keep only properties that have at least one constraint, to
+                // avoid unnecessary processing.
                 if (!$required
                     && !$defaultValue
                     && !$automaticValue
@@ -296,8 +300,8 @@ class ApplyTemplate extends AbstractJob
 
     /**
      * Index all template properties with their allowed data types.
-     * Unlike indexConstraints(), this includes every property regardless
-     * of whether it has constraints.
+     * Unlike indexConstraints(), this includes every property regardless of
+     * whether it has constraints.
      */
     protected function indexTemplateProperties(
         ResourceTemplateRepresentation $template
@@ -347,12 +351,12 @@ class ApplyTemplate extends AbstractJob
         }
 
         $sql = <<<'SQL'
-SELECT r.id
-FROM resource r
-WHERE r.resource_type = :resource_type
-    AND r.resource_template_id = :template_id
-ORDER BY r.id ASC
-SQL;
+            SELECT r.id
+            FROM resource r
+            WHERE r.resource_type = :resource_type
+                AND r.resource_template_id = :template_id
+            ORDER BY r.id ASC
+            SQL;
 
         $resourceIds = $this->connection->executeQuery(
             $sql,
@@ -396,8 +400,7 @@ SQL;
     }
 
     /**
-     * Check (and optionally fix) a single resource against
-     * the indexed constraints.
+     * Check (and optionally fix) a single resource against indexed constraints.
      */
     protected function processResource(
         string $resourceType,
@@ -438,8 +441,8 @@ SQL;
             }
         }
 
-        // Check extra properties, wrong data types, and track used
-        // template properties.
+        // Check extra properties, wrong data types, and track used template
+        // properties.
         $result = $this->checkExtraProperties(
             $data, $resourceId
         );
@@ -470,9 +473,8 @@ SQL;
     }
 
     /**
-     * Check a single property constraint on a resource. Returns
-     * the modified data array when a fix is applied, or null if
-     * no modification was made.
+     * Check a single property constraint on a resource. Returns the modified
+     * data array when a fix is applied, or null if no modification was made.
      */
     protected function checkProperty(
         array $data,
@@ -529,8 +531,7 @@ SQL;
             }
         }
 
-        // --- Default value: add when property is empty, even if
-        // not required.
+        // --- Default value: add when property is empty, even if not required.
         if (!$constraint['required']
             && !count($values)
             && $constraint['default_value']
@@ -732,8 +733,8 @@ SQL;
             }
         }
 
-        // --- Visibility: fix values whose visibility differs
-        // from the template constraint.
+        // --- Visibility: fix values whose visibility differs from template
+        // constraint.
         if ($constraint['is_private'] && count($values)) {
             $expectedPublic = !$constraint['is_private'];
             foreach ($values as $k => $value) {
@@ -783,9 +784,10 @@ SQL;
     }
 
     /**
-     * Build a value array from the default_value setting. The
-     * default_value can be a plain string or a JSON object with
-     * keys like @value, @id, value_resource_id, etc.
+     * Build a value array from the default_value setting.
+     *
+     * The default_value can be a plain string or a JSON object with keys like
+     * @value, @id, value_resource_id, etc.
      */
     protected function buildDefaultValue(
         array $constraint,
@@ -852,8 +854,7 @@ SQL;
     }
 
     /**
-     * Check uniqueness of values for a property against the
-     * database.
+     * Check uniqueness of values for a property against the database.
      */
     protected function checkUniqueness(
         int $resourceId,
@@ -900,13 +901,13 @@ SQL;
 
         $sqlWhereStr = implode(' OR ', $sqlWhere);
         $sql = <<<SQL
-SELECT value.resource_id
-FROM value
-WHERE value.resource_id != :resource_id
-    AND value.property_id = :property_id
-    AND ($sqlWhereStr)
-LIMIT 1
-SQL;
+            SELECT value.resource_id
+            FROM value
+            WHERE value.resource_id != :resource_id
+                AND value.property_id = :property_id
+                AND ($sqlWhereStr)
+            LIMIT 1
+            SQL;
 
         $duplicate = $this->connection
             ->executeQuery($sql, $bind, $types)
@@ -937,6 +938,7 @@ SQL;
 
     /**
      * Check if a value is new (not already present in a list).
+     *
      * Compares by type + main content key.
      */
     protected function isNewValue(array $newValue, array $existingValues): bool
@@ -980,16 +982,16 @@ SQL;
     }
 
     /**
-     * Check a resource for extra properties (not in the template) and wrong
-     * data types. Mark used template properties. Returns modified data or
-     * null.
+     * Check resource for extra properties not in template and wrong data types.
+     *
+     * Mark used template properties. Returns modified data or null.
      */
     protected function checkExtraProperties(
         array $data,
         int $resourceId
     ): ?array {
-        // Property terms in the serialized data are all keys
-        // that contain a colon (vocabulary:localName).
+        // Property terms in the serialized data are all keys that contain a
+        // colon (vocabulary:localName).
         $modified = false;
         $extraTerms = [];
 
@@ -1005,21 +1007,33 @@ SQL;
                 if (!$allowedTypes) {
                     continue;
                 }
-                foreach ($values as $value) {
+                foreach ($values as $k => $value) {
                     $type = $value['type'] ?? 'literal';
-                    if (!in_array($type, $allowedTypes)) {
-                        ++$this->totals['issues'];
-                        ++$this->totals['skipped'];
-                        $this->logger->info(
-                            'Resource #{resource_id}: {term}: data type "{type}" is not allowed by the template (allowed: {allowed}).', // @translate
-                            [
-                                'resource_id' => $resourceId,
-                                'term' => $term,
-                                'type' => $type,
-                                'allowed' => implode(', ', $allowedTypes),
-                            ]
-                        );
+                    if (in_array($type, $allowedTypes)) {
+                        continue;
                     }
+                    ++$this->totals['issues'];
+                    if ($this->fix && $this->fixDataTypes) {
+                        $converted = $this->convertDataType(
+                            $value, $allowedTypes, $resourceId, $term
+                        );
+                        if ($converted !== null) {
+                            $data[$term][$k] = $converted;
+                            $modified = true;
+                            ++$this->totals['fixed'];
+                            continue;
+                        }
+                    }
+                    ++$this->totals['skipped'];
+                    $this->logger->info(
+                        'Resource #{resource_id}: {term}: data type "{type}" is not allowed by the template (allowed: {allowed}). Use BulkEdit for manual conversion.', // @translate
+                        [
+                            'resource_id' => $resourceId,
+                            'term' => $term,
+                            'type' => $type,
+                            'allowed' => implode(', ', $allowedTypes),
+                        ]
+                    );
                 }
                 continue;
             }
@@ -1090,9 +1104,10 @@ SQL;
     }
 
     /**
-     * Log browse links for each issue type so the user can directly view
-     * affected resources. Uses search-based queries (property existence
-     * or non-existence) to avoid URL length issues on large collections.
+     * Log browse links for each issue, so user can directly view affected resources.
+     *
+     * Use search-based queries (property existence or non-existence) to avoid
+     * url length issues on large collections.
      */
     protected function logBrowseLinks(int $templateId): void
     {
@@ -1161,8 +1176,272 @@ SQL;
     }
 
     /**
-     * Map an API resource type name to its Doctrine entity class
-     * (discriminator value).
+     * Try to convert a value to one of the allowed data types.
+     *
+     * Returns the converted value array or null if not possible.
+     *
+     * Conversion strategy by target main type:
+     * - literal: always possible (use @value or uri or resource title);
+     * - uri: only if @id is a valid URL;
+     * - resource: only if value_resource_id is an existing integer resource;
+     * - customvocab: only if the value matches a term in the vocab (literal), a
+     *   URI in the vocab (uri), or an item in the vocab's item set (resource).
+     *
+     * @return array|null Converted value or null if not convertible.
+     */
+    protected function convertDataType(
+        array $value,
+        array $allowedTypes,
+        int $resourceId,
+        string $term
+    ): ?array {
+        $currentType = $value['type'] ?? 'literal';
+        $literal = $value['@value'] ?? null;
+        $uri = $value['@id'] ?? null;
+        $resourceVid = $value['value_resource_id'] ?? null;
+
+        foreach ($allowedTypes as $targetType) {
+            $mainType = $this->easyMeta->dataTypeMain($targetType);
+
+            // Custom vocab: check if value fits the vocab.
+            if (strpos($targetType, 'customvocab:') === 0) {
+                $converted = $this->convertToCustomVocab(
+                    $value, $targetType
+                );
+                if ($converted !== null) {
+                    $this->logger->info(
+                        'Resource #{resource_id}: {term}: converted from "{from}" to "{to}".', // @translate
+                        [
+                            'resource_id' => $resourceId,
+                            'term' => $term,
+                            'from' => $currentType,
+                            'to' => $targetType,
+                        ]
+                    );
+                    return $converted;
+                }
+                continue;
+            }
+
+            if ($mainType === 'literal') {
+                $text = $literal
+                    ?? $uri
+                    ?? ($value['o:label'] ?? null);
+                if ($text === null && $resourceVid) {
+                    try {
+                        $res = $this->api->read(
+                            'resources', (int) $resourceVid
+                        )->getContent();
+                        $text = (string) $res->displayTitle();
+                    } catch (\Throwable $e) {
+                        $text = (string) $resourceVid;
+                    }
+                }
+                if ($text !== null && $text !== '') {
+                    $this->logger->info(
+                        'Resource #{resource_id}: {term}: converted from "{from}" to "{to}".', // @translate
+                        [
+                            'resource_id' => $resourceId,
+                            'term' => $term,
+                            'from' => $currentType,
+                            'to' => $targetType,
+                        ]
+                    );
+                    return [
+                        'property_id' => $value['property_id'],
+                        'type' => $targetType,
+                        '@value' => $text,
+                        'is_public' => $value['is_public'] ?? true,
+                    ];
+                }
+            }
+
+            if ($mainType === 'uri') {
+                $candidateUri = $uri ?? $literal;
+                if ($candidateUri
+                    && filter_var($candidateUri, FILTER_VALIDATE_URL)
+                ) {
+                    $this->logger->info(
+                        'Resource #{resource_id}: {term}: converted from "{from}" to "{to}".', // @translate
+                        [
+                            'resource_id' => $resourceId,
+                            'term' => $term,
+                            'from' => $currentType,
+                            'to' => $targetType,
+                        ]
+                    );
+                    return [
+                        'property_id' => $value['property_id'],
+                        'type' => $targetType,
+                        '@id' => $candidateUri,
+                        'o:label' => $value['o:label']
+                            ?? ($uri ? $literal : null),
+                        'is_public' => $value['is_public'] ?? true,
+                    ];
+                }
+            }
+
+            if ($mainType === 'resource') {
+                $rid = $resourceVid
+                    ?? (is_numeric($literal) ? (int) $literal : null);
+                if ($rid) {
+                    try {
+                        $res = $this->api
+                            ->read('resources', (int) $rid)
+                            ->getContent();
+                        // Check sub-type compatibility.
+                        if (!$this->isResourceTypeMatch(
+                            $res, $targetType
+                        )) {
+                            continue;
+                        }
+                        $this->logger->info(
+                            'Resource #{resource_id}: {term}: converted from "{from}" to "{to}".', // @translate
+                            [
+                                'resource_id' => $resourceId,
+                                'term' => $term,
+                                'from' => $currentType,
+                                'to' => $targetType,
+                            ]
+                        );
+                        return [
+                            'property_id' => $value['property_id'],
+                            'type' => $targetType,
+                            'value_resource_id' => (int) $rid,
+                            'is_public' => $value['is_public'] ?? true,
+                        ];
+                    } catch (\Throwable $e) {
+                        // Resource does not exist.
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Try to convert a value to a custom vocab data type.
+     *
+     * Return converted value array or null if value does not match the vocab.
+     */
+    protected function convertToCustomVocab(
+        array $value,
+        string $targetType
+    ): ?array {
+        $vocabId = (int) substr($targetType, strlen('customvocab:'));
+        if (!$vocabId) {
+            return null;
+        }
+
+        try {
+            /** @var \CustomVocab\Api\Representation\CustomVocabRepresentation $vocab */
+            $vocab = $this->api
+                ->read('custom_vocabs', $vocabId)
+                ->getContent();
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        $literal = $value['@value'] ?? null;
+        $uri = $value['@id'] ?? null;
+        $resourceVid = $value['value_resource_id'] ?? null;
+
+        switch ($vocab->type()) {
+            case 'literal':
+                $terms = $vocab->terms();
+                $text = $literal ?? $uri;
+                if ($text !== null && in_array($text, $terms)) {
+                    return [
+                        'property_id' => $value['property_id'],
+                        'type' => $targetType,
+                        '@value' => $text,
+                        'is_public' => $value['is_public'] ?? true,
+                    ];
+                }
+                break;
+
+            case 'uri':
+                $uris = $vocab->uris();
+                $candidateUri = $uri ?? $literal;
+                if ($candidateUri
+                    && array_key_exists($candidateUri, $uris)
+                ) {
+                    return [
+                        'property_id' => $value['property_id'],
+                        'type' => $targetType,
+                        '@id' => $candidateUri,
+                        'o:label' => $uris[$candidateUri]
+                            ?? ($value['o:label'] ?? null),
+                        'is_public' => $value['is_public'] ?? true,
+                    ];
+                }
+                break;
+
+            case 'resource':
+                $itemSet = $vocab->itemSet();
+                if (!$itemSet) {
+                    break;
+                }
+                $rid = $resourceVid
+                    ?? (is_numeric($literal) ? (int) $literal : null);
+                if (!$rid) {
+                    break;
+                }
+                // Check if the resource belongs to the item set.
+                try {
+                    $item = $this->api
+                        ->read('items', (int) $rid)
+                        ->getContent();
+                    foreach ($item->itemSets() as $is) {
+                        if ($is->id() === $itemSet->id()) {
+                            return [
+                                'property_id' => $value['property_id'],
+                                'type' => $targetType,
+                                'value_resource_id' => (int) $rid,
+                                'is_public' => $value['is_public'] ?? true,
+                            ];
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    // Resource does not exist.
+                }
+                break;
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if a resource representation matches a target data type.
+     *
+     * Omeka manages:
+     * - "resource" accepts any;
+     * - "resource:item" only items;
+     * - "resource:media" only media;
+     * - "resource:itemset" only item sets;
+     * - "resource:annotation" only annotation.
+     */
+    protected function isResourceTypeMatch(
+        $resource,
+        string $targetType
+    ): bool {
+        if ($targetType === 'resource') {
+            return true;
+        }
+        $class = get_class($resource);
+        $map = [
+            'resource:item' => 'Omeka\Api\Representation\ItemRepresentation',
+            'resource:media' => 'Omeka\Api\Representation\MediaRepresentation',
+            'resource:itemset' => 'Omeka\Api\Representation\ItemSetRepresentation',
+            'resource:annotation' => 'Annotate\Api\Representation\AnnotationRepresentation',
+        ];
+        return isset($map[$targetType])
+            && $class === $map[$targetType];
+    }
+
+    /**
+     * Map api resource type name to its Doctrine entity class (discriminator).
      */
     protected function resourceTypeToEntityClass(string $resourceType): ?string
     {
@@ -1170,6 +1449,7 @@ SQL;
             'items' => 'Omeka\Entity\Item',
             'item_sets' => 'Omeka\Entity\ItemSet',
             'media' => 'Omeka\Entity\Media',
+            'annotation' => 'Annotate\Entity\Annotation',
         ];
         return $map[$resourceType] ?? null;
     }
