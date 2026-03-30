@@ -3,6 +3,9 @@
     $(document).ready(function() {
 
         var sidebar = $('#apply-template-sidebar');
+        if (!sidebar.length) {
+            return;
+        }
 
         // Toggle the options fieldset when the fix checkbox
         // changes.
@@ -31,6 +34,14 @@
                 .removeClass('collapse').addClass('expand')
                 .attr('aria-label', Omeka.jsTranslate('Expand'))
                 .attr('title', Omeka.jsTranslate('Expand'));
+        });
+
+        // Close this sidebar when another sidebar opens
+        // (e.g. Details or Delete via the three-dots icon).
+        $('body').on('o:sidebar-opened', '.sidebar', function() {
+            if (!sidebar.is(this) && sidebar.hasClass('active')) {
+                Omeka.closeSidebar(sidebar);
+            }
         });
 
         // Open the sidebar when a trigger button is clicked.

@@ -1294,7 +1294,7 @@ class Module extends AbstractModule
         );
         if ($resourceEntity && $userIsAllowed($controllerClass, 'batch-edit')) {
             echo sprintf(
-                '<li><a class="apply-template-trigger" href="#" data-template-id="%d" data-resource-count="%d" title="%s"><span class="o-icon-sync" aria-hidden="true"></span></a></li>',
+                '<li><a class="apply-template-trigger" href="#" data-template-id="%d" data-resource-count="%d" title="%s"><span class="fas fa-sync" aria-hidden="true" style="margin-left: 8px;"></span></a></li>',
                 $resourceTemplate->id(),
                 $total,
                 $translate('Apply template to resources')
@@ -1309,6 +1309,9 @@ class Module extends AbstractModule
             'templateId' => 0,
             'resourceCount' => 0,
         ]);
+        $view->headLink()->appendStylesheet(
+            $view->assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate')
+        );
         $view->headScript()->appendFile(
             $view->assetUrl('js/apply-template.js', 'AdvancedResourceTemplate')
         );
