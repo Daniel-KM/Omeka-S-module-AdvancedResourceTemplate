@@ -146,7 +146,7 @@ $matches = [];
                 </span>
                 <ul class="actions">
                     <li><?php echo $hyperlink('', '#', [
-                        'data-sidebar-content-url' => $property->url('show-details'),
+                        'data-sidebar-content-url' => $property->url('show-details') . '?resource_template_id=' . $templateId,
                         'class' => 'o-icon-more sidebar-content',
                         'title' => $translate('Details'),
                     ]); ?></li>

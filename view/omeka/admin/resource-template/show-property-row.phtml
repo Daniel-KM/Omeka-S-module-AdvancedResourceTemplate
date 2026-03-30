@@ -41,7 +41,7 @@ $formElement = $this->plugin('formElement');
         <li><?php echo $this->hyperlink('', '#', [
             'class' => 'o-icon-more sidebar-content',
             'title' => $translate('Details'),
-            'data-sidebar-content-url' => $property->url('show-details'),
+            'data-sidebar-content-url' => $property->url('show-details') . ($this->resourceTemplate ? '?resource_template_id=' . (int) $this->resourceTemplate->id() : ''),
             'data-sidebar-selector' => '#details',
         ]); ?></li>
         <li><?php echo $this->hyperlink('', '#', [

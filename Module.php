@@ -472,6 +472,13 @@ class Module extends AbstractModule
             [$this, 'handleResourceTemplateBrowseAfter']
         );
 
+        // Add item set and media counts to property details sidebar.
+        $sharedEventManager->attach(
+            'Omeka\Controller\Admin\Property',
+            'view.details',
+            [$this, 'handlePropertyViewDetails']
+        );
+
         // Add elements to the resource template form.
         $sharedEventManager->attach(
             // \Omeka\Form\ResourceTemplateForm::class,
@@ -1315,6 +1322,96 @@ class Module extends AbstractModule
         $view->headScript()->appendFile(
             $view->assetUrl('js/apply-template.js', 'AdvancedResourceTemplate')
         );
+    }
+
+    public function handlePropertyViewDetails(Event $event): void
+    {
+        $view = $event->getTarget();
+        $property = $event->getParam('entity');
+        if (!$property instanceof \Omeka\Api\Representation\PropertyRepresentation) {
+            return;
+        }
+
+        $url = $view->plugin('url');
+        $api = $view->api();
+        $escape = $view->plugin('escapeHtml');
+        $hyperlink = $view->plugin('hyperlink');
+        $translate = $view->plugin('translate');
+
+        $propertyId = $property->id();
+        $services = $this->getServiceLocator();
+        $request = $services->get('Request');
+        $templateId = $request->getQuery('resource_template_id');
+
+        // Build query: filter by property existence and optionally by template.
+        $baseQuery = [
+            'property' => [
+                ['property' => $propertyId, 'type' => 'ex'],
+            ],
+        ];
+        if ($templateId) {
+            $baseQuery['resource_template_id'] = (int) $templateId;
+        }
+
+        $itemSetCount = $api
+            ->search('item_sets', $baseQuery + ['limit' => 0])
+            ->getTotalResults();
+        $mediaCount = $api
+            ->search('media', $baseQuery + ['limit' => 0])
+            ->getTotalResults();
+
+        if ($itemSetCount) {
+            echo '<div class="meta-group">';
+            echo '<h4>' . $escape($translate('Item sets')) . '</h4>';
+            echo '<div class="value">' . $hyperlink(
+                $itemSetCount,
+                $url('admin/default', ['controller' => 'item-set', 'action' => 'browse'], ['query' => $baseQuery])
+            ) . '</div>';
+            echo '</div>';
+        }
+
+        if ($mediaCount) {
+            echo '<div class="meta-group">';
+            echo '<h4>' . $escape($translate('Media')) . '</h4>';
+            echo '<div class="value">' . $hyperlink(
+                $mediaCount,
+                $url('admin/default', ['controller' => 'media', 'action' => 'browse'], ['query' => $baseQuery])
+            ) . '</div>';
+            echo '</div>';
+        }
+
+        // If filtered by template, also show the template-specific item count,
+        // after the global one shown by core.
+        if ($templateId) {
+            $itemCount = $api
+                ->search('items', $baseQuery + ['limit' => 0])
+                ->getTotalResults();
+            $itemSetCount = $api
+                ->search('item_sets', $baseQuery + ['limit' => 0])
+                ->getTotalResults();
+            $mediaCount = $api
+                ->search('media', $baseQuery + ['limit' => 0])
+                ->getTotalResults();
+            echo '<div class="meta-group">';
+            echo '<h4>' . $escape($translate('Resources for this template')) . '</h4>';
+            echo '<div class="value">' . $hyperlink(
+                sprintf($translate('Items: %d'), $itemCount),
+                $url('admin/default', ['controller' => 'item', 'action' => 'browse'], ['query' => $baseQuery])
+            ) . '</div>';
+            if ($itemSetCount) {
+                echo '<div class="value">' . $hyperlink(
+                    sprintf($translate('Item sets: %d'), $itemSetCount),
+                    $url('admin/default', ['controller' => 'item-set', 'action' => 'browse'], ['query' => $baseQuery])
+                ) . '</div>';
+            }
+            if ($mediaCount) {
+                echo '<div class="value">' . $hyperlink(
+                    sprintf($translate('Media: %d'), $mediaCount),
+                    $url('admin/default', ['controller' => 'media', 'action' => 'browse'], ['query' => $baseQuery])
+                ) . '</div>';
+            }
+            echo '</div>';
+        }
     }
 
     public function addResourceTemplateFormElements(Event $event): void

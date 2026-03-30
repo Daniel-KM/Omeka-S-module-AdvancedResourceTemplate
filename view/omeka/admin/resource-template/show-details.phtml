@@ -1,0 +1,58 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \Omeka\Api\Representation\ResourceTemplateRepresentation $resource
+ */
+
+$translate = $this->plugin('translate');
+$url = $this->plugin('url');
+$api = $this->plugin('api');
+$escape = $this->plugin('escapeHtml');
+$hyperlink = $this->plugin('hyperlink');
+
+$templateId = $resource->id();
+$baseQuery = ['resource_template_id' => $templateId];
+?>
+<h3><?= $translate($resource->link($resource->label())) ?></h3>
+<?php foreach ($resource->resourceTemplateProperties() as $rtp): ?>
+<?php
+$property = $rtp->property();
+$altLabel = $escape($rtp->alternateLabel());
+$altComment = $escape($rtp->alternateComment());
+?>
+<div class="meta-group">
+    <h4><?= $altLabel ?: $escape($translate($property->label())) ?></h4>
+    <div class="comment"><?= $altComment ?: $escape($translate($property->comment())) ?></div>
+</div>
+<?php endforeach; ?>
+<div class="meta-group">
+    <h4><?= $translate('Items') ?></h4>
+    <div class="value"><?= $hyperlink(
+        $resource->itemCount(),
+        $url('admin/default', ['controller' => 'item', 'action' => 'browse'], ['query' => $baseQuery])
+    ) ?></div>
+</div>
+<?php
+$itemSetCount = $api->search('item_sets', $baseQuery + ['limit' => 0])->getTotalResults();
+if ($itemSetCount):
+?>
+<div class="meta-group">
+    <h4><?= $translate('Item sets') ?></h4>
+    <div class="value"><?= $hyperlink(
+        $itemSetCount,
+        $url('admin/default', ['controller' => 'item-set', 'action' => 'browse'], ['query' => $baseQuery])
+    ) ?></div>
+</div>
+<?php endif;
+$mediaCount = $api->search('media', $baseQuery + ['limit' => 0])->getTotalResults();
+if ($mediaCount):
+?>
+<div class="meta-group">
+    <h4><?= $translate('Media') ?></h4>
+    <div class="value"><?= $hyperlink(
+        $mediaCount,
+        $url('admin/default', ['controller' => 'media', 'action' => 'browse'], ['query' => $baseQuery])
+    ) ?></div>
+</div>
+<?php endif; ?>
+<?php $this->trigger('view.details', ['entity' => $resource]); ?>

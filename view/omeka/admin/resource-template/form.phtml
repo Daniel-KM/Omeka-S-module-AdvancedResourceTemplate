@@ -44,7 +44,7 @@ $this->headScript()
     <?php $property = $api->read('properties', $property)->getContent();
     echo $this->partial(
         'omeka/admin/resource-template/show-property-row',
-        ['property' => $property, 'propertyFieldset' => $propertyFieldset]
+        ['property' => $property, 'propertyFieldset' => $propertyFieldset, 'resourceTemplate' => $resourceTemplate]
     ) ?>
     <?php endforeach; ?>
 </ul>
