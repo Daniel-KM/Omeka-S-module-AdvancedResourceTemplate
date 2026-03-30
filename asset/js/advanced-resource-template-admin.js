@@ -1004,7 +1004,7 @@
             } else {
                 Omeka.openSidebar(sidebarPropertySelector);
                 sidebarPropertySelector.addClass('always-open');
-                $('form.resource-form #property-selector-button').show();
+                $('form.resource-form #property-selector-button').css('display', '');
             }
 
             prepareValueDisplay();

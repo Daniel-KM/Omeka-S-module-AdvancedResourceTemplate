@@ -115,6 +115,13 @@
         padding-left: calc(30% + 1em);
     }
 
+    /* Fix item stub sidebar: input-body must fill parent width
+       since input-footer is positioned absolutely. */
+    #sidebar-section-item-stub .value-annotation .input-body {
+        max-width: 100%;
+        width: 100%;
+    }
+
     body.modal div[role="main"] > h1:first-of-type {
         width: 100%;
     }
