@@ -86,6 +86,11 @@ class ApplyTemplate extends AbstractJob
     protected $fixVisibility;
 
     /**
+     * @var bool
+     */
+    protected $fixExtraProperties;
+
+    /**
      * Indexed constraints by property term. Each entry is an
      * array with keys: property_id, required, default_value,
      * automatic_value, max_length, min_length, max_values,
@@ -95,6 +100,23 @@ class ApplyTemplate extends AbstractJob
      * @var array
      */
     protected $constraints = [];
+
+    /**
+     * All template properties indexed by term, with their
+     * allowed data types. Used to detect extra properties and
+     * wrong data types on resources.
+     *
+     * @var array<string, array{property_id: int, data_types: string[]}>
+     */
+    protected $templateProperties = [];
+
+    /**
+     * Track which template property terms are actually used
+     * across all resources (for the unused report).
+     *
+     * @var array<string, bool>
+     */
+    protected $usedProperties = [];
 
     /**
      * Counters for the summary log.
@@ -138,6 +160,7 @@ class ApplyTemplate extends AbstractJob
         $this->fixTruncate = (bool) $this->getArg('fix_truncate', false);
         $this->fixMaxValues = (bool) $this->getArg('fix_max_values', false);
         $this->fixVisibility = (bool) $this->getArg('fix_visibility', false);
+        $this->fixExtraProperties = (bool) $this->getArg('fix_extra_properties', false);
 
         /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation $template */
         try {
@@ -154,14 +177,7 @@ class ApplyTemplate extends AbstractJob
 
         $this->initAutomaticValuesHandler($services);
         $this->indexConstraints($template);
-
-        if (!count($this->constraints)) {
-            $this->logger->notice(
-                'Template "{label}" has no property constraints.', // @translate
-                ['label' => $template->label()]
-            );
-            return;
-        }
+        $this->indexTemplateProperties($template);
 
         $mode = $this->fix ? 'fix' : 'audit';
         $this->logger->notice(
@@ -178,6 +194,8 @@ class ApplyTemplate extends AbstractJob
         $this->processResourceType(
             'media', $template, $templateId
         );
+
+        $this->reportUnusedProperties($template);
 
         $this->logger->notice(
             $this->fix
@@ -249,6 +267,31 @@ class ApplyTemplate extends AbstractJob
                     'rtp_data' => $rtpData,
                 ];
             }
+        }
+    }
+
+    /**
+     * Index all template properties with their allowed data
+     * types. Unlike indexConstraints(), this includes every
+     * property regardless of whether it has constraints.
+     */
+    protected function indexTemplateProperties(
+        ResourceTemplateRepresentation $template
+    ): void {
+        foreach ($template->resourceTemplateProperties() as $rtp) {
+            $property = $rtp->property();
+            $term = $property->term();
+            $dataTypes = [];
+            foreach ($rtp->data() as $rtpData) {
+                foreach ($rtpData->dataTypes() as $dt) {
+                    $dataTypes[] = $dt;
+                }
+            }
+            $this->templateProperties[$term] = [
+                'property_id' => $property->id(),
+                'data_types' => array_unique($dataTypes),
+            ];
+            $this->usedProperties[$term] = false;
         }
     }
 
@@ -367,6 +410,16 @@ SQL;
                     $modified = true;
                 }
             }
+        }
+
+        // Check extra properties, wrong data types, and track
+        // used template properties.
+        $result = $this->checkExtraProperties(
+            $data, $resourceId
+        );
+        if ($result !== null) {
+            $data = $result;
+            $modified = true;
         }
 
         if ($modified && $this->fix) {
@@ -897,6 +950,111 @@ SQL;
         }
 
         return true;
+    }
+
+    /**
+     * Check a resource for extra properties (not in the
+     * template) and wrong data types. Mark used template
+     * properties. Returns modified data or null.
+     */
+    protected function checkExtraProperties(
+        array $data,
+        int $resourceId
+    ): ?array {
+        // Property terms in the serialized data are all keys
+        // that contain a colon (vocabulary:localName).
+        $modified = false;
+        $extraTerms = [];
+
+        foreach ($data as $term => $values) {
+            if (strpos($term, ':') === false || !is_array($values)) {
+                continue;
+            }
+
+            // Known template property.
+            if (isset($this->templateProperties[$term])) {
+                $this->usedProperties[$term] = true;
+                $allowedTypes = $this->templateProperties[$term]['data_types'];
+                if (!$allowedTypes) {
+                    continue;
+                }
+                foreach ($values as $value) {
+                    $type = $value['type'] ?? 'literal';
+                    if (!in_array($type, $allowedTypes)) {
+                        ++$this->totals['issues'];
+                        ++$this->totals['skipped'];
+                        $this->logger->info(
+                            'Resource #{resource_id}: {term}: data type "{type}" is not allowed by the template (allowed: {allowed}).', // @translate
+                            [
+                                'resource_id' => $resourceId,
+                                'term' => $term,
+                                'type' => $type,
+                                'allowed' => implode(', ', $allowedTypes),
+                            ]
+                        );
+                    }
+                }
+                continue;
+            }
+
+            // Extra property: not in the template.
+            ++$this->totals['issues'];
+            $extraTerms[] = $term;
+            if ($this->fix && $this->fixExtraProperties) {
+                unset($data[$term]);
+                $modified = true;
+                ++$this->totals['fixed'];
+            } else {
+                ++$this->totals['skipped'];
+            }
+        }
+
+        if ($extraTerms) {
+            if ($this->fix && $this->fixExtraProperties) {
+                $this->logger->info(
+                    'Resource #{resource_id}: removed properties not in template: {terms}.', // @translate
+                    [
+                        'resource_id' => $resourceId,
+                        'terms' => implode(', ', $extraTerms),
+                    ]
+                );
+            } else {
+                $this->logger->info(
+                    'Resource #{resource_id}: properties not in template: {terms}.', // @translate
+                    [
+                        'resource_id' => $resourceId,
+                        'terms' => implode(', ', $extraTerms),
+                    ]
+                );
+            }
+        }
+
+        return $modified ? $data : null;
+    }
+
+    /**
+     * Log template properties that are not used by any
+     * resource.
+     */
+    protected function reportUnusedProperties(
+        ResourceTemplateRepresentation $template
+    ): void {
+        $unused = [];
+        foreach ($this->usedProperties as $term => $used) {
+            if (!$used) {
+                $unused[] = $term;
+            }
+        }
+        if ($unused) {
+            $this->logger->notice(
+                'Template "{label}": {count} properties not used by any resource: {terms}.', // @translate
+                [
+                    'label' => $template->label(),
+                    'count' => count($unused),
+                    'terms' => implode(', ', $unused),
+                ]
+            );
+        }
     }
 
     /**

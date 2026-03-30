@@ -1717,6 +1717,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             'fix_automatic_values' => !empty($post['fix_automatic_values']),
             'fix_truncate' => !empty($post['fix_truncate']),
             'fix_max_values' => !empty($post['fix_max_values']),
+            'fix_extra_properties' => !empty($post['fix_extra_properties']),
         ];
 
         $job = $this->jobDispatcher()->dispatch(

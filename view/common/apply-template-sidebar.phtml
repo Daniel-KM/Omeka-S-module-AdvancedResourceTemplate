@@ -95,6 +95,13 @@ $baseAction = $url('admin/id', [
                             <?= $translate('Fix visibility (public/private)') // @translate ?>
                         </label>
                     </div>
+                    <div class="field">
+                        <label>
+                            <input type="checkbox"
+                                name="fix_extra_properties" value="1">
+                            <?= $translate('Remove values of properties not in template') // @translate ?>
+                        </label>
+                    </div>
                 </fieldset>
             </form>
         </div>
