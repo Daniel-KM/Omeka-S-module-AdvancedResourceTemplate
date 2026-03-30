@@ -58,6 +58,17 @@ if ($this->isModuleActive('DynamicItemSets')
     $hasError = true;
 }
 
+if ($this->isModuleActive('Mapper')
+    && !$this->isModuleVersionAtLeast('Mapper', '3.4.5')
+) {
+    $message = new \Omeka\Stdlib\Message(
+        $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+        'Mapper', '3.4.5'
+    );
+    $messenger->addError($message);
+    $hasError = true;
+}
+
 if ($this->isModuleActive('AdvancedSearch')
     && !$this->isModuleVersionAtLeast('AdvancedSearch', '3.4.53')
 ) {
@@ -65,7 +76,6 @@ if ($this->isModuleActive('AdvancedSearch')
         $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
         ['module' => 'Advanced Search', 'version' => '3.4.53']
     );
-    $messenger = $services->get('ControllerPluginManager')->get('messenger');
     $messenger->addWarning($message);
 }
 

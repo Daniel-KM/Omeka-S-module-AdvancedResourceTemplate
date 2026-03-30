@@ -34,11 +34,11 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
         $plugins = $services->get('ControllerPluginManager');
-        $translate = $plugins->get('translate');
+        $translator = $services->get('MvcTranslator');
 
         if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.82')) {
             $message = new \Omeka\Stdlib\Message(
-                $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+                $translator->translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
                 'Common', '3.4.82'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
@@ -50,38 +50,47 @@ class Module extends AbstractModule
             && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.5')
         ) {
             $message = new \Common\Stdlib\PsrMessage(
-                $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
+                $translator->translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
                 ['module' => 'Dynamic Item Sets', 'version' => '3.4.5']
             );
             $errors[] = (string) $message;
+        }
+
+        if ($this->isModuleActive('Mapper')
+            && !$this->isModuleVersionAtLeast('Mapper', '3.4.5')
+        ) {
+            $errors[] = (string) new \Omeka\Stdlib\Message(
+                $translator->translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+                'Mapper', '3.4.5'
+            );
         }
 
         if ($errors) {
             throw new \Omeka\Module\Exception\ModuleCannotInstallException(implode("\n", $errors));
         }
 
+        $messenger = $plugins->get('messenger');
+
         if ($this->isModuleActive('AdvancedSearch')
             && !$this->isModuleVersionAtLeast('AdvancedSearch', '3.4.53')
         ) {
             $message = new \Common\Stdlib\PsrMessage(
-                $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
+                $translator->translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
                 ['module' => 'Advanced Search', 'version' => '3.4.53']
             );
-            $messenger = $services->get('ControllerPluginManager')->get('messenger');
             $messenger->addWarning($message);
         }
 
         // Mapper is optional but recommended for autofiller features.
         if (!$this->isModuleActive('Mapper')) {
             $message = new \Common\Stdlib\PsrMessage(
-                $translate('The module {link}Mapper{link_end} is recommended for autofiller features (IdRef, Geonames, etc.).'), // @translate
+                $translator->translate('The module {link}Mapper{link_end} is recommended for autofiller features (IdRef, Geonames, etc.).'), // @translate
                 [
                     'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper" target="_blank" rel="noopener">',
                     'link_end' => '</a>',
                 ]
             );
             $message->setEscapeHtml(false);
-            $messenger = $plugins->get('messenger');
             $messenger->addWarning($message);
         }
     }
