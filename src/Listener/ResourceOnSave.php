@@ -210,21 +210,25 @@ class ResourceOnSave
             }
         }
 
+        // Use dbal updates to avoid a global flush that could conflict with
+        // pending entities in the UnitOfWork.
+        // This is the recommended way to avoid a flush, since to flush a single
+        // entity is deprecated and removed in doctrine 3.
+        $conn = $this->entityManager->getConnection();
         foreach ($resource->getValues() as $value) {
             $valueAnnotation = $value->getValueAnnotation();
             if ($valueAnnotation) {
                 $vaTemplate = $this->getVaTemplate($value, $template, $vaDefaultTemplate);
-                if ($vaTemplate) {
-                    $valueAnnotation->setResourceTemplate($vaTemplate);
-                    $valueAnnotation->setResourceClass($vaTemplate->getResourceClass());
-                } else {
-                    $valueAnnotation->setResourceTemplate(null);
-                    $valueAnnotation->setResourceClass(null);
-                }
+                $templateId = $vaTemplate ? $vaTemplate->getId() : null;
+                $classId = $vaTemplate && $vaTemplate->getResourceClass()
+                    ? $vaTemplate->getResourceClass()->getId()
+                    : null;
+                $conn->update('resource', [
+                    'resource_template_id' => $templateId,
+                    'resource_class_id' => $classId,
+                ], ['id' => $valueAnnotation->getId()]);
             }
         }
-
-        $this->entityManager->flush();
     }
 
     /**
