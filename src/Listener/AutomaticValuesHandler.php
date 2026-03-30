@@ -458,7 +458,7 @@ class AutomaticValuesHandler
                 }
                 $automaticValueArray['value_resource_id'] = (int) $vrid;
                 try {
-                    $this->api->read('resources', ['id' => (int) $vrid], ['initialize' => false, 'finalize' => false]);
+                    $this->api->read('resources', ['id' => (int) $vrid], [], ['initialize' => false, 'finalize' => false]);
                 } catch (\Throwable $e) {
                     return null;
                 }
@@ -525,7 +525,7 @@ class AutomaticValuesHandler
             case 'resource':
                 $automaticValueTransformed = (int) $automaticValueTransformed;
                 try {
-                    $this->api->read('resources', ['id' => $automaticValueTransformed], ['initialize' => false, 'finalize' => false]);
+                    $this->api->read('resources', ['id' => $automaticValueTransformed], [], ['initialize' => false, 'finalize' => false]);
                 } catch (\Throwable $e) {
                     return null;
                 }

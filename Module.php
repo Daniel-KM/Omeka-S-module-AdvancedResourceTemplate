@@ -1286,7 +1286,13 @@ class Module extends AbstractModule
             $total = $services->get('Omeka\ApiManager')->search($resourceName, ['resource_template_id' => $resourceTemplate->id(), 'limit' => 0])->getTotalResults();
             $urlBrowse = $urlHelper('admin/default', ['controller' => $controllerName, 'action' => 'browse'], ['query' => ['resource_template_id' => $resourceTemplate->id()]]);
             $label = $translatePlural($resourceLabel, $resourcesLabel, $total);
-            echo sprintf('<li class="browse-resources total-resources" style="width: 48px;">%s</li>', $hyperlink($total, $urlBrowse, ['class' => 'quick-total', 'title' => sprintf($translate('Browse %1$d %2$s'), $total, $label)]));
+            echo sprintf(
+                '<li class="total-resources">%s</li>',
+                $hyperlink($total, $urlBrowse, [
+                    'class' => 'quick-total',
+                    'title' => sprintf($translate('Browse %1$d %2$s'), $total, $label),
+                ])
+            );
         }
 
         if (!in_array($resourceName, ['resources', 'media']) && $userIsAllowed($resourceEntity, 'create')) {

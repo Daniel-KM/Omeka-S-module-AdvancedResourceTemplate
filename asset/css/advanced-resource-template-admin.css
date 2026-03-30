@@ -322,6 +322,18 @@
     }
 }
 
+    /* Resource totals in browse actions */
+
+    li.total-resources {
+        min-width: 32px;
+        text-align: right;
+    }
+
+    li.total-resources .quick-total {
+        font-size: .8em;
+        font-variant-numeric: tabular-nums;
+    }
+
     /* Template settings in Details sidebar */
 
     .art-details-settings .meta-group {
