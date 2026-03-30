@@ -254,4 +254,401 @@ class ApplyTemplateTest extends AbstractHttpControllerTestCase
         // No exception means success.
         $this->assertTrue(true);
     }
+
+    /**
+     * Audit mode reports wrong data types without fixing.
+     */
+    public function testAuditReportsWrongDataTypes(): void
+    {
+        $template = $this->createTemplate('DT Audit', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:subject' => [
+                'data_type' => ['uri'],
+            ],
+        ]);
+
+        // Create item with literal subject (wrong type for
+        // template that expects uri).
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Test'],
+            ],
+            'dcterms:subject' => [
+                ['type' => 'literal', '@value' => 'Not a URI'],
+            ],
+        ]);
+        $this->assignTemplateDirectly(
+            $item->id(), $template->id()
+        );
+
+        $this->dispatchApplyTemplate($template->id(), false);
+
+        // Value should remain unchanged in audit mode.
+        $updated = $this->reloadItem($item->id());
+        $subject = $updated->value('dcterms:subject');
+        $this->assertNotNull($subject);
+        $this->assertSame('literal', $subject->type());
+        $this->assertSame('Not a URI', $subject->value());
+    }
+
+    /**
+     * Fix converts a URI value to literal when template only
+     * allows literal.
+     */
+    public function testFixConvertsUriToLiteral(): void
+    {
+        $template = $this->createTemplate('DT Uri2Lit', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:source' => [
+                'data_type' => ['literal'],
+            ],
+        ]);
+
+        // Create item with URI source, then assign template
+        // that only allows literal.
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Test'],
+            ],
+            'dcterms:source' => [
+                ['type' => 'uri', '@id' => 'http://example.org/source'],
+            ],
+        ]);
+        $this->assignTemplateDirectly(
+            $item->id(), $template->id()
+        );
+
+        $this->dispatchApplyTemplate($template->id(), true, [
+            'fix_data_types' => true,
+        ]);
+
+        $updated = $this->reloadItem($item->id());
+        $source = $updated->value('dcterms:source');
+        $this->assertNotNull($source);
+        $this->assertSame('literal', $source->type());
+        $this->assertSame(
+            'http://example.org/source', $source->value()
+        );
+    }
+
+    /**
+     * Fix converts a literal URL value to URI when template
+     * only allows uri.
+     */
+    public function testFixConvertsLiteralUrlToUri(): void
+    {
+        $template = $this->createTemplate('DT Lit2Uri', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:source' => [
+                'data_type' => ['uri'],
+            ],
+        ]);
+
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Test'],
+            ],
+            'dcterms:source' => [
+                ['type' => 'literal', '@value' => 'http://example.org/page'],
+            ],
+        ]);
+        $this->assignTemplateDirectly(
+            $item->id(), $template->id()
+        );
+
+        $this->dispatchApplyTemplate($template->id(), true, [
+            'fix_data_types' => true,
+        ]);
+
+        $updated = $this->reloadItem($item->id());
+        $source = $updated->value('dcterms:source');
+        $this->assertNotNull($source);
+        $this->assertSame('uri', $source->type());
+        $this->assertSame(
+            'http://example.org/page', $source->uri()
+        );
+    }
+
+    /**
+     * Fix cannot convert a non-URL literal to URI: value stays
+     * unchanged.
+     */
+    public function testFixCannotConvertNonUrlLiteralToUri(): void
+    {
+        $template = $this->createTemplate('DT NoConvert', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:source' => [
+                'data_type' => ['uri'],
+            ],
+        ]);
+
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Test'],
+            ],
+            'dcterms:source' => [
+                ['type' => 'literal', '@value' => 'not a url at all'],
+            ],
+        ]);
+        $this->assignTemplateDirectly(
+            $item->id(), $template->id()
+        );
+
+        $this->dispatchApplyTemplate($template->id(), true, [
+            'fix_data_types' => true,
+        ]);
+
+        // Value should remain literal (not convertible).
+        $updated = $this->reloadItem($item->id());
+        $source = $updated->value('dcterms:source');
+        $this->assertNotNull($source);
+        $this->assertSame('literal', $source->type());
+    }
+
+    /**
+     * Fix converts a literal to resource:item when the value
+     * is a valid resource ID.
+     */
+    public function testFixConvertsLiteralToResourceItem(): void
+    {
+        // Create a target item to be referenced.
+        $target = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Target'],
+            ],
+        ]);
+
+        $template = $this->createTemplate('DT Lit2Res', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:relation' => [
+                'data_type' => ['resource:item'],
+            ],
+        ]);
+
+        // Create item with literal value = target item id.
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Test'],
+            ],
+            'dcterms:relation' => [
+                [
+                    'type' => 'literal',
+                    '@value' => (string) $target->id(),
+                ],
+            ],
+        ]);
+        $this->assignTemplateDirectly(
+            $item->id(), $template->id()
+        );
+
+        $this->dispatchApplyTemplate($template->id(), true, [
+            'fix_data_types' => true,
+        ]);
+
+        $updated = $this->reloadItem($item->id());
+        $relation = $updated->value('dcterms:relation');
+        $this->assertNotNull($relation);
+        $this->assertSame('resource:item', $relation->type());
+        $this->assertSame(
+            $target->id(),
+            $relation->valueResource()->id()
+        );
+    }
+
+    /**
+     * Fix respects resource sub-type: resource:item rejects a
+     * media ID.
+     */
+    public function testFixRejectsWrongResourceSubType(): void
+    {
+        // Create an item with a media to get a media ID.
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Item with media'],
+            ],
+        ]);
+        // Create a media on this item.
+        $mediaData = [
+            'o:item' => ['o:id' => $item->id()],
+            'o:ingester' => 'html',
+            'html' => '<p>test</p>',
+            'dcterms:title' => [
+                [
+                    'type' => 'literal',
+                    'property_id' => $this->getEasyMeta()
+                        ->propertyId('dcterms:title'),
+                    '@value' => 'Test Media',
+                ],
+            ],
+        ];
+        $media = $this->api()->create('media', $mediaData)
+            ->getContent();
+        $this->createdResources[] = [
+            'type' => 'media', 'id' => $media->id(),
+        ];
+
+        $template = $this->createTemplate('DT SubType', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:relation' => [
+                'data_type' => ['resource:item'],
+            ],
+        ]);
+
+        // Create item referencing the media as resource (wrong
+        // sub-type for resource:item).
+        $source = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Source'],
+            ],
+            'dcterms:relation' => [
+                [
+                    'type' => 'resource',
+                    'value_resource_id' => $media->id(),
+                ],
+            ],
+        ]);
+        $this->assignTemplateDirectly(
+            $source->id(), $template->id()
+        );
+
+        $this->dispatchApplyTemplate($template->id(), true, [
+            'fix_data_types' => true,
+        ]);
+
+        // Should remain resource type (media cannot become
+        // resource:item).
+        $updated = $this->reloadItem($source->id());
+        $relation = $updated->value('dcterms:relation');
+        $this->assertNotNull($relation);
+        $this->assertSame('resource', $relation->type());
+    }
+
+    /**
+     * Fix converts resource to resource:item when the linked
+     * resource is actually an item.
+     */
+    public function testFixConvertsResourceToResourceItem(): void
+    {
+        $target = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Target Item'],
+            ],
+        ]);
+
+        $template = $this->createTemplate('DT Res2Item', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:relation' => [
+                'data_type' => ['resource:item'],
+            ],
+        ]);
+
+        // Create item with generic "resource" type linking to
+        // an item.
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Source'],
+            ],
+            'dcterms:relation' => [
+                [
+                    'type' => 'resource',
+                    'value_resource_id' => $target->id(),
+                ],
+            ],
+        ]);
+        $this->assignTemplateDirectly(
+            $item->id(), $template->id()
+        );
+
+        $this->dispatchApplyTemplate($template->id(), true, [
+            'fix_data_types' => true,
+        ]);
+
+        $updated = $this->reloadItem($item->id());
+        $relation = $updated->value('dcterms:relation');
+        $this->assertNotNull($relation);
+        $this->assertSame('resource:item', $relation->type());
+        $this->assertSame(
+            $target->id(),
+            $relation->valueResource()->id()
+        );
+    }
+
+    /**
+     * Fix removes extra properties not in template.
+     */
+    public function testFixRemovesExtraProperties(): void
+    {
+        $template = $this->createTemplate('DT Extra', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+        ]);
+
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Test'],
+            ],
+            'dcterms:subject' => [
+                ['type' => 'literal', '@value' => 'Extra prop'],
+            ],
+        ]);
+        $this->assignTemplateDirectly(
+            $item->id(), $template->id()
+        );
+
+        $this->dispatchApplyTemplate($template->id(), true, [
+            'fix_extra_properties' => true,
+        ]);
+
+        $updated = $this->reloadItem($item->id());
+        $this->assertNull($updated->value('dcterms:subject'));
+    }
+
+    /**
+     * Fix with fix_data_types disabled does not convert types.
+     */
+    public function testFixWithoutDataTypeFlagDoesNotConvert(): void
+    {
+        $template = $this->createTemplate('DT NoFlag', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:source' => [
+                'data_type' => ['literal'],
+            ],
+        ]);
+
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Test'],
+            ],
+            'dcterms:source' => [
+                ['type' => 'uri', '@id' => 'http://example.org'],
+            ],
+        ]);
+        $this->assignTemplateDirectly(
+            $item->id(), $template->id()
+        );
+
+        // fix=true but fix_data_types not set.
+        $this->dispatchApplyTemplate($template->id(), true);
+
+        $updated = $this->reloadItem($item->id());
+        $source = $updated->value('dcterms:source');
+        $this->assertSame('uri', $source->type());
+    }
 }

@@ -151,12 +151,13 @@ trait AdvancedResourceTemplateTestTrait
                 continue;
             }
 
-            // The o:data must be an array of data sets (each set is an array).
-            $propertyDataSets = [];
-            if (!empty($config['data'])) {
-                // Wrap single data config in an array if not already nested.
-                $propertyDataSets = [$config['data']];
-            }
+            // The o:data must be an array of data sets (each set
+            // is an array). Always create at least one data set
+            // so that data types are stored in rtpData.
+            $dataTypes = $config['data_type'] ?? ['literal'];
+            $dataSet = $config['data'] ?? [];
+            $dataSet['o:data_type'] = $dataTypes;
+            $propertyDataSets = [$dataSet];
 
             $rtpData = [
                 'o:property' => ['o:id' => $propertyId],
