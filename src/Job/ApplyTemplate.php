@@ -102,21 +102,44 @@ class ApplyTemplate extends AbstractJob
     protected $constraints = [];
 
     /**
-     * All template properties indexed by term, with their
-     * allowed data types. Used to detect extra properties and
-     * wrong data types on resources.
+     * All template properties indexed by term, with their allowed data
+     * types. Used to detect extra properties and wrong data types on
+     * resources.
      *
      * @var array<string, array{property_id: int, data_types: string[]}>
      */
     protected $templateProperties = [];
 
     /**
-     * Track which template property terms are actually used
-     * across all resources (for the unused report).
+     * Track which template property terms are actually used across all
+     * resources (for the unused report).
      *
      * @var array<string, bool>
      */
     protected $usedProperties = [];
+
+    /**
+     * Extra property terms found on resources, with their property ID.
+     * Used to build browse links.
+     *
+     * @var array<string, int>
+     */
+    protected $extraPropertyIds = [];
+
+    /**
+     * Missing required property terms, with their property ID. Used to
+     * build browse links.
+     *
+     * @var array<string, int>
+     */
+    protected $missingRequiredIds = [];
+
+    /**
+     * Resource types that had resources to process.
+     *
+     * @var string[]
+     */
+    protected $processedResourceTypes = [];
 
     /**
      * Counters for the summary log.
@@ -196,6 +219,7 @@ class ApplyTemplate extends AbstractJob
         );
 
         $this->reportUnusedProperties($template);
+        $this->logBrowseLinks($templateId);
 
         $this->logger->notice(
             $this->fix
@@ -271,9 +295,9 @@ class ApplyTemplate extends AbstractJob
     }
 
     /**
-     * Index all template properties with their allowed data
-     * types. Unlike indexConstraints(), this includes every
-     * property regardless of whether it has constraints.
+     * Index all template properties with their allowed data types.
+     * Unlike indexConstraints(), this includes every property regardless
+     * of whether it has constraints.
      */
     protected function indexTemplateProperties(
         ResourceTemplateRepresentation $template
@@ -341,6 +365,8 @@ SQL;
         if (!count($resourceIds)) {
             return;
         }
+
+        $this->processedResourceTypes[] = $resourceType;
 
         $this->logger->info(
             'Processing {count} {resource_type} with template.', // @translate
@@ -412,8 +438,8 @@ SQL;
             }
         }
 
-        // Check extra properties, wrong data types, and track
-        // used template properties.
+        // Check extra properties, wrong data types, and track used
+        // template properties.
         $result = $this->checkExtraProperties(
             $data, $resourceId
         );
@@ -461,6 +487,7 @@ SQL;
         // --- Required check.
         if ($constraint['required'] && !count($values)) {
             ++$this->totals['issues'];
+            $this->missingRequiredIds[$term] = $constraint['property_id'];
             if ($this->fix
                 && $this->fixDefaultValues
                 && $constraint['default_value']
@@ -953,9 +980,9 @@ SQL;
     }
 
     /**
-     * Check a resource for extra properties (not in the
-     * template) and wrong data types. Mark used template
-     * properties. Returns modified data or null.
+     * Check a resource for extra properties (not in the template) and wrong
+     * data types. Mark used template properties. Returns modified data or
+     * null.
      */
     protected function checkExtraProperties(
         array $data,
@@ -1000,6 +1027,12 @@ SQL;
             // Extra property: not in the template.
             ++$this->totals['issues'];
             $extraTerms[] = $term;
+            if (!isset($this->extraPropertyIds[$term])) {
+                $propertyId = $values[0]['property_id'] ?? null;
+                if ($propertyId) {
+                    $this->extraPropertyIds[$term] = (int) $propertyId;
+                }
+            }
             if ($this->fix && $this->fixExtraProperties) {
                 unset($data[$term]);
                 $modified = true;
@@ -1033,8 +1066,7 @@ SQL;
     }
 
     /**
-     * Log template properties that are not used by any
-     * resource.
+     * Log template properties that are not used by any resource.
      */
     protected function reportUnusedProperties(
         ResourceTemplateRepresentation $template
@@ -1054,6 +1086,77 @@ SQL;
                     'terms' => implode(', ', $unused),
                 ]
             );
+        }
+    }
+
+    /**
+     * Log browse links for each issue type so the user can directly view
+     * affected resources. Uses search-based queries (property existence
+     * or non-existence) to avoid URL length issues on large collections.
+     */
+    protected function logBrowseLinks(int $templateId): void
+    {
+        if (!$this->extraPropertyIds
+            && !$this->missingRequiredIds
+        ) {
+            return;
+        }
+
+        $url = $this->getServiceLocator()
+            ->get('ViewHelperManager')->get('url');
+        $controllerMap = [
+            'items' => 'item',
+            'item_sets' => 'item-set',
+            'media' => 'media',
+        ];
+
+        foreach ($this->processedResourceTypes as $resourceType) {
+            $controller = $controllerMap[$resourceType] ?? null;
+            if (!$controller) {
+                continue;
+            }
+            $route = [
+                'controller' => $controller,
+                'action' => 'browse',
+            ];
+
+            foreach ($this->extraPropertyIds as $term => $pid) {
+                $link = $url('admin/default', $route, [
+                    'query' => [
+                        'resource_template_id' => $templateId,
+                        'property' => [
+                            ['property' => $pid, 'type' => 'ex'],
+                        ],
+                    ],
+                ]);
+                $this->logger->notice(
+                    'Browse {resource_type} with extra property "{term}": {url}', // @translate
+                    [
+                        'resource_type' => $resourceType,
+                        'term' => $term,
+                        'url' => $link,
+                    ]
+                );
+            }
+
+            foreach ($this->missingRequiredIds as $term => $pid) {
+                $link = $url('admin/default', $route, [
+                    'query' => [
+                        'resource_template_id' => $templateId,
+                        'property' => [
+                            ['property' => $pid, 'type' => 'nex'],
+                        ],
+                    ],
+                ]);
+                $this->logger->notice(
+                    'Browse {resource_type} missing required "{term}": {url}', // @translate
+                    [
+                        'resource_type' => $resourceType,
+                        'term' => $term,
+                        'url' => $link,
+                    ]
+                );
+            }
         }
     }
 
