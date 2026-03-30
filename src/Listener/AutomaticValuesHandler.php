@@ -377,7 +377,12 @@ class AutomaticValuesHandler
         string $dataType,
         array $resource
     ): ?string {
-        if (!$this->services->has('Mapper\Mapper')) {
+        // Only use Mapper when the value contains patterns
+        // (e.g. "{dcterms:title}"). Static values are returned
+        // as-is: Mapper cannot handle them and returns empty.
+        if (!$this->services->has('Mapper\Mapper')
+            || strpos($val, '{') === false
+        ) {
             return $val;
         }
 
