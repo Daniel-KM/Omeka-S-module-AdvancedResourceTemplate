@@ -325,13 +325,15 @@
     /* Resource totals in browse actions */
 
     li.total-resources {
-        min-width: 32px;
         text-align: right;
     }
 
     li.total-resources .quick-total {
-        font-size: .8em;
+        display: inline-block;
+        min-width: 4em;
+        font-size: .85em;
         font-variant-numeric: tabular-nums;
+        text-align: right;
     }
 
     /* Template settings in Details sidebar */
