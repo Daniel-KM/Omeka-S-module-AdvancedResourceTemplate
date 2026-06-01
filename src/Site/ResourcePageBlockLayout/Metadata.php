@@ -22,6 +22,8 @@ class Metadata implements ResourcePageBlockLayoutInterface
             'items',
             'media',
             'item_sets',
+            'annotations',
+            'digital_objects',
         ];
     }
 

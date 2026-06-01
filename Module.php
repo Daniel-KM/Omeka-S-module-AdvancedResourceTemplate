@@ -245,6 +245,16 @@ class Module extends AbstractModule
             'api.update.pre',
             [$this, 'handleTemplateSettingsOnSave']
         );
+        $sharedEventManager->attach(
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
+            'api.create.pre',
+            [$this, 'handleTemplateSettingsOnSave']
+        );
+        $sharedEventManager->attach(
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
+            'api.update.pre',
+            [$this, 'handleTemplateSettingsOnSave']
+        );
 
         // Check the resource according to the specified template settings.
         // Store the fallback title when needed.
@@ -268,18 +278,21 @@ class Module extends AbstractModule
             'api.hydrate.post',
             [$this, 'validateEntityHydratePost']
         );
+        $sharedEventManager->attach(
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
+            'api.hydrate.post',
+            [$this, 'validateEntityHydratePost']
+        );
 
-        // Store the template and the class of the value annotation.
-        // Ideally, use api.hydrate.pre on value annotation.
-        // But it is complex to get the main value and the resource from the
-        // annotation during a creation, so use post for it.
-        // Nevertheless, with hydrate post for value annotation, the value may
-        // be not yet stored, so not yet findable.
-        // The issue is the same for the value: a new value has no id as long as
-        // long as the resource is not stored.
-        // And the issue is the same for resource during a bulk process.
-        // So it is not possible to use hydrate post, so use api.create.post and
-        // api.update.post on each resource.
+        // Store the template and the class of the value annotation. Ideally,
+        // use api.hydrate.pre on value annotation. But it is complex to get the
+        // main value and the resource from the annotation during a creation, so
+        // use post for it. Nevertheless, with hydrate post for value
+        // annotation, the value may be not yet stored, so not yet findable. The
+        // issue is the same for the value: a new value has no id as long as
+        // long as the resource is not stored. And the issue is the same for
+        // resource during a bulk process. So it is not possible to use hydrate
+        // post, so use api.create.post and api.update.post on each resource.
         /*
         $sharedEventManager->attach(
             \Omeka\Api\Adapter\ValueAnnotationAdapter::class,
@@ -324,6 +337,16 @@ class Module extends AbstractModule
         );
         $sharedEventManager->attach(
             \Annotate\Api\Adapter\AnnotationAdapter::class,
+            'api.update.post',
+            [$this, 'storeVaTemplates']
+        );
+        $sharedEventManager->attach(
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
+            'api.create.post',
+            [$this, 'storeVaTemplates']
+        );
+        $sharedEventManager->attach(
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
             'api.update.post',
             [$this, 'storeVaTemplates']
         );
@@ -378,6 +401,12 @@ class Module extends AbstractModule
         );
         $sharedEventManager->attach(
             \Annotate\Api\Representation\AnnotationRepresentation::class,
+            'rep.resource.display_values',
+            [$this, 'handleResourceDisplayValues'],
+            -100
+        );
+        $sharedEventManager->attach(
+            'DigitalObject\Api\Representation\DigitalObjectRepresentation',
             'rep.resource.display_values',
             [$this, 'handleResourceDisplayValues'],
             -100
@@ -440,9 +469,21 @@ class Module extends AbstractModule
             [$this, 'handleResourceDisplaySubjectValues'],
             -100
         );
+        $sharedEventManager->attach(
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
+            'api.subject_values.query',
+            [$this, 'handleResourceDisplaySubjectValues'],
+            -100
+        );
+        $sharedEventManager->attach(
+            'DigitalObject\Api\Adapter\DigitalObjectAdapter',
+            'api.subject_values_simple.query',
+            [$this, 'handleResourceDisplaySubjectValues'],
+            -100
+        );
 
-        // Display some property values with a search link or icons.
-        // Use a dedicated listener for proper dependency injection.
+        // Display some property values with a search link or icons. Use a
+        // dedicated listener for proper dependency injection.
         $services = $this->getServiceLocator();
         $valueDisplayListener = $services->get(\AdvancedResourceTemplate\Listener\ValueDisplayListener::class);
         $sharedEventManager->attach(
@@ -458,10 +499,12 @@ class Module extends AbstractModule
             'Omeka\Controller\Admin\Media',
             'Omeka\Controller\Admin\ItemSet',
             'Annotate\Controller\Admin\AnnotationController',
+            'DigitalObject\Controller\Admin\DigitalObject',
             'Omeka\Controller\Site\Item',
             'Omeka\Controller\Site\Media',
             'Omeka\Controller\Site\ItemSet',
             'Annotate\Controller\Site\AnnotationController',
+            'DigitalObject\Controller\Site\DigitalObject',
         ];
         foreach ($controllers as $controller) {
             $sharedEventManager->attach(
@@ -490,6 +533,11 @@ class Module extends AbstractModule
         // For simplicity, some modules that use resource form are added here.
         $sharedEventManager->attach(
             \Annotate\Controller\Admin\AnnotationController::class,
+            'view.layout',
+            [$this, 'addAdminResourceHeaders']
+        );
+        $sharedEventManager->attach(
+            'DigitalObject\Controller\Admin\DigitalObject',
             'view.layout',
             [$this, 'addAdminResourceHeaders']
         );
@@ -1341,6 +1389,10 @@ class Module extends AbstractModule
             $resourceName = 'item_sets';
         } elseif (in_array('media', $useForResources)) {
             $resourceName = 'media';
+        } elseif (in_array('digital_objects', $useForResources)
+            && class_exists(\DigitalObject\Entity\DigitalObject::class)
+        ) {
+            $resourceName = 'digital_objects';
         } else {
             // TODO Allow to search resources.
             return;
@@ -1379,10 +1431,10 @@ class Module extends AbstractModule
             echo '<li><span class="no-action" style="display: inline-block; width: 24px;"></span></li>';
         }
 
-        $controllerClass = 'Omeka\Controller\Admin\\' . strtr(
-            ucwords($controllerName, '-'), ['-' => '']
-        );
-        if ($resourceEntity && $userIsAllowed($controllerClass, 'batch-edit')) {
+        // Check the entity permission, like the "add" button above, instead of
+        // building the admin controller acl resource, whose name is not always
+        // in the Omeka namespace (annotations, digital objects, etc.).
+        if ($resourceEntity && $userIsAllowed($resourceEntity, 'update')) {
             echo sprintf(
                 '<li><a class="apply-template-trigger" href="#" data-template-id="%d" data-resource-count="%d" title="%s"><span class="fas fa-sync" aria-hidden="true" style="margin-left: 8px;"></span></a></li>',
                 $resourceTemplate->id(),
@@ -1570,6 +1622,11 @@ class Module extends AbstractModule
             'Annotate\Controller\Site\Annotation' => 'annotations',
             'annotation' => 'annotations',
             'annotations' => 'annotations',
+            // Module DigitalObject.
+            'DigitalObject\Controller\Admin\DigitalObject' => 'digital_objects',
+            'DigitalObject\Controller\Site\DigitalObject' => 'digital_objects',
+            'digital-object' => 'digital_objects',
+            'digital_objects' => 'digital_objects',
         ];
         $params = $status->getRouteMatch()->getParams();
         $controller = $params['controller'] ?? $params['__CONTROLLER__'] ?? null;
@@ -1620,6 +1677,8 @@ class Module extends AbstractModule
             'value_annotations' => [],
             // Module Annotate.
             'annotations' => [],
+            // Module DigitalObject.
+            'digital_objects' => [],
         ];
         foreach ($templatesData as $templateId => $templateData) {
             $templateId = (int) $templateId;
@@ -1633,6 +1692,7 @@ class Module extends AbstractModule
                 $templatesByResourceNames['item_sets'][] = $templateId;
                 $templatesByResourceNames['value_annotations'][] = $templateId;
                 $templatesByResourceNames['annotations'][] = $templateId;
+                $templatesByResourceNames['digital_objects'][] = $templateId;
             } elseif (is_array($templateData['use_for_resources'])) {
                 foreach ($templateData['use_for_resources'] as $resourceName) {
                     $templatesByResourceNames[$resourceName][] = $templateId;

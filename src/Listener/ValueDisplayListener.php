@@ -360,6 +360,7 @@ class ValueDisplayListener
             'item' => $escape($translate('Show this item')), // @translate
             'media' => $escape($translate('Show this media')), // @translate
             'item-set' => $escape($translate('Show this item set')), // @translate
+            'digital-object' => $escape($translate('Show this digital object')), // @translate
             'resource' => $escape($translate('Show this resource')), // @translate
             'uri' => $escape($translate('Open this external uri in a new tab')), // @translate
         ];

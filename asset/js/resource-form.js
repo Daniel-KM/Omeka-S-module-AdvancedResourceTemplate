@@ -96,7 +96,7 @@
         // Prepare the value annotation markup.
         $(document).on('o:prepare-value-annotation', function(e, dataTypeName, valueAnnotation, value) {
             // Set the display title for resource types.
-            if (['resource:item', 'resource:itemset', 'resource:media'].includes(dataTypeName)) {
+            if (['resource:item', 'resource:itemset', 'resource:media', 'resource:digitalobject'].includes(dataTypeName)) {
                 let thumbnail = '';
                 if (value.thumbnail_url) {
                     thumbnail = $('<img>', {src: value.thumbnail_url});
@@ -318,7 +318,7 @@
             var value = $('.selecting-resource');
             if (value.hasClass('value')) {
                 // Use value_resource_name that is more precise than value data-data-type.
-                const dataTypeNames = {items: 'resource:item', item_sets: 'resource:itemset', media: 'resource:media'};
+                const dataTypeNames = {items: 'resource:item', item_sets: 'resource:itemset', media: 'resource:media', 'digital-objects': 'resource:digitalobject', digital_objects: 'resource:digitalobject'};
                 const dataTypeName = dataTypeNames[valueObj.value_resource_name] ? dataTypeNames[valueObj.value_resource_name] : 'resource';
                 $(document).trigger('o:prepare-value', [dataTypeName, value, valueObj]);
             } else if (value.hasClass('value-annotation')) {
@@ -354,7 +354,7 @@
                     .has('input.select-resource-checkbox:checked').each(function(index) {
                         // Use value_resource_name that is more precise than value data-data-type.
                         var valueObj = $(this).data('resource-values');
-                        const dataTypeNames = {items: 'resource:item', item_sets: 'resource:itemset', media: 'resource:media'};
+                        const dataTypeNames = {items: 'resource:item', item_sets: 'resource:itemset', media: 'resource:media', 'digital-objects': 'resource:digitalobject', digital_objects: 'resource:digitalobject'};
                         const dataTypeName = dataTypeNames[valueObj.value_resource_name] ? dataTypeNames[valueObj.value_resource_name] : 'resource';
                         if (0 < index) {
                             value = makeNewValue(field.data('property-term'), dataTypeName);
@@ -675,7 +675,7 @@
                     let dataTypeName = rtProperty['o:data_type'][0];
                     if (dataTypeName === undefined
                         || !(dataTypeName in vaTemplates)
-                        || ['resource', 'resource:item', 'resource:itemset', 'resource:media'].includes(dataTypeName)
+                        || ['resource', 'resource:item', 'resource:itemset', 'resource:media', 'resource:digitalobject'].includes(dataTypeName)
                     ) {
                         dataTypeName = 'literal';
                     }
@@ -896,6 +896,7 @@
             'resource:item',
             'resource:itemset',
             'resource:media',
+            'resource:digitalobject',
         ];
         if (valueObj && -1 !== resourceDataTypes.indexOf(dataType)) {
             value.find('span.default').hide();
@@ -1369,6 +1370,7 @@
                             dataTypesByProperty[propertyId]['resource:item'] = dataTypes;
                             dataTypesByProperty[propertyId]['resource:itemset'] = dataTypes;
                             dataTypesByProperty[propertyId]['resource:media'] = dataTypes;
+                            dataTypesByProperty[propertyId]['resource:digitalobject'] = dataTypes;
                         } else {
                             dataTypesByProperty[propertyId][dataType] = dataTypes;
                         }

@@ -14,6 +14,11 @@ class ResourceTemplateDataFieldset extends Fieldset
      */
     protected $hasAnnotations = false;
 
+    /**
+     * @var bool
+     */
+    protected $hasDigitalObjects = false;
+
     protected $elementGroups = [
         'template' => 'Template', // @translate
         'language' => 'Language', // @translate
@@ -34,6 +39,9 @@ class ResourceTemplateDataFieldset extends Fieldset
 
         if ($this->hasAnnotations) {
             $resourceNames['annotations'] = 'Annotations'; // @translate
+        }
+        if ($this->hasDigitalObjects) {
+            $resourceNames['digital_objects'] = 'Digital objects'; // @translate
         }
 
         $this
@@ -361,6 +369,12 @@ class ResourceTemplateDataFieldset extends Fieldset
     public function setHasAnnotations(bool $hasAnnotations): self
     {
         $this->hasAnnotations = $hasAnnotations;
+        return $this;
+    }
+
+    public function setHasDigitalObjects(bool $hasDigitalObjects): self
+    {
+        $this->hasDigitalObjects = $hasDigitalObjects;
         return $this;
     }
 }

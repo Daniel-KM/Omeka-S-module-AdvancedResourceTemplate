@@ -1197,7 +1197,8 @@
                 : quickNewResourceTemplate;
             if (isManagedResourceType && quickNewResourceTemplateProperty) {
                 const iconResourceType = resourceType === 'media' ? 'media' : resourceType + 's';
-                const button = `<div class="quick-new-resource" data-data-type="resource:${resourceType}">
+                const dataTypeSuffix = resourceType === 'digital-object' ? 'digitalobject' : resourceType;
+                const button = `<div class="quick-new-resource" data-data-type="resource:${dataTypeSuffix}">
             <a class="o-icon-${iconResourceType} button quick-add-resource" href="${baseUrl + 'admin/' + resourceType}/add?window=modal" target="_blank"> ${Omeka.jsTranslate('New ' + resourceType.replace('-', ' '))}</a>
         </div>`;
                 sidebar.find('.search-nav').after(button)

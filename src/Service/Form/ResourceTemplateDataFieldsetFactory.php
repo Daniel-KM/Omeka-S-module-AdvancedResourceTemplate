@@ -11,8 +11,10 @@ class ResourceTemplateDataFieldsetFactory implements FactoryInterface
     public function __invoke(ContainerInterface $services, $requestedName, ?array $options = null)
     {
         $form = new ResourceTemplateDataFieldset(null, $options ?? []);
+        $apiAdapterManager = $services->get('Omeka\ApiAdapterManager');
         return $form
-            ->setHasAnnotations($services->get('Omeka\ApiAdapterManager')->has('annotations'))
+            ->setHasAnnotations($apiAdapterManager->has('annotations'))
+            ->setHasDigitalObjects($apiAdapterManager->has('digital_objects'))
         ;
     }
 }

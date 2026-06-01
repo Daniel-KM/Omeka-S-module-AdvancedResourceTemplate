@@ -739,7 +739,7 @@ class ResourceOnSave
         $routeName = $routeMatch ? $routeMatch->getMatchedRouteName() : null;
 
         return $routeName === 'admin/default'
-            && in_array($routeMatch->getParam('__CONTROLLER__'), ['item', 'item-set', 'media', 'annotation'])
+            && in_array($routeMatch->getParam('__CONTROLLER__'), ['item', 'item-set', 'media', 'annotation', 'digital-object'])
             && in_array($routeMatch->getParam('action'), ['add', 'edit']);
     }
 }

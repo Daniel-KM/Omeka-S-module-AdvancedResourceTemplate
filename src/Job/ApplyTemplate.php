@@ -221,6 +221,17 @@ class ApplyTemplate extends AbstractJob
         $this->processResourceType(
             'media', $template, $templateId
         );
+        $apiAdapterManager = $this->getServiceLocator()->get('Omeka\ApiAdapterManager');
+        if ($apiAdapterManager->has('annotations')) {
+            $this->processResourceType(
+                'annotations', $template, $templateId
+            );
+        }
+        if ($apiAdapterManager->has('digital_objects')) {
+            $this->processResourceType(
+                'digital_objects', $template, $templateId
+            );
+        }
 
         $this->reportUnusedProperties($template);
         $this->logBrowseLinks($templateId);
@@ -1123,6 +1134,8 @@ class ApplyTemplate extends AbstractJob
             'items' => 'item',
             'item_sets' => 'item-set',
             'media' => 'media',
+            'annotations' => 'annotation',
+            'digital_objects' => 'digital-object',
         ];
 
         foreach ($this->processedResourceTypes as $resourceType) {
@@ -1419,8 +1432,10 @@ class ApplyTemplate extends AbstractJob
      * - "resource" accepts any;
      * - "resource:item" only items;
      * - "resource:media" only media;
-     * - "resource:itemset" only item sets;
-     * - "resource:annotation" only annotation.
+     * - "resource:itemset" only item sets.
+     *
+     * Module DigitalObject adds:
+     * - "resource:digitalobject" only digital objects.
      */
     protected function isResourceTypeMatch(
         $resource,
@@ -1434,7 +1449,7 @@ class ApplyTemplate extends AbstractJob
             'resource:item' => 'Omeka\Api\Representation\ItemRepresentation',
             'resource:media' => 'Omeka\Api\Representation\MediaRepresentation',
             'resource:itemset' => 'Omeka\Api\Representation\ItemSetRepresentation',
-            'resource:annotation' => 'Annotate\Api\Representation\AnnotationRepresentation',
+            'resource:digitalobject' => 'DigitalObject\Api\Representation\DigitalObjectRepresentation',
         ];
         return isset($map[$targetType])
             && $class === $map[$targetType];
@@ -1449,7 +1464,8 @@ class ApplyTemplate extends AbstractJob
             'items' => 'Omeka\Entity\Item',
             'item_sets' => 'Omeka\Entity\ItemSet',
             'media' => 'Omeka\Entity\Media',
-            'annotation' => 'Annotate\Entity\Annotation',
+            'annotations' => 'Annotate\Entity\Annotation',
+            'digital_objects' => 'DigitalObject\Entity\DigitalObject',
         ];
         return $map[$resourceType] ?? null;
     }
