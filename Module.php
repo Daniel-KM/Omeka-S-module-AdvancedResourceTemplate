@@ -1113,7 +1113,15 @@ class Module extends AbstractModule
         $plugins = $view->getHelperPluginManager();
         $params = $plugins->get('params');
         $action = $params->fromRoute('action');
-        if (!in_array($action, ['add', 'edit'])) {
+        if (!in_array($action, ['add', 'edit', 'show'])) {
+            return;
+        }
+
+        // The css is also used on the show page to style metadata groups. The
+        // form classes and js are only needed for the add/edit forms.
+        $assetUrl = $plugins->get('assetUrl');
+        $plugins->get('headLink')->appendStylesheet($assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
+        if ($action === 'show') {
             return;
         }
 
@@ -1159,8 +1167,6 @@ class Module extends AbstractModule
             $plugins->get('htmlElement')('body')->appendAttribute('class', implode(' ', array_keys($classes)));
         }
 
-        $assetUrl = $plugins->get('assetUrl');
-        $plugins->get('headLink')->appendStylesheet($assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
         $plugins->get('headScript')
             ->appendFile($assetUrl('vendor/jquery-autocomplete/jquery.autocomplete.min.js', 'Common'), 'text/javascript', ['defer' => 'defer'])
             ->appendFile($assetUrl('js/advanced-resource-template-admin.js', 'AdvancedResourceTemplate'), 'text/javascript', ['defer' => 'defer']);

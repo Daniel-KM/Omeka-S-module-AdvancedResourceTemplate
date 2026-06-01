@@ -402,6 +402,16 @@
         color: #2e7d32;
     }
 
+    /* Metadata group headings on resource/show: smaller than a section title. */
+    .property-groups .property-group > h3 {
+        font-size: 1.15rem;
+        margin: 18px 0 6px;
+        color: #4a4a4a;
+    }
+    .property-groups .property-group:first-child > h3 {
+        margin-top: 0;
+    }
+
     /* Template settings in Details sidebar */
 
     .art-details-settings .meta-group {
