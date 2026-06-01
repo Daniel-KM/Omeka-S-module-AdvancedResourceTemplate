@@ -14,8 +14,17 @@ class ResourceTemplateDataFieldset extends Fieldset
      */
     protected $hasAnnotations = false;
 
+    protected $elementGroups = [
+        'template' => 'Template', // @translate
+        'language' => 'Language', // @translate
+        'values' => 'Values', // @translate
+        'display' => 'Display', // @translate
+    ];
+
     public function init(): void
     {
+        $this->setOption('element_groups', $this->elementGroups);
+
         $resourceNames = [
             'items' => 'Items', // @translate
             'media' => 'Medias', // @translate
@@ -32,6 +41,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'use_for_resources',
                 'type' => CommonElement\OptionalMultiCheckbox::class,
                 'options' => [
+                    'element_group' => 'template',
                     'label' => 'Use for resources', // @translate
                     'value_options' => $resourceNames,
                 ],
@@ -47,6 +57,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'require_resource_class',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
+                    'element_group' => 'template',
                     'label' => 'Require a class', // @translate
                     'checked_value' => 'yes',
                 ],
@@ -58,6 +69,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'closed_class_list',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
+                    'element_group' => 'template',
                     'label' => 'Limit to specified classes', // @translate
                     'checked_value' => 'yes',
                 ],
@@ -69,6 +81,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'closed_property_list',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
+                    'element_group' => 'template',
                     'label' => 'Limit to specified properties', // @translate
                     'checked_value' => 'yes',
                 ],
@@ -81,6 +94,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'quick_new_resource',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
+                    'element_group' => 'template',
                     'label' => 'Allow quick creation of a resource', // @translate
                     'checked_value' => 'yes',
                 ],
@@ -93,6 +107,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'autocomplete',
                 'type' => CommonElement\OptionalRadio::class,
                 'options' => [
+                    'element_group' => 'template',
                     'label' => 'Autocomplete with existing values', // @translate
                     'value_options' => [
                         'no' => 'No', // @translate
@@ -110,6 +125,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'value_languages',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
+                    'element_group' => 'language',
                     'label' => 'Languages for values', // @translate
                     'as_key_value' => true,
                 ],
@@ -121,6 +137,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'default_language',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'language',
                     'label' => 'Default language', // @translate
                 ],
                 'attributes' => [
@@ -131,6 +148,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'no_language',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
+                    'element_group' => 'language',
                     'label' => 'No language', // @translate
                     'checked_value' => 'yes',
                 ],
@@ -143,6 +161,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'value_suggest_keep_original_label',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
+                    'element_group' => 'values',
                     'label' => 'Value Suggest: keep original label', // @translate
                     'checked_value' => 'yes',
                 ],
@@ -154,6 +173,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'value_suggest_require_uri',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
+                    'element_group' => 'values',
                     'label' => 'Value Suggest: require uri', // @translate
                     'checked_value' => 'yes',
                 ],
@@ -166,6 +186,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'title_fallback_properties',
                 'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
+                    'element_group' => 'values',
                     'label' => 'Properties used as fallback for title', // @translate
                     'as_key_value' => false,
                 ],
@@ -182,6 +203,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'automatic_values',
                 'type' => Element\Textarea::class,
                 'options' => [
+                    'element_group' => 'values',
                     'label' => 'Automatic values (on save)', // @translate
                     'info' => 'Uses Mapper INI format. Requires module Mapper.', // @translate
                 ],
@@ -201,6 +223,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'value_annotations_template',
                 'type' => CommonElement\OptionalResourceSelect::class,
                 'options' => [
+                    'element_group' => 'values',
                     'label' => 'Value annotations', // @translate
                     'disable_group_by_owner' => true,
                     'prepend_value_options' => [
@@ -225,6 +248,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'item_sets',
                 'type' => CommonElement\OptionalItemSetSelect::class,
                 'options' => [
+                    'element_group' => 'template',
                     'label' => 'Item sets to set for items', // @translate
                     'disable_inarray_validator' => true,
                 ],
@@ -242,6 +266,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'groups',
                 'type' => CommonElement\GroupTextarea::class,
                 'options' => [
+                    'element_group' => 'display',
                     'label' => 'Groups', // @translate
                     'info' => 'Allow to get properties by group for display. This is a list of group names and properties for each of them. May need a specific theme template.', // @translate
                     'default_group_name' => 'Group %s',
@@ -279,6 +304,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'subject_values_order',
                 'type' => CommonElement\GroupTextarea::class,
                 'options' => [
+                    'element_group' => 'display',
                     'label' => 'Order of linked values (Omeka v4.1)', // @translate
                     'info' => 'The default order of the linked resources is the title. Another order can be set for each linking property. For the default order when there is no property, just skip the property term.', // @translate
                     'as_key_value' => true,
@@ -301,6 +327,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'media_templates_minimum',
                 'type' => \Omeka\Form\Element\ArrayTextarea::class,
                 'options' => [
+                    'element_group' => 'template',
                     'label' => 'Minimum number of media for each media template', // @translate
                     'info' => 'Set the template number or label, then "=", then the number. Use 0 as number to set the number for other templates.', // @translate
                     'as_key_value' => true,
@@ -320,6 +347,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                 'name' => 'settings',
                 'type' => Element\Textarea::class,
                 'options' => [
+                    'element_group' => 'template',
                     'label' => 'More settings', // @translate
                     'info' => 'Allow to pass some settings, usually for theme and generally via key-value pairs or json.', // @translate
                 ],

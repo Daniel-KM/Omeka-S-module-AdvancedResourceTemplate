@@ -68,7 +68,7 @@ endif;
 <?php if ($hasSettings): ?>
 <fieldset id="template-settings" class="section" aria-labelledby="template-settings-label">
 <legend><?= $translate('Template settings') ?></legend>
-<?php echo $this->formCollection($templateSettings, false); ?>
+<?php echo $this->formCollectionElementGroups($templateSettings); ?>
 </fieldset>
 <?php endif; ?>
 

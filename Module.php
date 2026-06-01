@@ -1502,6 +1502,12 @@ class Module extends AbstractModule
             ->setName('advancedresourcetemplate');
         // To simplify saved data, the elements are added directly to fieldset.
         $fieldset = $form->get('o:data');
+        // Merge element groups for section headings.
+        $existingGroups = $fieldset->getOption('element_groups') ?: [];
+        $newGroups = $advancedFieldset->getOption('element_groups') ?: [];
+        if ($newGroups) {
+            $fieldset->setOption('element_groups', $existingGroups + $newGroups);
+        }
         foreach ($advancedFieldset->getElements() as $element) {
             $fieldset->add($element);
         }
