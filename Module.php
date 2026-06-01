@@ -1606,7 +1606,7 @@ class Module extends AbstractModule
             ->from('resource_template')
             ->leftJoin('resource_template', 'resource_template_data', 'resource_template_data', 'resource_template_data.resource_template_id = resource_template.id')
         ;
-        $templatesData = $connection->executeQuery($qb)->fetchAllKeyValue();
+        $templatesData = $connection->executeQuery($qb->getSQL(), $qb->getParameters())->fetchAllKeyValue();
         $templatesByResourceNames = [
             'items' => [],
             'media' => [],

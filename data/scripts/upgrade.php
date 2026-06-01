@@ -129,7 +129,7 @@ if (version_compare((string) $oldVersion, '3.3.4.13', '<')) {
         ->orderBy('resource_template_data.id', 'asc')
         ->where('resource_template_data.data LIKE "%suggested_resource_class_ids%"')
     ;
-    $templateDatas = $connection->executeQuery($qb)->fetchAllKeyValue();
+    $templateDatas = $connection->executeQuery($qb->getSQL())->fetchAllKeyValue();
     foreach ($templateDatas as $id => $templateData) {
         $templateData = json_decode($templateData, true);
         if (empty($templateData['suggested_resource_class_ids'])) {
@@ -167,7 +167,7 @@ if (version_compare((string) $oldVersion, '3.3.4.14', '<')) {
         ->select('id', 'data')
         ->from('resource_template_data', 'resource_template_data')
     ;
-    $templateDatas = $connection->executeQuery($qb)->fetchAllKeyValue();
+    $templateDatas = $connection->executeQuery($qb->getSQL())->fetchAllKeyValue();
     foreach ($templateDatas as $id => $templateData) {
         $templateData = json_decode($templateData, true);
         foreach ([
@@ -202,7 +202,7 @@ if (version_compare((string) $oldVersion, '3.3.4.14', '<')) {
         ->select('id', 'data')
         ->from('resource_template_property_data', 'resource_template_property_data')
     ;
-    $templatePropertyDatas = $connection->executeQuery($qb)->fetchAllKeyValue();
+    $templatePropertyDatas = $connection->executeQuery($qb->getSQL())->fetchAllKeyValue();
     foreach ($templatePropertyDatas as $id => $templatePropertyData) {
         $templatePropertyData = json_decode($templatePropertyData, true);
         foreach ([
@@ -259,7 +259,7 @@ if (version_compare((string) $oldVersion, '3.4.4.16', '<')) {
         ->select('*')
         ->from('resource_template_property_data', 'resource_template_property_data')
     ;
-    $templatePropertyDatas = $connection->executeQuery($qb)->fetchAllAssociative();
+    $templatePropertyDatas = $connection->executeQuery($qb->getSQL())->fetchAllAssociative();
     $sqlRtp = <<<SQL
         UPDATE `resource_template_property`
         SET
@@ -345,7 +345,7 @@ if (version_compare((string) $oldVersion, '3.4.22', '<')) {
         )
         ->from('resource_template_data', 'resource_template_data')
     ;
-    $templateDatas = $connection->executeQuery($qb)->fetchAllAssociativeIndexed();
+    $templateDatas = $connection->executeQuery($qb->getSQL())->fetchAllAssociativeIndexed();
 
     // Except templates used for Annotations (module Cartography).
     $annotationTemplates = $settings->get('cartography_template_describe') ?: [];
@@ -365,7 +365,7 @@ if (version_compare((string) $oldVersion, '3.4.22', '<')) {
             ->from('resource_template', 'resource_template')
             ->where($qb->expr()->eq('resource_class_id', $classAnnotation->id()))
         ;
-        $annotationTemplatesMore = $connection->executeQuery($qb)->fetchFirstColumn() ?: [];
+        $annotationTemplatesMore = $connection->executeQuery($qb->getSQL())->fetchFirstColumn() ?: [];
         $annotationTemplates = array_merge($annotationTemplates, $annotationTemplatesMore);
     }
     $annotationTemplates = array_unique(array_map('intval', $annotationTemplates));
@@ -628,7 +628,9 @@ if (version_compare((string) $oldVersion, '3.4.26', '<')) {
         WHERE `resource_template_data`.`data` LIKE "%geometry%"
         ;
         SQL;
-    $connection->executeStatement($sql);
+    foreach (array_filter(array_map('trim', explode(";\n", $sql))) as $sql) {
+        $connection->executeStatement($sql);
+    }
 
     $message = new PsrMessage(
         'Value annotations can now have a resource class and an alternative label or comment.' // @translate
@@ -819,7 +821,7 @@ if (version_compare((string) $oldVersion, '3.4.50', '<')) {
         ->from('resource_template_data', 'resource_template_data')
         ->where('resource_template_data.data LIKE \'%"autofillers"%\'')
     ;
-    $templateDatas = $connection->executeQuery($qb)->fetchAllKeyValue();
+    $templateDatas = $connection->executeQuery($qb->getSQL())->fetchAllKeyValue();
     foreach ($templateDatas as $templateId => $templateData) {
         $data = json_decode($templateData, true);
         if (!empty($data['autofillers'])) {
@@ -951,7 +953,7 @@ if (version_compare((string) $oldVersion, '3.4.50', '<')) {
         ->innerJoin('resource_template_data', 'resource_template', 'resource_template', 'resource_template.id = resource_template_data.resource_template_id')
         ->where('resource_template_data.data LIKE \'%"automatic_values"%\'')
     ;
-    $templatesWithAutomaticValues = $connection->executeQuery($qb)->fetchAllAssociative();
+    $templatesWithAutomaticValues = $connection->executeQuery($qb->getSQL())->fetchAllAssociative();
 
     $affectedTemplates = [];
     foreach ($templatesWithAutomaticValues as $row) {
