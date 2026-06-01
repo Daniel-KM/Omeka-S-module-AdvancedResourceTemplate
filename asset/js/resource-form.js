@@ -1165,7 +1165,17 @@
      */
     var initPage = function() {
         // Prepare the form with values if any, else an empty template will be displayed.
-        if (typeof valuesJson !== 'undefined') {
+        var valuesJson = (typeof window.valuesJson !== 'undefined') ? window.valuesJson : null;
+        if (!valuesJson) {
+            valuesJson = $('#resource-values').data('valuesJson');
+            if (typeof valuesJson === 'string') {
+                try { valuesJson = JSON.parse(valuesJson); } catch (e) { valuesJson = null; }
+            }
+            if (valuesJson) {
+                window.valuesJson = valuesJson;
+            }
+        }
+        if (valuesJson && !$.isEmptyObject(valuesJson)) {
             $.each(valuesJson, function(term, valueObj) {
                 var field = makeNewField(term);
                 $.each(valueObj.values, function(index, value) {
