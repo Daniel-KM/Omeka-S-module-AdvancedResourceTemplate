@@ -145,7 +145,12 @@ class ValueDisplayListener
         if ($display['search']) {
             $searchUrl = $this->buildSearchUrl('representation', $property, $controllerName, $vrId, $uriOrVal);
             if ($display['value_search']) {
-                $searchLabel = $vr ? $htmlClean : (strlen($val) ? $val : $uri);
+                // Use the text of the formatted html so data types that format
+                // the value (like numeric:timestamp) keep their display.
+                $htmlText = trim(strip_tags($htmlClean));
+                $searchLabel = $vr
+                    ? $htmlClean
+                    : (strlen($htmlText) ? $htmlText : ($uri ?: $val));
                 $result['value_search'] = $this->buildValueSearchLink('representation', $searchLabel, $searchUrl);
             }
             if ($display['icon_search']) {
@@ -159,7 +164,10 @@ class ValueDisplayListener
             $searchUrl = $this->buildAdvancedSearchUrl('representation', $property, $vrId, $uriOrVal);
             if ($searchUrl) {
                 if ($display['value_advanced_search']) {
-                    $searchLabel = $vr ? $htmlClean : (strlen($val) ? $val : $uri);
+                    $htmlText = trim(strip_tags($htmlClean));
+                    $searchLabel = $vr
+                        ? $htmlClean
+                        : (strlen($htmlText) ? $htmlText : ($uri ?: $val));
                     $result['value_advanced_search'] = $this->buildValueSearchLink('representation', $searchLabel, $searchUrl);
                 }
                 if ($display['icon_advanced_search']) {
