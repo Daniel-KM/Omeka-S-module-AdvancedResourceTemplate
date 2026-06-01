@@ -496,6 +496,65 @@
             }
 
             $('#values-json').val(JSON.stringify(collectValues()));
+
+            // Bypass max_input_vars: serialize the whole form into a single
+            // `_post` JSON field, then disable every other named input so php
+            // only receives `_post` and `csrf`.
+            if (!errors.length) {
+                const formEl = thisForm[0];
+                const formData = new FormData(formEl);
+                const post = {};
+                const setPath = function (obj, keys, value) {
+                    for (let i = 0; i < keys.length - 1; i++) {
+                        const k = keys[i];
+                        const nextK = keys[i + 1];
+                        const nextIsIndex = nextK === '' || /^\d+$/.test(nextK);
+                        if (k === '') {
+                            const arr = obj;
+                            const next = nextIsIndex ? [] : {};
+                            arr.push(next);
+                            obj = next;
+                        } else {
+                            if (obj[k] === undefined || obj[k] === null) {
+                                obj[k] = nextIsIndex ? [] : {};
+                            }
+                            obj = obj[k];
+                        }
+                    }
+                    const last = keys[keys.length - 1];
+                    if (last === '') {
+                        obj.push(value);
+                    } else {
+                        obj[last] = value;
+                    }
+                };
+                for (const [name, value] of formData.entries()) {
+                    if (!name.includes('[')) {
+                        post[name] = value;
+                        continue;
+                    }
+                    const mainKey = name.slice(0, name.indexOf('['));
+                    const rest = name.slice(name.indexOf('['));
+                    const keys = [mainKey];
+                    rest.replace(/\[([^\]]*)\]/g, function (_m, k) { keys.push(k); return ''; });
+                    const firstSubIsIndex = keys[1] === '' || /^\d+$/.test(keys[1]);
+                    if (post[mainKey] === undefined) {
+                        post[mainKey] = firstSubIsIndex ? [] : {};
+                    }
+                    setPath(post, keys, value);
+                }
+                formEl.querySelectorAll('[name]').forEach(function (el) {
+                    if (el.name === 'csrf' || el.name === '_post') {
+                        return;
+                    }
+                    el.disabled = true;
+                });
+                $(formEl).prepend($('<input>', {
+                    type: 'hidden',
+                    name: '_post',
+                    value: JSON.stringify(post),
+                }));
+            }
         });
 
         // Handle value annotation template.

@@ -99,6 +99,15 @@ class Module extends AbstractModule
     {
         parent::onBootstrap($event);
 
+        // Decode `_post` JSON payload sent by the resource forms to bypass
+        // php's max_input_vars limit. Runs before any controller reads POST.
+        $application = $event->getApplication();
+        $application->getEventManager()->attach(
+            MvcEvent::EVENT_ROUTE,
+            [$this, 'decodePostJson'],
+            10000
+        );
+
         // Copy or rights of the main Resource Template.
         /** @var \Omeka\Permissions\Acl $acl */
         $acl = $this->getServiceLocator()->get('Omeka\Acl');
@@ -135,6 +144,29 @@ class Module extends AbstractModule
                 ['AdvancedResourceTemplate\Controller\Admin\Index']
             )
         ;
+    }
+
+    public function decodePostJson(MvcEvent $event): void
+    {
+        $request = $event->getRequest();
+        if (!method_exists($request, 'getPost')) {
+            return;
+        }
+        $post = $request->getPost();
+        $jsonPost = $post->get('_post');
+        if (!is_string($jsonPost) || $jsonPost === '') {
+            return;
+        }
+        $decoded = json_decode($jsonPost, true);
+        if (!is_array($decoded)) {
+            return;
+        }
+        $csrf = $post->get('csrf');
+        if ($csrf !== null && !isset($decoded['csrf'])) {
+            $decoded['csrf'] = $csrf;
+        }
+        $post->fromArray($decoded);
+        $_POST = $decoded;
     }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
