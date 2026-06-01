@@ -108,25 +108,25 @@ class ResourceOnSave
         $isItem = in_array($type, ['o:Item', 'items'])
             || (is_array($type) && in_array('o:Item', $type));
 
-        // The "{o:id}" placeholder in automatic values is resolved with the
-        // real id on update; on creation the id does not exist yet, so a
-        // sentinel is used and resolved in api.create.post.
-        $idReplacement = $request->getOperation() === \Omeka\Api\Request::UPDATE && $request->getId()
-            ? (string) $request->getId()
-            : AutomaticValuesHandler::ID_SENTINEL;
+        // Deferred placeholders in automatic values ("{o:id}", "{o:created}",
+        // "{o:modified}") are resolved with their real value when already known
+        // (id and created on update) and resolved from the entity after the
+        // save otherwise (creation, and modified always, since it is set at
+        // flush). See resolveAutomaticDeferredValues().
+        $deferredReplacements = $this->deferredReplacements();
 
         // Template level.
         if ($isItem) {
             $resource = $this->automaticValuesHandler->appendAutomaticItemSets($template, $resource);
         }
-        $resource = $this->automaticValuesHandler->appendAutomaticValuesFromTemplateData($template, $resource, $idReplacement);
+        $resource = $this->automaticValuesHandler->appendAutomaticValuesFromTemplateData($template, $resource, $deferredReplacements);
 
         // Property level.
         foreach ($template->resourceTemplateProperties() as $templateProperty) {
             foreach ($templateProperty->data() as $rtpData) {
                 $resource = $this->automaticValuesHandler->explodeValueFromTemplatePropertyData($rtpData, $resource);
 
-                $automaticValues = $this->automaticValuesHandler->automaticValuesFromTemplatePropertyData($rtpData, $resource, $idReplacement);
+                $automaticValues = $this->automaticValuesHandler->automaticValuesFromTemplatePropertyData($rtpData, $resource, $deferredReplacements);
                 foreach ($automaticValues as $automaticValue) {
                     $resource[$templateProperty->property()->term()][] = $automaticValue;
                 }
@@ -239,37 +239,103 @@ class ResourceOnSave
     }
 
     /**
-     * Resolve the "{o:id}" placeholder in automatic values after creation.
+     * Build the deferred placeholder replacements for an automatic value.
      *
-     * On creation the id is unknown when the automatic values are generated, so
-     * a sentinel is stored instead. Now that the resource is saved and has an
-     * id, replace the sentinel with the real id directly in the database.
+     * Id, created and modified do not exist (creation) or are not final
+     * (modified is set at flush) when the automatic values are generated, so a
+     * sentinel is always used and resolved from the entity after the save.
      */
-    public function resolveAutomaticIdValues(Event $event): void
+    protected function deferredReplacements(): array
+    {
+        return [
+            'o:id' => AutomaticValuesHandler::ID_SENTINEL,
+            'o:created' => AutomaticValuesHandler::CREATED_SENTINEL,
+            'o:modified' => AutomaticValuesHandler::MODIFIED_SENTINEL,
+        ];
+    }
+
+    /**
+     * Resolve the deferred placeholders in automatic values after save.
+     *
+     * When the automatic values are generated, the id, created and modified
+     * dates may not exist yet, so sentinels are stored. Now that the resource
+     * is saved, replace them with the real values from the entity directly in
+     * the database, then remove the exact duplicates created when a stable
+     * placeholder (id, created) is re-resolved to a value already present, for
+     * example on a form re-submission.
+     */
+    public function resolveAutomaticDeferredValues(Event $event): void
     {
         /** @var \Omeka\Api\Response $response */
         $response = $event->getParam('response');
-        $resource = $response->getContent('resource');
-        $id = $resource->getId();
+        $entity = $response->getContent('resource');
+        $id = $entity->getId();
         if (!$id) {
             return;
         }
 
-        $sentinel = AutomaticValuesHandler::ID_SENTINEL;
-        $this->entityManager->getConnection()->executeStatement(
+        $created = $entity->getCreated();
+        $modified = $entity->getModified();
+        $replacements = [
+            AutomaticValuesHandler::ID_SENTINEL => (string) $id,
+            AutomaticValuesHandler::CREATED_SENTINEL => $created ? $created->format('c') : '',
+            AutomaticValuesHandler::MODIFIED_SENTINEL => $modified ? $modified->format('c') : '',
+        ];
+
+        $conn = $this->entityManager->getConnection();
+
+        // Only act when a sentinel is actually present for this resource.
+        $likeExpr = [];
+        $params = ['rid' => $id];
+        $i = 0;
+        foreach (array_keys($replacements) as $sentinel) {
+            $likeExpr[] = "`value` LIKE :l$i OR `uri` LIKE :l$i";
+            $params["l$i"] = '%' . $sentinel . '%';
+            $i++;
+        }
+        $hasSentinel = (int) $conn->executeQuery(
+            'SELECT COUNT(*) FROM `value` WHERE `resource_id` = :rid AND (' . implode(' OR ', $likeExpr) . ')',
+            $params
+        )->fetchOne();
+        if (!$hasSentinel) {
+            return;
+        }
+
+        foreach ($replacements as $sentinel => $value) {
+            $conn->executeStatement(
+                <<<'SQL'
+                    UPDATE `value`
+                    SET `value` = REPLACE(`value`, :sentinel, :value),
+                        `uri` = REPLACE(`uri`, :sentinel, :value)
+                    WHERE `resource_id` = :rid
+                        AND (`value` LIKE :like OR `uri` LIKE :like)
+                    SQL,
+                [
+                    'sentinel' => $sentinel,
+                    'value' => $value,
+                    'rid' => $id,
+                    'like' => '%' . $sentinel . '%',
+                ]
+            );
+        }
+
+        // Remove exact duplicates, keeping the lowest id of each group.
+        $conn->executeStatement(
             <<<'SQL'
-                UPDATE `value`
-                SET `value` = REPLACE(`value`, :sentinel, :id),
-                    `uri` = REPLACE(`uri`, :sentinel, :id)
-                WHERE `resource_id` = :rid
-                    AND (`value` LIKE :like OR `uri` LIKE :like)
+                DELETE v1 FROM `value` v1
+                INNER JOIN `value` v2
+                    ON v1.`resource_id` = v2.`resource_id`
+                    AND v1.`property_id` = v2.`property_id`
+                    AND v1.`type` = v2.`type`
+                    AND v1.`value` <=> v2.`value`
+                    AND v1.`uri` <=> v2.`uri`
+                    AND v1.`value_resource_id` <=> v2.`value_resource_id`
+                    AND v1.`lang` <=> v2.`lang`
+                    AND v1.`value_annotation_id` <=> v2.`value_annotation_id`
+                    AND v1.`id` > v2.`id`
+                WHERE v1.`resource_id` = :rid
                 SQL,
-            [
-                'sentinel' => $sentinel,
-                'id' => (string) $id,
-                'rid' => $id,
-                'like' => '%' . $sentinel . '%',
-            ]
+            ['rid' => $id]
         );
     }
 

@@ -16,13 +16,15 @@ use Omeka\Api\Manager as ApiManager;
 class AutomaticValuesHandler
 {
     /**
-     * Sentinel used to keep the resource id placeholder in an automatic value
-     * until the resource is saved and its id is known (creation only). It is
-     * replaced by the real id in api.create.post.
+     * Sentinels used to keep deferred placeholders ("{o:id}", "{o:created}",
+     * "{o:modified}") in an automatic value until the resource is saved and the
+     * real values are known. They are replaced from the entity after the save.
      *
-     * @see \AdvancedResourceTemplate\Listener\ResourceOnSave::resolveAutomaticIdValues()
+     * @see \AdvancedResourceTemplate\Listener\ResourceOnSave::resolveAutomaticDeferredValues()
      */
     const ID_SENTINEL = '__ART_O_ID__';
+    const CREATED_SENTINEL = '__ART_O_CREATED__';
+    const MODIFIED_SENTINEL = '__ART_O_MODIFIED__';
 
     /**
      * @var \Omeka\Api\Manager
@@ -102,18 +104,19 @@ class AutomaticValuesHandler
      *
      * This feature requires the module Mapper to be active.
      */
-    public function appendAutomaticValuesFromTemplateData(ResourceTemplateRepresentation $template, array $resource, ?string $idReplacement = null): array
+    public function appendAutomaticValuesFromTemplateData(ResourceTemplateRepresentation $template, array $resource, ?array $deferredReplacements = null): array
     {
         $automaticValues = trim((string) $template->dataValue('automatic_values'));
         if ($automaticValues === '') {
             return $resource;
         }
 
-        // Only top-level resources resolve "{o:id}" (the caller passes a
-        // replacement). For value annotations the id is unavailable too, so the
-        // placeholder is left to its previous behaviour.
-        if ($idReplacement !== null) {
-            $automaticValues = $this->replaceIdPlaceholder($automaticValues, $idReplacement);
+        // Only top-level resources resolve deferred placeholders ("{o:id}",
+        // "{o:created}", "{o:modified}"); the caller passes their replacements.
+        // For value annotations these are unavailable too, so the placeholders
+        // are left to their previous behaviour.
+        if ($deferredReplacements !== null) {
+            $automaticValues = $this->replaceDeferredPlaceholders($automaticValues, $deferredReplacements);
         }
 
         // Check if Mapper module is available for automatic values.
@@ -207,7 +210,7 @@ class AutomaticValuesHandler
     /**
      * Get automatic values from template property data.
      */
-    public function automaticValuesFromTemplatePropertyData(ResourceTemplatePropertyDataRepresentation $rtpData, array $resource, ?string $idReplacement = null): array
+    public function automaticValuesFromTemplatePropertyData(ResourceTemplatePropertyDataRepresentation $rtpData, array $resource, ?array $deferredReplacements = null): array
     {
         $automaticValue = trim((string) $rtpData->dataValue('automatic_value'));
         $automaticValuesIssued = trim((string) $rtpData->dataValue('automatic_value_issued'));
@@ -216,10 +219,11 @@ class AutomaticValuesHandler
             return [];
         }
 
-        // Only top-level resources resolve "{o:id}" (the caller passes a
-        // replacement); value annotations keep the previous behaviour.
-        if ($automaticValue !== '' && $idReplacement !== null) {
-            $automaticValue = $this->replaceIdPlaceholder($automaticValue, $idReplacement);
+        // Only top-level resources resolve deferred placeholders ("{o:id}",
+        // "{o:created}", "{o:modified}"); value annotations keep the previous
+        // behaviour.
+        if ($automaticValue !== '' && $deferredReplacements !== null) {
+            $automaticValue = $this->replaceDeferredPlaceholders($automaticValue, $deferredReplacements);
         }
 
         $values = [];
@@ -588,14 +592,23 @@ class AutomaticValuesHandler
     }
 
     /**
-     * Replace the resource id placeholder "{o:id}" in an automatic value.
+     * Replace the deferred placeholders in an automatic value.
      *
-     * On update the real id is passed; on creation a sentinel is passed and
-     * resolved to the real id after the resource is saved.
+     * The map is keyed by placeholder name ("o:id", "o:created", "o:modified").
+     * A real value is passed when it is already known (id and created on
+     * update), otherwise a sentinel is passed and resolved from the entity
+     * after the resource is saved.
      */
-    protected function replaceIdPlaceholder(string $config, string $replacement): string
+    protected function replaceDeferredPlaceholders(string $config, array $replacements): string
     {
-        return preg_replace('/\{\s*o:id\s*\}/', $replacement, $config);
+        foreach ($replacements as $name => $replacement) {
+            $config = preg_replace(
+                '/\{\s*' . preg_quote($name, '/') . '\s*\}/',
+                (string) $replacement,
+                $config
+            );
+        }
+        return $config;
     }
 
     /**

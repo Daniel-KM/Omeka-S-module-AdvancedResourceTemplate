@@ -296,9 +296,11 @@ class Module extends AbstractModule
             [$this, 'storeVaTemplates']
         );
 
-        // Resolve the "{o:id}" placeholder in automatic values once the
-        // resource is created and its id is known (creation only; on update the
-        // id is resolved inline before save).
+        // Resolve the deferred placeholders ("{o:id}", "{o:created}",
+        // "{o:modified}") in automatic values once the resource is saved and
+        // the real values are known. On update only "{o:modified}" remains a
+        // sentinel (id and created are resolved inline), but the handler runs
+        // on both create and update.
         foreach ([
             \Omeka\Api\Adapter\ItemAdapter::class,
             \Omeka\Api\Adapter\MediaAdapter::class,
@@ -309,7 +311,12 @@ class Module extends AbstractModule
             $sharedEventManager->attach(
                 $adapterClass,
                 'api.create.post',
-                [$this, 'resolveAutomaticIdValues']
+                [$this, 'resolveAutomaticDeferredValues']
+            );
+            $sharedEventManager->attach(
+                $adapterClass,
+                'api.update.post',
+                [$this, 'resolveAutomaticDeferredValues']
             );
         }
 
@@ -614,10 +621,10 @@ class Module extends AbstractModule
         $resourceOnSave->storeVaTemplates($event);
     }
 
-    public function resolveAutomaticIdValues(Event $event): void
+    public function resolveAutomaticDeferredValues(Event $event): void
     {
         $resourceOnSave = $this->getServiceLocator()->get(Listener\ResourceOnSave::class);
-        $resourceOnSave->resolveAutomaticIdValues($event);
+        $resourceOnSave->resolveAutomaticDeferredValues($event);
     }
 
     /**
