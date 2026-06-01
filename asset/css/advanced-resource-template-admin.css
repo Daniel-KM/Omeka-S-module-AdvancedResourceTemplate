@@ -336,6 +336,68 @@
         text-align: right;
     }
 
+    /* Toggle extended property info */
+
+    .resource-templates #properties {
+        margin-top: 6px;
+    }
+    .property-list-toolbar {
+        text-align: right;
+        margin-bottom: 6px;
+    }
+    .property-list-toolbar #toggle-extended-info {
+        font-size: .85em;
+        padding: 4px 10px;
+        min-height: 0;
+    }
+    .property-list-toolbar #toggle-extended-info[aria-pressed="true"] {
+        background-color: #676767;
+        color: #fff;
+    }
+    #properties .property.row {
+        flex-wrap: wrap;
+    }
+    #properties .property.row > .actions {
+        flex-shrink: 0;
+    }
+    .property-extended-info {
+        order: 10;
+        width: 100%;
+        padding: 0 0 4px 24px;
+        font-size: .85em;
+        color: #888;
+        line-height: 1.6;
+    }
+    .property-data-types {
+        display: inline;
+        font-style: italic;
+    }
+    .property-badge {
+        display: inline-block;
+        padding: 1px 6px;
+        border-radius: 3px;
+        font-size: .9em;
+        margin-right: 4px;
+    }
+    .property-badge.required {
+        background-color: #fef4e8;
+        color: #b45309;
+    }
+    .property-badge.no-data-type {
+        background-color: #fdefef;
+        color: #a91919;
+    }
+    .property-badge.default,
+    .property-badge.automatic {
+        background-color: #eef3fd;
+        color: #35619f;
+    }
+    .property-badge.max-values,
+    .property-badge.min-values {
+        background-color: #f5f5f5;
+        color: #555;
+    }
+
     /* Template settings in Details sidebar */
 
     .art-details-settings .meta-group {

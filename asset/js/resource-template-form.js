@@ -126,9 +126,11 @@ propertyList.on('click', '.property-edit', function(e) {
         }
         altLabel.val($('#edit-sidebar #alternate-label').val());
         prop.find('.alternate-label-cell').text($('#edit-sidebar #alternate-label').val());
-        $('#edit-sidebar #is-private').prop('checked')
-            ? prop.find('.visibility').removeClass('o-icon-public').addClass('o-icon-private').prop('aria-label', Omeka.jsTranslate('Private'))
-            : prop.find('.visibility').removeClass('o-icon-private').addClass('o-icon-public').prop('aria-label', Omeka.jsTranslate('Public'));
+        if ($('#edit-sidebar #is-private').prop('checked')) {
+            prop.find('.visibility').removeClass('o-icon-public').addClass('o-icon-private').show();
+        } else {
+            prop.find('.visibility').removeClass('o-icon-private').hide();
+        }
         altComment.val($('#edit-sidebar #alternate-comment').val());
         if ($('#edit-sidebar #is-title-property').prop('checked')) {
             titleProperty.val(propertyId);
@@ -164,6 +166,9 @@ propertyList.on('click', '.property-edit', function(e) {
                 hiddenElement.val(sidebarElement.val());
             }
         });
+        // Update extended info display.
+        updateExtendedInfo(prop);
+
         Omeka.closeSidebar($('#edit-sidebar'));
     });
 
@@ -394,6 +399,62 @@ $('#resource-template-form').on('submit', function () {
         name: '_post',
         value: JSON.stringify(post),
     }));
+});
+
+// Update the extended info line for a property row.
+function updateExtendedInfo(prop) {
+    var ext = prop.find('.property-extended-info');
+    if (!ext.length) return;
+
+    var isRequired = prop.find('[data-property-key="o:is_required"]').prop('checked')
+        || prop.find('input[name$="[o:is_required]"]').val() === '1';
+    var dataTypes = prop.find('[data-property-key="o:data_type"]').val();
+    if (!dataTypes || !dataTypes.length) {
+        dataTypes = [];
+        prop.find('select[name$="[o:data_type][]"] option:selected').each(function() {
+            if (this.value) dataTypes.push(this.value);
+        });
+    }
+    var defaultValue = prop.find('[data-setting-key="default_value"]').val() || '';
+    var automaticValue = prop.find('[data-setting-key="automatic_value"]').val() || '';
+    var maxValues = parseInt(prop.find('[data-setting-key="max_values"]').val()) || 0;
+    var minValues = parseInt(prop.find('[data-setting-key="min_values"]').val()) || 0;
+
+    var html = '';
+    if (isRequired) {
+        html += '<span class="property-badge required">' + Omeka.jsTranslate('Required') + '</span>';
+    }
+    if (dataTypes.length) {
+        var dtSelect = document.getElementById('data-type');
+        var labels = dataTypes.map(function(dt) {
+            var opt = dtSelect ? dtSelect.querySelector('option[value="' + dt + '"]') : null;
+            return opt ? opt.textContent.trim() : dt;
+        });
+        html += '<span class="property-data-types">' + $('<span>').text(labels.join(', ')).html() + '</span>';
+    } else {
+        html += '<span class="property-badge no-data-type">' + Omeka.jsTranslate('No data type') + '</span>';
+    }
+    if (defaultValue) {
+        html += ' <span class="property-badge default">' + Omeka.jsTranslate('Default') + '</span>';
+    }
+    if (automaticValue) {
+        html += ' <span class="property-badge automatic">' + Omeka.jsTranslate('Auto') + '</span>';
+    }
+    if (maxValues) {
+        html += ' <span class="property-badge max-values">Max: ' + maxValues + '</span>';
+    }
+    if (minValues > 1) {
+        html += ' <span class="property-badge min-values">Min: ' + minValues + '</span>';
+    }
+    ext.html(html);
+}
+
+// Toggle extended property info.
+$('#toggle-extended-info').on('click', function() {
+    var btn = $(this);
+    var pressed = btn.attr('aria-pressed') === 'true';
+    btn.attr('aria-pressed', !pressed);
+    $('#properties .property-extended-info').toggle(!pressed);
 });
 
 });

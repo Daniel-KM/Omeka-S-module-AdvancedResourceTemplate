@@ -56,7 +56,7 @@ $baseAction = $url('admin/id', [
                         <input type="checkbox"
                             id="apply-template-fix"
                             name="fix" value="1">
-                        <?= $translate('Apply corrections') // @translate ?>
+                        <?= $translate('Apply the fixes below') // @translate ?>
                     </label>
                 </div>
                 <fieldset id="apply-template-options" disabled>
@@ -116,7 +116,7 @@ $baseAction = $url('admin/id', [
     <div class="confirm-panel">
         <button type="submit" form="apply-template-form"
             data-label-audit="<?= $escape($translate('Audit')) ?>"
-            data-label-fix="<?= $escape($translate('Apply corrections')) ?>"
+            data-label-fix="<?= $escape($translate('Apply fixes')) ?>"
         ><?= $translate('Audit') // @translate ?></button>
     </div>
 </div>

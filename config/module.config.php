@@ -150,6 +150,10 @@ return [
         'New item set', // @translate
         'New value', // @translate
         'No results', // @translate
+        'No data type', // @translate
+        'Required', // @translate
+        'Default', // @translate
+        'Auto', // @translate
     ],
     'advancedresourcetemplate' => [
         'settings' => [

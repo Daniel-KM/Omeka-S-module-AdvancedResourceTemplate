@@ -52,6 +52,10 @@ endif;
 <?php echo $this->formRow($element); ?>
 <?php endforeach; ?>
 
+<div class="property-list-toolbar">
+    <button type="button" id="toggle-extended-info" class="button" aria-pressed="false"><?= $translate('Details') ?></button>
+</div>
+
 <ul id="properties" data-add-new-property-row-url="<?php echo $escape($this->url(null, ['action' => 'add-new-property-row'], true)); ?>">
     <?php foreach ($form->get('o:resource_template_property') as $propertyFieldset): ?>
     <?php $property = $propertyFieldset->get('o:property')->getValue(); ?>

@@ -31,11 +31,61 @@ $formElement = $this->plugin('formElement');
     <span class="property-label-group">
         <span class="original-label-cell" title="<?= $property->term() ?>"><?= $escape($translate($property->label())) ?></span>
         <span class="alternate-label-cell"><?= $escape($propertyFieldset->get('o:alternate_label')->getValue()) ?></span>
-        <?php if ($propertyFieldset->get('o:is_private')->getValue()): ?>
-        <span class="visibility o-icon-private" aria-label="<?= $translate('Private')?>"></span>
-        <?php endif; ?>
+        <span class="visibility <?= $propertyFieldset->get('o:is_private')->getValue() ? 'o-icon-private' : '' ?>" aria-label="<?= $translate('Private')?>"<?= $propertyFieldset->get('o:is_private')->getValue() ? '' : ' style="display:none"' ?>></span>
     </span>
     <span class="property-term"><?= $escape($property->term()) ?></span>
+<?php
+// Extended info (hidden by default, toggled via JS).
+$dataTypeElement = $propertyFieldset->get('o:data_type');
+$dataTypes = $dataTypeElement->getValue();
+$dataTypeOptions = $dataTypeElement->getValueOptions();
+// Flatten optgroup options into a simple name => label map.
+$dataTypeLabels = [];
+foreach ($dataTypeOptions as $key => $option) {
+    if (is_array($option) && isset($option['options'])) {
+        foreach ($option['options'] as $subKey => $sub) {
+            if (is_array($sub)) {
+                $dataTypeLabels[$sub['value']] = $sub['label'];
+            } else {
+                $dataTypeLabels[$subKey] = $sub;
+            }
+        }
+    } elseif (is_array($option) && isset($option['value'])) {
+        $dataTypeLabels[$option['value']] = $option['label'];
+    } else {
+        $dataTypeLabels[$key] = $option;
+    }
+}
+$isRequired = $propertyFieldset->get('o:is_required')->getValue();
+$defaultValue = $propertyFieldset->has('default_value') ? $propertyFieldset->get('default_value')->getValue() : '';
+$automaticValue = $propertyFieldset->has('automatic_value') ? $propertyFieldset->get('automatic_value')->getValue() : '';
+$maxValues = $propertyFieldset->has('max_values') ? $propertyFieldset->get('max_values')->getValue() : '';
+$minValues = $propertyFieldset->has('min_values') ? $propertyFieldset->get('min_values')->getValue() : '';
+?>
+    <span class="property-extended-info" style="display: none;">
+        <?php if ($isRequired): ?>
+        <span class="property-badge required"><?= $translate('Required') ?></span>
+        <?php endif; ?>
+        <?php if (is_array($dataTypes) && count($dataTypes)):
+            $labels = array_map(fn($dt) => $dataTypeLabels[$dt] ?? $dt, $dataTypes);
+        ?>
+        <span class="property-data-types"><?= $escape(implode(', ', $labels)) ?></span>
+        <?php else: ?>
+        <span class="property-badge no-data-type"><?= $translate('No data type') ?></span>
+        <?php endif; ?>
+        <?php if (strlen((string) $defaultValue)): ?>
+        <span class="property-badge default"><?= $translate('Default') ?></span>
+        <?php endif; ?>
+        <?php if (strlen((string) $automaticValue)): ?>
+        <span class="property-badge automatic"><?= $translate('Auto') ?></span>
+        <?php endif; ?>
+        <?php if ((int) $maxValues): ?>
+        <span class="property-badge max-values"><?= sprintf($translate('Max: %d'), (int) $maxValues) ?></span>
+        <?php endif; ?>
+        <?php if ((int) $minValues > 1): ?>
+        <span class="property-badge min-values"><?= sprintf($translate('Min: %d'), (int) $minValues) ?></span>
+        <?php endif; ?>
+    </span>
 
     <ul class="actions">
         <li><?php echo $this->hyperlink('', '#', [
