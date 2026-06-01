@@ -113,18 +113,18 @@ INI;
     }
 
     /**
-     * Test automatic_values with pattern that uses source data.
+     * Test template-level automatic_values with a static identifier.
      *
      * @group mapper-required
      */
-    public function testAutomaticValuesWithPattern(): void
+    public function testAutomaticValuesStaticIdentifier(): void
     {
         if (!self::$mapperAvailable) {
             $this->markTestSkipped('Mapper module not available');
         }
 
-        // Use quoted raw value for static identifier in Mapper format.
-        // No sections needed - [maps] is the default.
+        // Use quoted raw value for static identifier in Mapper format. No
+        // sections needed - [maps] is the default.
         $automaticValues = <<<'INI'
 dcterms:identifier = "ID-PREFIX"
 INI;
@@ -337,5 +337,67 @@ INI;
         // Should not throw.
         $result = $handler->appendAutomaticValuesFromTemplateData($template, $resource);
         $this->assertIsArray($result);
+    }
+
+    /**
+     * Test per-property automatic value with a dynamic pattern (Mapper).
+     *
+     * "automatic_value = {dcterms:title.0.@value}" copies the title into
+     * another property on save, using the single-brace path syntax. This
+     * exercises the transformValue() Mapper path, unlike the static cases.
+     *
+     * @group mapper-required
+     */
+    public function testAutomaticValuePropertyDynamicPattern(): void
+    {
+        if (!self::$mapperAvailable) {
+            $this->markTestSkipped('Mapper module not available');
+        }
+
+        $template = $this->createTemplate('Auto Value Dynamic Pattern', [], [
+            'dcterms:alternative' => [
+                'data_type' => ['literal'],
+                'data' => [
+                    'automatic_value' => '{dcterms:title.0.@value}',
+                ],
+            ],
+        ]);
+
+        $item = $this->createItem([
+            'dcterms:title' => [['type' => 'literal', '@value' => 'Hello World']],
+        ], $template->id());
+
+        $alt = $item->value('dcterms:alternative');
+        $this->assertNotNull($alt, 'Dynamic pattern should copy the title');
+        $this->assertSame('Hello World', $alt->value());
+    }
+
+    /**
+     * Test a composite dynamic pattern mixing literal text and a path.
+     *
+     * @group mapper-required
+     */
+    public function testAutomaticValuePropertyCompositePattern(): void
+    {
+        if (!self::$mapperAvailable) {
+            $this->markTestSkipped('Mapper module not available');
+        }
+
+        $template = $this->createTemplate('Auto Value Composite Pattern', [], [
+            'dcterms:identifier' => [
+                'data_type' => ['literal'],
+                'data' => [
+                    'automatic_value' => 'item-{dcterms:title.0.@value}',
+                ],
+            ],
+        ]);
+
+        $item = $this->createItem([
+            'dcterms:title' => [['type' => 'literal', '@value' => 'abc']],
+        ], $template->id());
+
+        $identifier = $item->value('dcterms:identifier');
+        $this->assertNotNull($identifier, 'Composite pattern should resolve');
+        $this->assertSame('item-abc', $identifier->value());
     }
 }

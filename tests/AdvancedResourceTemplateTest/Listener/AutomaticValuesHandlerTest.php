@@ -147,6 +147,97 @@ class AutomaticValuesHandlerTest extends AbstractHttpControllerTestCase
     }
 
     /**
+     * Test per-property automatic value with a static literal (no Mapper).
+     *
+     * A static value contains no "{...}" pattern, so it is stored as-is without
+     * requiring module Mapper.
+     */
+    public function testAutomaticValuePropertyStaticWithoutMapper(): void
+    {
+        $template = $this->createTemplate('Auto Value Property Static', [], [
+            'dcterms:type' => [
+                'data_type' => ['literal'],
+                'data' => [
+                    'automatic_value' => 'AUTO-STATIC',
+                ],
+            ],
+        ]);
+
+        $item = $this->createItem([
+            'dcterms:title' => [['type' => 'literal', '@value' => 'Static auto']],
+        ], $template->id());
+
+        $type = $item->value('dcterms:type');
+        $this->assertNotNull($type, 'Static automatic value should be added');
+        $this->assertSame('AUTO-STATIC', $type->value());
+    }
+
+    /**
+     * Test automatic issued date when the resource is made public.
+     *
+     * With "automatic_value_issued" set to "first", a public resource with no
+     * value for the property gets today's date (no Mapper involved).
+     */
+    public function testAutomaticValueIssuedDateOnPublic(): void
+    {
+        $template = $this->createTemplate('Auto Issued Date', [], [
+            'dcterms:available' => [
+                'data_type' => ['literal'],
+                'data' => [
+                    'automatic_value_issued' => 'first',
+                ],
+            ],
+        ]);
+
+        $easyMeta = $this->getEasyMeta();
+        $response = $this->api()->create('items', [
+            'o:resource_template' => ['o:id' => $template->id()],
+            'o:is_public' => true,
+            'dcterms:title' => [[
+                'type' => 'literal',
+                'property_id' => $easyMeta->propertyId('dcterms:title'),
+                '@value' => 'Issued date test',
+            ]],
+        ]);
+        $item = $response->getContent();
+        $this->createdResources[] = ['type' => 'items', 'id' => $item->id()];
+
+        $available = $item->value('dcterms:available');
+        $this->assertNotNull($available, 'Auto issued date should be set on a public resource');
+        $this->assertSame(date('Y-m-d'), $available->value());
+    }
+
+    /**
+     * Test that the automatic issued date is not set on a private resource.
+     */
+    public function testAutomaticValueIssuedDateSkippedWhenPrivate(): void
+    {
+        $template = $this->createTemplate('Auto Issued Date Private', [], [
+            'dcterms:available' => [
+                'data_type' => ['literal'],
+                'data' => [
+                    'automatic_value_issued' => 'first',
+                ],
+            ],
+        ]);
+
+        $easyMeta = $this->getEasyMeta();
+        $response = $this->api()->create('items', [
+            'o:resource_template' => ['o:id' => $template->id()],
+            'o:is_public' => false,
+            'dcterms:title' => [[
+                'type' => 'literal',
+                'property_id' => $easyMeta->propertyId('dcterms:title'),
+                '@value' => 'Private issued date test',
+            ]],
+        ]);
+        $item = $response->getContent();
+        $this->createdResources[] = ['type' => 'items', 'id' => $item->id()];
+
+        $this->assertNull($item->value('dcterms:available'), 'No issued date on a private resource');
+    }
+
+    /**
      * Test that handler preserves existing values when adding automatic ones.
      */
     public function testPreservesExistingValues(): void
