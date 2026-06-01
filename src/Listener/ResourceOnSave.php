@@ -108,18 +108,25 @@ class ResourceOnSave
         $isItem = in_array($type, ['o:Item', 'items'])
             || (is_array($type) && in_array('o:Item', $type));
 
+        // The "{o:id}" placeholder in automatic values is resolved with the
+        // real id on update; on creation the id does not exist yet, so a
+        // sentinel is used and resolved in api.create.post.
+        $idReplacement = $request->getOperation() === \Omeka\Api\Request::UPDATE && $request->getId()
+            ? (string) $request->getId()
+            : AutomaticValuesHandler::ID_SENTINEL;
+
         // Template level.
         if ($isItem) {
             $resource = $this->automaticValuesHandler->appendAutomaticItemSets($template, $resource);
         }
-        $resource = $this->automaticValuesHandler->appendAutomaticValuesFromTemplateData($template, $resource);
+        $resource = $this->automaticValuesHandler->appendAutomaticValuesFromTemplateData($template, $resource, $idReplacement);
 
         // Property level.
         foreach ($template->resourceTemplateProperties() as $templateProperty) {
             foreach ($templateProperty->data() as $rtpData) {
                 $resource = $this->automaticValuesHandler->explodeValueFromTemplatePropertyData($rtpData, $resource);
 
-                $automaticValues = $this->automaticValuesHandler->automaticValuesFromTemplatePropertyData($rtpData, $resource);
+                $automaticValues = $this->automaticValuesHandler->automaticValuesFromTemplatePropertyData($rtpData, $resource, $idReplacement);
                 foreach ($automaticValues as $automaticValue) {
                     $resource[$templateProperty->property()->term()][] = $automaticValue;
                 }
@@ -229,6 +236,41 @@ class ResourceOnSave
                 ], ['id' => $valueAnnotation->getId()]);
             }
         }
+    }
+
+    /**
+     * Resolve the "{o:id}" placeholder in automatic values after creation.
+     *
+     * On creation the id is unknown when the automatic values are generated, so
+     * a sentinel is stored instead. Now that the resource is saved and has an
+     * id, replace the sentinel with the real id directly in the database.
+     */
+    public function resolveAutomaticIdValues(Event $event): void
+    {
+        /** @var \Omeka\Api\Response $response */
+        $response = $event->getParam('response');
+        $resource = $response->getContent('resource');
+        $id = $resource->getId();
+        if (!$id) {
+            return;
+        }
+
+        $sentinel = AutomaticValuesHandler::ID_SENTINEL;
+        $this->entityManager->getConnection()->executeStatement(
+            <<<'SQL'
+                UPDATE `value`
+                SET `value` = REPLACE(`value`, :sentinel, :id),
+                    `uri` = REPLACE(`uri`, :sentinel, :id)
+                WHERE `resource_id` = :rid
+                    AND (`value` LIKE :like OR `uri` LIKE :like)
+                SQL,
+            [
+                'sentinel' => $sentinel,
+                'id' => (string) $id,
+                'rid' => $id,
+                'like' => '%' . $sentinel . '%',
+            ]
+        );
     }
 
     /**

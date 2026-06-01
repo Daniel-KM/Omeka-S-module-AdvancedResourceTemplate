@@ -16,6 +16,15 @@ use Omeka\Api\Manager as ApiManager;
 class AutomaticValuesHandler
 {
     /**
+     * Sentinel used to keep the resource id placeholder in an automatic value
+     * until the resource is saved and its id is known (creation only). It is
+     * replaced by the real id in api.create.post.
+     *
+     * @see \AdvancedResourceTemplate\Listener\ResourceOnSave::resolveAutomaticIdValues()
+     */
+    const ID_SENTINEL = '__ART_O_ID__';
+
+    /**
      * @var \Omeka\Api\Manager
      */
     protected $api;
@@ -93,11 +102,18 @@ class AutomaticValuesHandler
      *
      * This feature requires the module Mapper to be active.
      */
-    public function appendAutomaticValuesFromTemplateData(ResourceTemplateRepresentation $template, array $resource): array
+    public function appendAutomaticValuesFromTemplateData(ResourceTemplateRepresentation $template, array $resource, ?string $idReplacement = null): array
     {
         $automaticValues = trim((string) $template->dataValue('automatic_values'));
         if ($automaticValues === '') {
             return $resource;
+        }
+
+        // Only top-level resources resolve "{o:id}" (the caller passes a
+        // replacement). For value annotations the id is unavailable too, so the
+        // placeholder is left to its previous behaviour.
+        if ($idReplacement !== null) {
+            $automaticValues = $this->replaceIdPlaceholder($automaticValues, $idReplacement);
         }
 
         // Check if Mapper module is available for automatic values.
@@ -191,13 +207,19 @@ class AutomaticValuesHandler
     /**
      * Get automatic values from template property data.
      */
-    public function automaticValuesFromTemplatePropertyData(ResourceTemplatePropertyDataRepresentation $rtpData, array $resource): array
+    public function automaticValuesFromTemplatePropertyData(ResourceTemplatePropertyDataRepresentation $rtpData, array $resource, ?string $idReplacement = null): array
     {
         $automaticValue = trim((string) $rtpData->dataValue('automatic_value'));
         $automaticValuesIssued = trim((string) $rtpData->dataValue('automatic_value_issued'));
 
         if ($automaticValue === '' && $automaticValuesIssued === '') {
             return [];
+        }
+
+        // Only top-level resources resolve "{o:id}" (the caller passes a
+        // replacement); value annotations keep the previous behaviour.
+        if ($automaticValue !== '' && $idReplacement !== null) {
+            $automaticValue = $this->replaceIdPlaceholder($automaticValue, $idReplacement);
         }
 
         $values = [];
@@ -563,6 +585,17 @@ class AutomaticValuesHandler
         return ['property_id' => $propertyId]
             + $automaticValueArray
             + ['is_public' => $isPublic];
+    }
+
+    /**
+     * Replace the resource id placeholder "{o:id}" in an automatic value.
+     *
+     * On update the real id is passed; on creation a sentinel is passed and
+     * resolved to the real id after the resource is saved.
+     */
+    protected function replaceIdPlaceholder(string $config, string $replacement): string
+    {
+        return preg_replace('/\{\s*o:id\s*\}/', $replacement, $config);
     }
 
     /**

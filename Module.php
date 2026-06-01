@@ -296,6 +296,23 @@ class Module extends AbstractModule
             [$this, 'storeVaTemplates']
         );
 
+        // Resolve the "{o:id}" placeholder in automatic values once the
+        // resource is created and its id is known (creation only; on update the
+        // id is resolved inline before save).
+        foreach ([
+            \Omeka\Api\Adapter\ItemAdapter::class,
+            \Omeka\Api\Adapter\MediaAdapter::class,
+            \Omeka\Api\Adapter\ItemSetAdapter::class,
+            \Annotate\Api\Adapter\AnnotationAdapter::class,
+            \DigitalObject\Api\Adapter\DigitalObjectAdapter::class,
+        ] as $adapterClass) {
+            $sharedEventManager->attach(
+                $adapterClass,
+                'api.create.post',
+                [$this, 'resolveAutomaticIdValues']
+            );
+        }
+
         // Display values according to options of the resource template.
         // For compatibility with other modules (HideProperties, Internationalisation)
         // that use the term as key in the list of displayed values, the event
@@ -595,6 +612,12 @@ class Module extends AbstractModule
     {
         $resourceOnSave = $this->getServiceLocator()->get(Listener\ResourceOnSave::class);
         $resourceOnSave->storeVaTemplates($event);
+    }
+
+    public function resolveAutomaticIdValues(Event $event): void
+    {
+        $resourceOnSave = $this->getServiceLocator()->get(Listener\ResourceOnSave::class);
+        $resourceOnSave->resolveAutomaticIdValues($event);
     }
 
     /**
