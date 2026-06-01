@@ -59,22 +59,22 @@ if ($this->isModuleActive('DynamicItemSets')
 }
 
 if ($this->isModuleActive('Mapper')
-    && !$this->isModuleVersionAtLeast('Mapper', '3.4.5')
+    && !$this->isModuleVersionAtLeast('Mapper', '3.4.8')
 ) {
     $message = new \Omeka\Stdlib\Message(
         $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-        'Mapper', '3.4.5'
+        'Mapper', '3.4.8'
     );
     $messenger->addError($message);
     $hasError = true;
 }
 
 if ($this->isModuleActive('AdvancedSearch')
-    && !$this->isModuleVersionAtLeast('AdvancedSearch', '3.4.53')
+    && !$this->isModuleVersionAtLeast('AdvancedSearch', '3.4.62')
 ) {
     $message = new \Common\Stdlib\PsrMessage(
         $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
-        ['module' => 'Advanced Search', 'version' => '3.4.53']
+        ['module' => 'Advanced Search', 'version' => '3.4.62']
     );
     $messenger->addWarning($message);
 }
@@ -1071,4 +1071,11 @@ if (version_compare((string) $oldVersion, '3.4.50', '<')) {
             $messenger->addSuccess($message);
         }
     }
+}
+
+if (version_compare((string) $oldVersion, '3.4.54', '<')) {
+    $message = new PsrMessage(
+        'For accessibility, the heading level of metadata groups in the resource view changed from h4 to h3. Check your theme if needed.' // @translate
+    );
+    $messenger->addWarning($message);
 }
