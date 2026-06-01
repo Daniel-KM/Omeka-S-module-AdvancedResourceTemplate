@@ -32,7 +32,21 @@ $this->headScript()
     <button type="submit" class="button"><?php echo $escape($submitLabel); ?></button>
 </div>
 
+<?php
+$templateSettings = $form->get('o:data');
+$hasSettings = (bool) count($templateSettings->getElements());
+if ($hasSettings):
+    echo $this->sectionNav([
+        'template-properties' => $translate('Properties'),
+        'template-settings' => $translate('Template settings'),
+    ]);
+endif;
+?>
+
 <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
+
+<fieldset id="template-properties" class="section active" aria-labelledby="template-properties-label">
+<legend><?= $translate('Properties') ?></legend>
 
 <?php foreach ($form->getElements() as $element): ?>
 <?php echo $this->formRow($element); ?>
@@ -49,8 +63,14 @@ $this->headScript()
     <?php endforeach; ?>
 </ul>
 
-<?php $templateSettings = $form->get('o:data'); ?>
-<?php echo $this->formCollection($templateSettings, (bool) count($templateSettings->getElements())); // Don't display advanced settings label if empty. ?>
+</fieldset>
+
+<?php if ($hasSettings): ?>
+<fieldset id="template-settings" class="section" aria-labelledby="template-settings-label">
+<legend><?= $translate('Template settings') ?></legend>
+<?php echo $this->formCollection($templateSettings, false); ?>
+</fieldset>
+<?php endif; ?>
 
 <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
 
