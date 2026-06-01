@@ -116,6 +116,10 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 'type' => Element\Radio::class,
                 'options' => [
                     'label' => 'Automatic date when resource is made public', // @translate
+                    // Fix the formatting issue of the radio label.
+                    'label_attributes' => [
+                        'class' => 'radio',
+                    ],
                     'value_options' => [
                         '' => 'No', // @translate
                         'first' => 'First time issued', // @translate

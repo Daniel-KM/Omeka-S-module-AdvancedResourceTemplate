@@ -641,7 +641,7 @@ if (version_compare((string) $oldVersion, '3.4.26', '<')) {
     $message = new PsrMessage(
         'A job is added in tasks of the module {link}Easy Admin{link_end} to fill the annotation templates and classes when needed.', // @translate
         [
-            'link' => sprintf('<a href="%s">', $hasEasyAdmin ? $url->fromRoute('admin/default', ['controller' => 'easy-admin', 'action' => 'check-and-fix'], ['fragment' => 'resource_values']) : 'https://omeka.org/s/modules/EasyAdmin'),
+            'link' => sprintf('<a href="%s">', htmlspecialchars($hasEasyAdmin ? $url->fromRoute('admin/default', ['controller' => 'easy-admin', 'action' => 'check-and-fix'], ['fragment' => 'resource_values']) : 'https://omeka.org/s/modules/EasyAdmin')),
             'link_end' => '</a>',
         ]
     );

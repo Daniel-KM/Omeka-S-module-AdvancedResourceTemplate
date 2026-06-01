@@ -40,6 +40,7 @@ class SiteSettingsFieldset extends Fieldset
                     'id' => 'advancedresourcetemplate_properties_display_site',
                 ],
             ])
+
             ->addElementsPropertyDisplay()
 
             ->add([
@@ -76,18 +77,18 @@ class SiteSettingsFieldset extends Fieldset
                     'placeholder' => <<<'TXT'
                         # values-type
                         dcterms:type
-                        
+
                         # values-creator
                         dcterms:creator
-                        
+
                         # values-date
                         dcterms:date
                         dcterms:created
                         dcterms:issued
-                        
+
                         # values-subject
                         dcterms:subject
-                        
+
                         # values-rights = Terms of use
                         dcterms:rights
                         dcterms:license

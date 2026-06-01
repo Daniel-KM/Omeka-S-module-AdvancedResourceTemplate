@@ -566,7 +566,7 @@
                     fillVaTemplate(vaContainer, valueAnnotations, data);
                 })
                 .fail(function() {
-                    console.log('Failed loading resource template from API.');
+                    console.error('Failed loading resource template from API.');
                     fillValueAnnotations(vaContainer, valueAnnotations);
                 })
         }
@@ -1167,7 +1167,7 @@
                     prepareFieldsAfter();
                 })
                 .fail(function() {
-                    console.log('Failed loading resource template from API');
+                    console.error('Failed loading resource template from API');
                 })
                 .always(finalize);
         } else {

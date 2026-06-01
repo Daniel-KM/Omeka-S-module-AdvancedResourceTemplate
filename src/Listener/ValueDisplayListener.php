@@ -37,9 +37,9 @@ class ValueDisplayListener
     protected $viewHelpers;
 
     /**
-     * Used for lazy-loading of site settings when the factory is called
-     * during bootstrap, before routing is complete. Required for modules
-     * like CleanUrl that forward routes after the initial route match.
+     * Used for lazy-loading of site settings when the factory is called during
+     * bootstrap, before routing is complete. Required for modules like CleanUrl
+     * that forward routes after the initial route match.
      *
      * @var \Psr\Container\ContainerInterface
      */
@@ -96,7 +96,7 @@ class ValueDisplayListener
             return;
         }
 
-        // When the value is attached to a value annotation, there may be no resource.
+        // When value is attached to value annotation, there may be no resource.
         try {
             $resource = $value->resource();
             $controllerName = $resource ? $resource->getControllerName() : null;
@@ -209,7 +209,7 @@ class ValueDisplayListener
             return;
         }
 
-        // When the value is attached to a value annotation, there may be no resource.
+        // When value is attached to value annotation, there may be no resource.
         try {
             $resource = $value->resource();
             $controllerName = $resource ? $resource->getControllerName() : null;
@@ -288,7 +288,7 @@ class ValueDisplayListener
         if ($isSite) {
             // Lazy-load site settings: the factory may have been created before
             // routing (e.g., during bootstrap), when isSiteRequest() was false.
-            // After route forwarding (e.g., CleanUrl), site context is available.
+            // After route forwarding (as CleanUrl), site context is available.
             if (!$this->siteSettings && $this->services) {
                 try {
                     $this->siteSettings = $this->services->get('Omeka\Settings\Site');
@@ -331,7 +331,7 @@ class ValueDisplayListener
             return false;
         }
 
-        // White list should contain at least one value ("all" or specific properties).
+        // White list contains at least one value, all or specific properties.
         $whitelist = $sSettings->get('advancedresourcetemplate_properties_as_search_whitelist', []);
         if (!$whitelist) {
             $this->disabled[$mode] = true;

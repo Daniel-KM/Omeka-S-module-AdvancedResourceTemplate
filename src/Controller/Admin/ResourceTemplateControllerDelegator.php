@@ -19,7 +19,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         $this->browse()->setDefaults('resource_templates');
         $query = $this->params()->fromQuery();
 
-        // Check if the query is empty to avoid to return all templates by default.
+        // Check if query is empty to avoid to return all templates by default.
         $qQuery = $query;
         unset(
             $qQuery['submit'],
@@ -61,7 +61,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
 
         // TODO Check why resourceTemplateSelect is not constructed.
         // Avoid an issue with bad init of select.
-        $services = $this->api()->read('vocabularies', ['id' => 1])->getContent()->getServiceLocator();
+        $services = $this->getEvent()->getApplication()->getServiceManager();
         $apiManager = $services->get('Omeka\ApiManager');
         $form->get('id')->setApiManager($apiManager);
 
@@ -1760,8 +1760,8 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                 'job_id' => $job->getId(),
                 'link_end' => '</a>',
                 'link_log' => class_exists('Log\Module', false)
-                    ? sprintf('<a href="%1$s">', $urlPlugin->fromRoute('admin/default', ['controller' => 'log'], ['query' => ['job_id' => $job->getId()]]))
-                    : sprintf('<a href="%1$s" target="_blank">', $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()])),
+                    ? sprintf('<a href="%1$s">', htmlspecialchars($urlPlugin->fromRoute('admin/default', ['controller' => 'log'], ['query' => ['job_id' => $job->getId()]])))
+                    : sprintf('<a href="%1$s" target="_blank" rel="noopener noreferrer">', htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()]))),
             ]
         );
         $message->setEscapeHtml(false);

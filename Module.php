@@ -84,7 +84,7 @@ class Module extends AbstractModule
         // Mapper is optional but recommended for autofiller features.
         if (!$this->isModuleActive('Mapper')) {
             $message = new \Common\Stdlib\PsrMessage(
-                $translator->translate('The module {link}Mapper{link_end} is recommended for autofiller features (IdRef, Geonames, etc.).'), // @translate
+                $translator->translate('The module {link}Mapper{link_end} is recommended for autofiller features (IdRef, Geonames, etc.) and for automatic values.'), // @translate
                 [
                     'link' => '<a href="https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper" target="_blank" rel="noopener">',
                     'link_end' => '</a>',

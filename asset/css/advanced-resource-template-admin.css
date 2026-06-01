@@ -120,6 +120,21 @@
         padding-left: calc(30% + 1em);
     }
 
+    /* Copy of .advanced-search, but adapted for .quick-search */
+    .browse .browse-controls .quick-search::before {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        display: inline-block;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal;
+        line-height: 1;
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        content: "\f002" / "";
+        padding: .25em;
+    }
+
     /* Fix item stub sidebar: input-body must fill parent width
        since input-footer is positioned absolutely. */
     #sidebar-section-item-stub .value-annotation .input-body {
