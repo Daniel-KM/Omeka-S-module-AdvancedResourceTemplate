@@ -378,7 +378,18 @@ $('#resource-template-form').on('submit', function () {
             }
         }
     }
-    $('#resource-template-form').prepend($('<input>', {
+    // Disable all named inputs so only `_post` (and the csrf token) are
+    // submitted. Without this, php still receives every original field and hits
+    // max_input_vars, which silently truncates POST and corrupts session config
+    // downstream.
+    const form = document.getElementById('resource-template-form');
+    form.querySelectorAll('[name]').forEach(function (el) {
+        if (el.name === 'csrf' || el.name === '_post') {
+            return;
+        }
+        el.disabled = true;
+    });
+    $(form).prepend($('<input>', {
         type: 'hidden',
         name: '_post',
         value: JSON.stringify(post),
