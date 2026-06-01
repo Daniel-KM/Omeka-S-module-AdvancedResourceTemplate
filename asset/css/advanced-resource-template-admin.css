@@ -2,6 +2,11 @@
 
     /* Resource form */
 
+    .section-nav {
+        height: initial;
+        min-height: 42px;
+    }
+
     form.resource-form.closed-property-list.on-load #property-selector {
         display: none;
     }
@@ -320,7 +325,6 @@
             display: block;
         }
     }
-}
 
     /* Resource totals in browse actions */
 
@@ -449,6 +453,7 @@
         opacity: .5;
         cursor: default;
     }
+}
 
 @media screen and (max-width: 640px) {
     body.modal.sidebar-open #content {
