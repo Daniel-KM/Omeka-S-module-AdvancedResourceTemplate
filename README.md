@@ -11,8 +11,8 @@ Voir le [Lisez-moi] en français.
 the resource templates in order to simplify and to improve the edition of
 resources. If you do not see images, go to the [original repository]:
 
-- Specify templates to be used for each resource (items, media, item sets) and
-  value annotations:
+- Specify templates to be used for each resource (items, media, item sets,
+  [digital objects]) and value annotations:
 
   ![Specify if a template can be use for a resource](data/images/template_by_resource_and_value_annotation.png)
 
@@ -172,6 +172,9 @@ resources. If you do not see images, go to the [original repository]:
   appending the property label after a `/`, for example : `dcterms:subject/Sujets Rameau`
   and `dcterms:subject/Sujets libres`.
 
+  Since version 3.4.54, the group labels are displayed as `h3` headings in the
+  page resource/show (previously `h4`); theme css may need to be adapted.
+
   ![Example of display of grouped properties](data/images/groups_properties.png)
 
 - Display of links on values of properties
@@ -182,6 +185,15 @@ resources. If you do not see images, go to the [original repository]:
   that is useful in particular to bounce on the subjects. The links to the
   linked resource or to the external uri can be added too. The properties can be
   selected via a whitelist and a blacklist.
+
+- Define resource and media cards:
+
+  Each template property can be flagged to appear in a compact card (resource or
+  media card) used by themes. A card role can be set (heading, body, meta or
+  footer), as well as the display of the first value only, a separator between
+  values and a maximum number of values. The settings are stored on the template
+  property and read by the theme to build the card, so no value is duplicated in
+  the resource. See below for more details.
 
 - Language selection and default by template and by property, or no language:
 
@@ -292,6 +304,18 @@ resources. If you do not see images, go to the [original repository]:
   dcterms:license
 ```
 
+- Tabbed resource template edit form:
+
+  The edit form of the resource template is split into two navigable sections,
+  "Properties" and "Template settings".
+
+- Support of resource forms with many fields:
+
+  Resources with hundreds of properties and values may exceed the server limit
+  `max_input_vars` (1000 by default) and lose data silently on save. The module
+  serializes the form as a single json input, so the resource is saved entirely
+  whatever the number of fields and the server configuration.
+
 
 Installation
 ------------
@@ -389,6 +413,29 @@ Some basic placeholders can be used with json dot notation and basic twig-like
 commands. The format is the same than the auto-filling (see below). A future
 release will integrate the improvements made for the module [Bulk Import].
 
+Two placeholder syntaxes are available:
+
+- single brace `{path}`: a value extracted from the resource itself, with the
+  json dot notation, for example `{dcterms:title.0.@value}` for the first title;
+- double brace `{{ value }}`: the twig-like variables and filters.
+
+Examples of strings for the property level field:
+
+| String                                                      | Result                                   |
+|-------------------------------------------------------------|------------------------------------------|
+| `Document`                                                  | the literal `Document`                   |
+| `https://example.org/entity/{o:id}`                         | the resource id, resolved after creation |
+| `archive-{o:created}`                                       | the creation date (ISO 8601 datetime)    |
+| `updated-{o:modified}`                                      | the last modification date (ISO 8601)    |
+| `{dcterms:title.0.@value}`                                  | a copy of the first title                |
+| `item-{dcterms:title.0.@value}`                             | the title prefixed with `item-`          |
+| `{dcterms:creator.0.@value} [{dcterms:identifier.0.@value}]`| creator and identifier combined          |
+| `1 ^^resource:item`                                         | a link to the item #1 (inline format)    |
+| `{"type":"resource:item","value_resource_id":1}`            | a link to the item #1 (json format)      |
+
+The placeholders `{o:id}`, `{o:created}` and `{o:modified}` are available
+natively. Patterns reading other metadata require the module [Mapper].
+
 #### Template level
 
 Unlike property level, multiple values can be set, one by line.
@@ -403,6 +450,21 @@ saving an item:
 ~ = o:resource_template = 1
 ~ = dcterms:identifier ^^literal {o:item.dcterms:creator.0.@value}_{o:item.o:template.o:label}_{{ index() }}
 ```
+
+### Cards
+
+To build a compact card for a resource or a media, flag the wanted template
+properties with the option "Display in resource card" and set their options:
+
+- Card role: the place of the value in the card (`heading`, `body`, `meta` or
+  `footer`); the default is `body`.
+- Card: first value only: keep only the first value of the property.
+- Card: value separator: the string used to join the values (default `, `).
+- Card: max values: the maximum number of values to display (`0` for no limit).
+
+These settings are only stored on the template property: the theme reads them to
+render the card. So the rendering itself (markup, order of the roles, css) is
+managed by the theme, not by the module.
 
 ### Autofilling
 
@@ -611,10 +673,11 @@ Copyright
 
 * Copyright Daniel Berthereau, 2020-2026 (see [Daniel-KM] on GitLab)
 
-These features were built for the future digital library [Manioc] of the
-Université des Antilles and Université de la Guyane, currently managed with
-[Greenstone]. Some other ones were built for the future digital library [Le Menestrel]
-and for the institutional repository of student works [Dante] of the [Université de Toulouse Jean-Jaurès].
+These features were designed for the digital library [Manioc] of the
+Université des Antilles and Université de la Guyane, previously managed with
+[Greenstone]. Some other ones were built for the institutional repository of
+student works [Dante] of the [Université de Toulouse Jean-Jaurès] and for the
+digital library of the [Musée de Bretagne].
 
 
 [Advanced Resource Template]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate
@@ -635,6 +698,8 @@ and for the institutional repository of student works [Dante] of the [Universit�
 [Bulk Export]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkExport
 [Bulk Import]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkImport
 [Bulk Import Files]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkImportFiles
+[Mapper]: https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper
+[digital objects]: https://gitlab.com/Daniel-KM/Omeka-S-module-DigitalObject
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [bio]: https://vocab.org/bio
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/issues
@@ -645,8 +710,8 @@ and for the institutional repository of student works [Dante] of the [Universit�
 [MIT]: http://opensource.org/licenses/MIT
 [Manioc]: http://www.manioc.org
 [Greenstone]: http://www.greenstone.org
-[Le Menestrel]: http://www.menestrel.fr
 [Dante]: https://dante.univ-tlse2.fr
 [Université de Toulouse Jean-Jaurès]: https://www.univ-tlse2.fr
+[Musée de Bretagne]: https://www.collections.musee-bretagne.fr
 [GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"

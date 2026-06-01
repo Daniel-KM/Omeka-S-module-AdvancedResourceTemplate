@@ -11,8 +11,8 @@ See [English readme].
 nouvelles options aux modèles de ressources afin de faciliter et d’améliorer
 l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt original] :
 
-- Indiquer les modèles à utiliser pour chaque ressource (contenus, media,
-  collections) et annotation de valeur :
+- Indiquer les modèles à utiliser pour chaque ressource (contenus, medias,
+  collections, objets numériques avec le module [Digital Object]) et annotations de valeur :
 
   ![Indiquer si un modèle peut être utiliser pour une ressource](data/images/template_by_resource_and_value_annotation.png)
 
@@ -184,6 +184,10 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
   propriété dans le modèle après un ^`/`, par exemple : `dcterms:subject/Sujets Rameau`
   et `dcterms:subject/Sujets libres`.
 
+  Depuis la version 3.4.54, les libellés de groupe sont affichés comme des
+  titres `h3` dans la page d’affichage de la ressource (auparavant `h4`) ; le css
+  du thème peut nécessiter une adaptation.
+
   ![Exemple d’affichage de groupes de propriétés](data/images/groups_properties.png)
 
 - Affichage des liens sur les valeurs de propriétés
@@ -194,6 +198,16 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
   recherche, ce qui est utile notamment pour rebondir sur les sujets. Les liens
   vers la ressource liée ou vers l’uri externe peuvent également être ajoutés.
   Les propriétés peuvent être choisies par liste blanche et par liste noire.
+
+- Définir des cartes de ressource et de média :
+
+  Chaque propriété du modèle peut être marquée pour apparaître dans une carte
+  compacte (carte de ressource ou de média) utilisée par les thèmes. Un rôle de
+  carte peut être défini (titre, corps, méta ou pied), ainsi que l’affichage de
+  la première valeur seulement, un séparateur entre les valeurs et un nombre
+  maximal de valeurs. Les paramètres sont enregistrés sur la propriété du modèle
+  et lus par le thème pour construire la carte, donc aucune valeur n’est
+  dupliquée dans la ressource. Voir ci-dessous pour davantage d’informations.
 
 - Sélection de la langue et langue par défaut par modèle et par propriété, ou
   aucune langue :
@@ -315,6 +329,19 @@ l’édition des ressources. Si vous ne voyez pas les images, allez au [dépôt 
   dcterms:license
 ```
 
+- Formulaire d’édition du modèle de ressource à onglets :
+
+  Le formulaire d’édition du modèle de ressource est scindé en deux sections
+  navigables, « Propriétés » et « Paramètres du modèle ».
+
+- Prise en charge des formulaires de ressource à nombreux champs :
+
+  Les ressources comportant des centaines de propriétés et de valeurs peuvent
+  dépasser la limite serveur `max_input_vars` (1000 par défaut) et perdre des
+  données silencieusement lors de l’enregistrement. Le module sérialise le
+  formulaire en un unique champ json, de sorte que la ressource est enregistrée
+  entièrement quel que soit le nombre de champs et la configuration du serveur.
+
 
 Installation
 ------------
@@ -417,6 +444,31 @@ quelques commandes basiques de type "twig". Le format est le même que pour
 l’auto-remplissage (voir ci-dessous). Une version future intégrera les
 améliorations réalisées pour le module [Bulk Import].
 
+Deux syntaxes de jokers sont disponibles :
+
+- accolade simple `{chemin}` : une valeur extraite de la ressource elle-même,
+  avec la notation « json point », par exemple `{dcterms:title.0.@value}` pour le
+  premier titre ;
+- accolade double `{{ value }}` : les variables et filtres de type twig.
+
+Exemples de chaînes pour le champ au niveau d’une propriété :
+
+| Chaîne                                                      | Résultat                                     |
+|-------------------------------------------------------------|----------------------------------------------|
+| `Document`                                                  | le texte littéral `Document`                 |
+| `https://example.org/entity/{o:id}`                         | l’id de la ressource, résolu après création  |
+| `archive-{o:created}`                                       | la date de création (date-heure ISO 8601)    |
+| `updated-{o:modified}`                                      | la date de dernière modification (ISO 8601)  |
+| `{dcterms:title.0.@value}`                                  | une copie du premier titre                   |
+| `item-{dcterms:title.0.@value}`                             | le titre préfixé par `item-`                 |
+| `{dcterms:creator.0.@value} [{dcterms:identifier.0.@value}]`| créateur et identifiant combinés             |
+| `1 ^^resource:item`                                         | un lien vers le contenu #1 (format en ligne) |
+| `{"type":"resource:item","value_resource_id":1}`            | un lien vers le contenu #1 (format json)     |
+
+Les jokers `{o:id}`, `{o:created}` et `{o:modified}` sont disponibles
+nativement. Les motifs lisant d’autres métadonnées nécessitent le module
+[Mapper].
+
 #### Au niveau du modèle
 
 Contrairement au niveau des propriétés, plusieurs valeurs peuvent être ajoutées,
@@ -432,6 +484,25 @@ lors de l’enregistrement d’un contenu :
 ~ = o:resource_template = 1
 ~ = dcterms:identifier ^^literal {o:item.dcterms:creator.0.@value}_{o:item.o:template.o:label}_{{ index() }}
 ```
+
+### Cartes
+
+Pour construire une carte compacte d’une ressource ou d’un média, marquez les
+propriétés du modèle souhaitées avec l’option « Afficher dans la carte de la
+ressource » et définissez leurs options :
+
+- Rôle de carte : la place de la valeur dans la carte (`titre`, `corps`, `méta`
+  ou `pied`) ; la valeur par défaut est `corps`.
+- Carte : première valeur seulement : ne conserve que la première valeur de la
+  propriété.
+- Carte : séparateur de valeurs : la chaîne utilisée pour joindre les valeurs
+  (par défaut `, `).
+- Carte : nombre maximal de valeurs : le nombre maximal de valeurs à afficher
+  (`0` pour aucune limite).
+
+Ces paramètres sont seulement enregistrés sur la propriété du modèle : c’est le
+thème qui les lit pour produire la carte. Le rendu lui-même (balisage, ordre des
+rôles, css) est donc géré par le thème, pas par le module.
 
 ### Remplissage automatique
 
@@ -648,11 +719,11 @@ Copyright
 * Copyright Daniel Berthereau, 2020-2026 (voir [Daniel-KM] sur GitLab)
 * Library [jQuery-Autocomplete] : Copyright 2012 DevBridge et autres contributeurs
 
-Ces fonctionnalités sont destinées à la future bibliothèque numérique [Manioc]
-de l’Université des Antilles et de l’Université de la Guyane, actuellement gérée
-avec [Greenstone]. D’autres fonctionnalités ont été conçues pour la future
-bibliothèque numérique [Le Menestrel] ainsi que pour l’entrepôt institutionnel
-des travaux étudiants [Dante] de l’[Université de Toulouse Jean-Jaurès].
+Ces fonctionnalités ont été conçues pour la bibliothèque numérique [Manioc] de
+l’Université des Antilles et de l’Université de la Guyane, préalablement gérée
+avec [Greenstone]. D’autres fonctionnalités ont été conçues pour l’entrepôt
+institutionnel des travaux étudiants [Dante] de l’[Université de Toulouse Jean-Jaurès]
+et pour la la bibliothèque numérique du [Musée de Bretagne].
 
 
 [Advanced Resource Template]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate
@@ -673,6 +744,8 @@ des travaux étudiants [Dante] de l’[Université de Toulouse Jean-Jaurès].
 [Export en lot]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkExport
 [Import en lot]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkImport
 [Import de fichiers en lot]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkImportFiles
+[Digital Object]: https://gitlab.com/Daniel-KM/Omeka-S-module-DigitalObject
+[Mapper]: https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [bio]: https://vocab.org/bio
 [questions du module]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/issues
@@ -684,8 +757,8 @@ des travaux étudiants [Dante] de l’[Université de Toulouse Jean-Jaurès].
 [jQuery-Autocomplete]: https://www.devbridge.com/sourcery/components/jquery-autocomplete/
 [Manioc]: http://www.manioc.org
 [Greenstone]: http://www.greenstone.org
-[Le Menestrel]: http://www.menestrel.fr
 [Dante]: https://dante.univ-tlse2.fr
 [Université de Toulouse Jean-Jaurès]: https://www.univ-tlse2.fr
+[Musée de Bretagne]: https://www.collections.musee-bretagne.fr
 [GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"
