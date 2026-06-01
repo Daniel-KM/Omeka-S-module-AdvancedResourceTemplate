@@ -632,7 +632,9 @@
 
             // @see custom-vocab.js
             if (dataType.startsWith('customvocab:')) {
-                const selectTerms = value.find('select.terms');
+                // Custom vocabs backed by item sets / resources use a select
+                // without the "terms" class, so match any select in the value.
+                const selectTerms = value.find('select');
                 selectTerms.find('option[value="' + valueObj['@value'] + '"]').prop('selected', true);
                 selectTerms.chosen({ width: '100%', });
                 selectTerms.trigger('chosen:updated');
