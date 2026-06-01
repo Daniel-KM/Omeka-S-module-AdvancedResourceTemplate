@@ -85,6 +85,12 @@ $minValues = $propertyFieldset->has('min_values') ? $propertyFieldset->get('min_
         <?php if ((int) $minValues > 1): ?>
         <span class="property-badge min-values"><?= sprintf($translate('Min: %d'), (int) $minValues) ?></span>
         <?php endif; ?>
+        <?php
+        $cardDisplay = $propertyFieldset->has('card_display') ? $propertyFieldset->get('card_display')->getValue() : '';
+        $cardRole = $propertyFieldset->has('card_role') ? $propertyFieldset->get('card_role')->getValue() : 'body';
+        if ($cardDisplay === 'yes'): ?>
+        <span class="property-badge card"><?= $escape(sprintf($translate('Card: %s'), $translate(ucfirst($cardRole)))) ?></span>
+        <?php endif; ?>
     </span>
 
     <ul class="actions">

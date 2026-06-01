@@ -154,6 +154,11 @@ return [
         'Required', // @translate
         'Default', // @translate
         'Auto', // @translate
+        'Card', // @translate
+        'Body', // @translate
+        'Heading', // @translate
+        'Meta', // @translate
+        'Footer', // @translate
     ],
     'advancedresourcetemplate' => [
         'settings' => [

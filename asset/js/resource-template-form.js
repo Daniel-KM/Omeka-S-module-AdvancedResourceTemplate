@@ -446,6 +446,14 @@ function updateExtendedInfo(prop) {
     if (minValues > 1) {
         html += ' <span class="property-badge min-values">Min: ' + minValues + '</span>';
     }
+    var cardDisplay = prop.find('[data-setting-key="card_display"]').val();
+    if (!cardDisplay) {
+        cardDisplay = prop.find('[data-setting-key="card_display"]:checked').val();
+    }
+    if (cardDisplay === 'yes') {
+        var cardRole = prop.find('[data-setting-key="card_role"]').val() || 'body';
+        html += ' <span class="property-badge card">' + Omeka.jsTranslate('Card') + ': ' + cardRole + '</span>';
+    }
     ext.html(html);
 }
 

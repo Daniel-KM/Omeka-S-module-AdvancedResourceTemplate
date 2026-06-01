@@ -397,6 +397,10 @@
         background-color: #f5f5f5;
         color: #555;
     }
+    .property-badge.card {
+        background-color: #edf7ed;
+        color: #2e7d32;
+    }
 
     /* Template settings in Details sidebar */
 

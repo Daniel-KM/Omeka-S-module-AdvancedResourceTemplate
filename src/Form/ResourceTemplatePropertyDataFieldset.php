@@ -404,6 +404,75 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
             ])
 
             ->add([
+                'name' => 'card_display',
+                'type' => CommonElement\OptionalCheckbox::class,
+                'options' => [
+                    'label' => 'Display in resource card', // @translate
+                    'checked_value' => 'yes',
+                ],
+                'attributes' => [
+                    'class' => 'setting',
+                    'data-setting-key' => 'card_display',
+                ],
+            ])
+            ->add([
+                'name' => 'card_role',
+                'type' => CommonElement\OptionalSelect::class,
+                'options' => [
+                    'label' => 'Card role', // @translate
+                    'value_options' => [
+                        '' => '',
+                        'body' => 'Body', // @translate
+                        'heading' => 'Heading', // @translate
+                        'meta' => 'Meta', // @translate
+                        'footer' => 'Footer', // @translate
+                    ],
+                ],
+                'attributes' => [
+                    'class' => 'setting',
+                    'data-setting-key' => 'card_role',
+                    'value' => '',
+                ],
+            ])
+            ->add([
+                'name' => 'card_first_only',
+                'type' => CommonElement\OptionalCheckbox::class,
+                'options' => [
+                    'label' => 'Card: first value only', // @translate
+                    'checked_value' => 'yes',
+                ],
+                'attributes' => [
+                    'class' => 'setting',
+                    'data-setting-key' => 'card_first_only',
+                ],
+            ])
+            ->add([
+                'name' => 'card_separator',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Card: value separator', // @translate
+                ],
+                'attributes' => [
+                    'class' => 'setting',
+                    'data-setting-key' => 'card_separator',
+                    'placeholder' => ', ',
+                ],
+            ])
+            ->add([
+                'name' => 'card_max',
+                'type' => Element\Number::class,
+                'options' => [
+                    'label' => 'Card: max values', // @translate
+                ],
+                'attributes' => [
+                    'class' => 'setting',
+                    'data-setting-key' => 'card_max',
+                    'min' => '0',
+                    'step' => '1',
+                ],
+            ])
+
+            ->add([
                 'name' => 'settings',
                 'type' => Element\Textarea::class,
                 'options' => [
