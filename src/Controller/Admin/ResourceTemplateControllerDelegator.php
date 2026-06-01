@@ -1143,12 +1143,12 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                 // Recursive conversion into a json array.
                 // TODO Don't use json_decode(json_encode()).
                 $data = json_decode(json_encode($resourceTemplate), true);
-                $data = $this->fixDataArray($data);
+                $data = $this->fixDataArray($data, $form);
                 $form->setData($data);
             }
         } elseif (!$isPost) {
             $data = $this->getDefaultResourceTemplate();
-            $data = $this->fixDataArray($data);
+            $data = $this->fixDataArray($data, $form);
             $form->setData($data);
         }
 
@@ -1256,7 +1256,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
      * @param array $data
      * @return array
      */
-    protected function fixDataArray(array $data): array
+    protected function fixDataArray(array $data, ?\Laminas\Form\Form $form = null): array
     {
         $data['o:resource_class'] = empty($data['o:resource_class']) ? null : $data['o:resource_class']['o:id'];
         $data['o:title_property'] = empty($data['o:title_property']) ? null : $data['o:title_property']['o:id'];
@@ -1279,6 +1279,29 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             $data['o:resource_class'] = empty($data['o:resource_class']) ? [] : [$data['o:resource_class']];
         } else {
             $data['o:resource_class'] = $data['o:data']['suggested_resource_class_ids'];
+        }
+
+        // Cast null values in o:data to empty string for scalar elements
+        // (radio, text, etc.) so their default option '' gets selected.
+        // Keep null for array elements (multi-select, multi-checkbox) to avoid
+        // InArray validation issues.
+        if ($form && !empty($data['o:data'])) {
+            $oData = $form->has('o:data')
+                ? $form->get('o:data') : null;
+            if ($oData) {
+                foreach ($data['o:data'] as $key => $value) {
+                    if ($value !== null) {
+                        continue;
+                    }
+                    $element = $oData->has($key)
+                        ? $oData->get($key) : null;
+                    if ($element
+                        && !$element->getAttribute('multiple')
+                    ) {
+                        $data['o:data'][$key] = '';
+                    }
+                }
+            }
         }
 
         return $this->explodePropertyTemplateData($data);
