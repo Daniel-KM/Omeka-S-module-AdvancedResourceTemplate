@@ -506,6 +506,18 @@
             // only receives `_post` and `csrf`.
             if (!errors.length) {
                 const formEl = thisForm[0];
+                // CKEditor copies its content into the textarea through its own
+                // submit handler, that may run after this one, so the textarea
+                // is serialized empty and the content is lost, in particular
+                // for the html media. So force the update before serializing.
+                if (window.CKEDITOR && CKEDITOR.instances) {
+                    Object.keys(CKEDITOR.instances).forEach(function (name) {
+                        const instance = CKEDITOR.instances[name];
+                        if (instance && instance.element && formEl.contains(instance.element.$)) {
+                            instance.updateElement();
+                        }
+                    });
+                }
                 const formData = new FormData(formEl);
                 const post = {};
                 const setPath = function (obj, keys, value) {
