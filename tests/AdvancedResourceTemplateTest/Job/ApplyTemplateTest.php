@@ -46,6 +46,8 @@ class ApplyTemplateTest extends AbstractHttpControllerTestCase
             $auth->getStorage()->write($user);
         }
 
+        $this->lastTemplateId = $templateId;
+
         $dispatcher = $services->get('Omeka\Job\Dispatcher');
         $args = array_merge([
             'template_id' => $templateId,
@@ -65,6 +67,45 @@ class ApplyTemplateTest extends AbstractHttpControllerTestCase
             $job->getStatus(),
             'ApplyTemplate job should not error'
         );
+    }
+
+    /**
+     * @var int Id of the last template used to dispatch the job.
+     */
+    protected $lastTemplateId;
+
+    /**
+     * Run a job and return the messages logged, with the context interpolated.
+     */
+    protected function captureJobMessages(callable $fn): array
+    {
+        $logger = $this->getServiceLocator()->get('Omeka\Logger');
+        $writer = new \Laminas\Log\Writer\Mock();
+        $logger->addWriter($writer);
+        try {
+            $fn();
+        } finally {
+            // The writers cannot be removed one by one, so restore the queue
+            // that was set before the capture.
+            $reflection = new \ReflectionProperty($logger, 'writers');
+            $reflection->setAccessible(true);
+            $writers = new \Laminas\Stdlib\SplPriorityQueue();
+            foreach ($reflection->getValue($logger) as $previous) {
+                if ($previous !== $writer) {
+                    $writers->insert($previous, 1);
+                }
+            }
+            $reflection->setValue($logger, $writers);
+        }
+        return array_map(function (array $event): string {
+            $message = (string) $event['message'];
+            foreach ((array) ($event['extra'] ?? []) as $key => $value) {
+                if (is_scalar($value) || $value === null) {
+                    $message = str_replace('{' . $key . '}', (string) $value, $message);
+                }
+            }
+            return $message;
+        }, $writer->events);
     }
 
     /**
@@ -650,5 +691,159 @@ class ApplyTemplateTest extends AbstractHttpControllerTestCase
         $updated = $this->reloadItem($item->id());
         $source = $updated->value('dcterms:source');
         $this->assertSame('uri', $source->type());
+    }
+
+    /**
+     * The metadata of a resource ("o:owner", "o:media", "o:item_set"…) are not
+     * properties: they must not be reported as properties absent from the
+     * template, since they can neither be removed nor fixed here.
+     */
+    public function testAuditDoesNotReportResourceMetadata(): void
+    {
+        $template = $this->createTemplate('Metadata Template', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+        ]);
+
+        $itemSet = $this->createItemSet([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Item set of the item'],
+            ],
+        ]);
+
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Item with metadata'],
+            ],
+            'dcterms:subject' => [
+                ['type' => 'literal', '@value' => 'A real extra property'],
+            ],
+        ]);
+        // The trait skips the keys that are not properties, so attach the item
+        // set with a partial update.
+        $this->api()->update('items', $item->id(), [
+            'o:item_set' => [['o:id' => $itemSet->id()]],
+        ], [], ['isPartial' => true]);
+        $this->assignTemplateDirectly($item->id(), $template->id());
+        $this->assertCount(1, $this->reloadItem($item->id())->itemSets());
+
+        $templateId = $template->id();
+        $messages = $this->captureJobMessages(function () use ($templateId): void {
+            $this->dispatchApplyTemplate($templateId, false);
+        });
+
+        $extra = array_values(array_filter($messages, function (string $message): bool {
+            return strpos($message, 'properties not in template') !== false;
+        }));
+        $this->assertCount(1, $extra);
+        // The real property is reported, the metadata of the resource are not.
+        $this->assertStringContainsString('dcterms:subject', $extra[0]);
+        foreach (['o:owner', 'o:item_set', 'o:created', 'o:modified', 'o:media'] as $metadata) {
+            $this->assertStringNotContainsString($metadata, $extra[0]);
+        }
+    }
+
+    /**
+     * A module can append its own checks to the audit.
+     */
+    public function testAuditCheckersOfOtherModulesAreUsed(): void
+    {
+        $template = $this->createTemplate('Checker Template', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+        ]);
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Checked item'],
+            ],
+        ], $template->id());
+
+        $checked = [];
+        $listener = function (\Laminas\EventManager\Event $event) use (&$checked): void {
+            $checkers = $event->getParam('checkers');
+            $checkers[] = function ($resource) use (&$checked): array {
+                $checked[] = $resource->id();
+                return [[
+                    'message' => 'Checked resource #{resource_id}.',
+                    'context' => ['resource_id' => $resource->id()],
+                ]];
+            };
+            $event->setParam('checkers', $checkers);
+        };
+
+        $sharedEvents = $this->getServiceLocator()->get('SharedEventManager');
+        $sharedEvents->attach(
+            'AdvancedResourceTemplate',
+            'advancedresourcetemplate.audit.checkers',
+            $listener
+        );
+        try {
+            $this->dispatchApplyTemplate($template->id(), false);
+        } finally {
+            $sharedEvents->detach(
+                $listener,
+                'AdvancedResourceTemplate'
+            );
+        }
+
+        $this->assertContains($item->id(), $checked);
+    }
+
+    /**
+     * A module can append its own fixes, that are skipped in audit mode.
+     */
+    public function testFixProcessorsOfOtherModulesAreUsed(): void
+    {
+        $template = $this->createTemplate('Processor Template', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+        ]);
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Item to fix'],
+            ],
+        ], $template->id());
+
+        $listener = function (\Laminas\EventManager\Event $event): void {
+            $processors = $event->getParam('processors');
+            $processors[] = function (array $data, $resource): ?array {
+                $data['dcterms:description'] = [[
+                    'type' => 'literal',
+                    'property_id' => 4,
+                    '@value' => 'Added by another module',
+                ]];
+                return $data;
+            };
+            $event->setParam('processors', $processors);
+        };
+
+        $sharedEvents = $this->getServiceLocator()->get('SharedEventManager');
+        $sharedEvents->attach(
+            'AdvancedResourceTemplate',
+            'advancedresourcetemplate.fix.processors',
+            $listener
+        );
+        try {
+            // Audit mode: the fixes of the modules are not run.
+            $this->dispatchApplyTemplate($template->id(), false);
+            $audited = $this->reloadItem($item->id());
+            $this->assertNull($audited->value('dcterms:description'));
+
+            $this->dispatchApplyTemplate($template->id(), true);
+        } finally {
+            $sharedEvents->detach(
+                $listener,
+                'AdvancedResourceTemplate'
+            );
+        }
+
+        $updated = $this->reloadItem($item->id());
+        $this->assertSame(
+            'Added by another module',
+            $updated->value('dcterms:description')->value()
+        );
     }
 }
