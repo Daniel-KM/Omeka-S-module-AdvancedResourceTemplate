@@ -1238,19 +1238,23 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                                     ->getServiceManager()->get('Omeka\Acl');
                                 if ($acl->userIsAllowed('Omeka\Controller\Admin\Item', 'batch-edit')) {
                                     $applyMessage = new PsrMessage(
-                                        '{info} <a href="#" class="apply-template-trigger" data-template-id="{id}">{action}</a>', // @translate
+                                        'The template "{template}" has been modified. The {count} resources using it may have values that do not match its settings any more. {link}An audit is recommended{link_end}.', // @translate
                                         [
-                                            'info' => sprintf($this->translate('This template is used by %d resources.'), $resourceCount),
-                                            'id' => $resourceTemplate->id(),
-                                            'action' => $this->translate('Apply changes to existing resources?'), // @translate
+                                            'template' => htmlspecialchars((string) $resourceTemplate->label()),
+                                            'count' => $resourceCount,
+                                            'link' => sprintf('<a href="#" class="apply-template-trigger" data-template-id="%d">', $resourceTemplate->id()),
+                                            'link_end' => '</a>',
                                         ]
                                     );
                                     $applyMessage->setEscapeHtml(false);
                                     $this->messenger()->addWarning($applyMessage);
                                 } else {
-                                    $applyMessage = sprintf(
-                                        $this->translate('This template is used by %d resources.'), // @translate
-                                        $resourceCount
+                                    $applyMessage = new PsrMessage(
+                                        'The template "{template}" has been modified. The {count} resources using it may have values that do not match its settings any more.', // @translate
+                                        [
+                                            'template' => $resourceTemplate->label(),
+                                            'count' => $resourceCount,
+                                        ]
                                     );
                                     $this->messenger()->addNotice($applyMessage);
                                 }
@@ -1766,6 +1770,16 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
             'fix_data_types' => !empty($post['fix_data_types']),
             'fix_extra_properties' => !empty($post['fix_extra_properties']),
         ];
+
+        // Options appended by other modules: "check_*" for the audit tasks and
+        // "fix_*" for the fixes.
+        foreach ($post as $key => $value) {
+            if (!isset($args[$key])
+                && (mb_substr($key, 0, 6) === 'check_' || mb_substr($key, 0, 4) === 'fix_')
+            ) {
+                $args[$key] = $value;
+            }
+        }
 
         $job = $this->jobDispatcher()->dispatch(
             \AdvancedResourceTemplate\Job\ApplyTemplate::class,

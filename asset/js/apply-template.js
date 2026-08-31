@@ -7,23 +7,21 @@
             return;
         }
 
-        // Toggle the options fieldset when the fix checkbox
-        // changes.
+        // Display the fixes only when the mode is not the audit.
         var $submitBtn = sidebar.find('button[type="submit"]');
         var labelAudit = $submitBtn.data('label-audit');
         var labelFix = $submitBtn.data('label-fix');
 
-        $('#apply-template-fix').on('change', function() {
-            var fieldset = $('#apply-template-options');
-            if (this.checked) {
-                fieldset.prop('disabled', false);
-                $submitBtn.text(labelFix);
-            } else {
-                fieldset.prop('disabled', true);
-                fieldset.find('input[type="checkbox"]')
-                    .prop('checked', false);
-                $submitBtn.text(labelAudit);
-            }
+        sidebar.on('change', 'input[name="fix"]', function() {
+            var isFix = this.value === '1';
+            var audits = $('#apply-template-audit-options');
+            var fixes = $('#apply-template-options');
+            audits.prop('disabled', isFix).prop('hidden', isFix);
+            fixes.prop('disabled', !isFix).prop('hidden', !isFix);
+            (isFix ? audits : fixes)
+                .find('input[type="checkbox"]')
+                .prop('checked', false);
+            $submitBtn.text(isFix ? labelFix : labelAudit);
         });
 
         // Close other dropdowns when opening one.

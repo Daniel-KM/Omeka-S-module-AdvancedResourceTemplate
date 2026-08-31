@@ -525,6 +525,19 @@
         opacity: .5;
         cursor: default;
     }
+
+    #apply-template-sidebar [hidden] {
+        display: none;
+    }
+
+    #apply-template-sidebar .apply-template-mode {
+        margin-bottom: 12px;
+    }
+
+    #apply-template-sidebar .apply-template-mode label.radio {
+        display: block;
+        font-weight: bold;
+    }
 }
 
 @media screen and (max-width: 640px) {

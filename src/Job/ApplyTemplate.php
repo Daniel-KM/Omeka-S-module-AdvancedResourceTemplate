@@ -6,6 +6,8 @@ use AdvancedResourceTemplate\Api\Representation\ResourceTemplateRepresentation;
 use AdvancedResourceTemplate\Listener\AutomaticValuesHandler;
 use AdvancedResourceTemplate\Stdlib\ArtTrait;
 use Doctrine\DBAL\Connection;
+use Laminas\ServiceManager\ServiceLocatorInterface;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Job\AbstractJob;
 
 /**
@@ -156,6 +158,20 @@ class ApplyTemplate extends AbstractJob
         'skipped' => 0,
     ];
 
+    /**
+     * Additional checks provided by other modules.
+     *
+     * @var callable[]
+     */
+    protected $auditCheckers = [];
+
+    /**
+     * Additional fixes provided by other modules.
+     *
+     * @var callable[]
+     */
+    protected $fixProcessors = [];
+
     public function perform(): void
     {
         $services = $this->getServiceLocator();
@@ -205,6 +221,10 @@ class ApplyTemplate extends AbstractJob
         $this->initAutomaticValuesHandler($services);
         $this->indexConstraints($template);
         $this->indexTemplateProperties($template);
+        $this->auditCheckers = $this->collectAuditCheckers($services);
+        $this->fixProcessors = $this->fix
+            ? $this->collectFixProcessors($services)
+            : [];
 
         $mode = $this->fix ? 'fix' : 'audit';
         $this->logger->notice(
@@ -349,6 +369,104 @@ class ApplyTemplate extends AbstractJob
     }
 
     /**
+     * Collect the additional checks provided by the other modules.
+     *
+     * A module returns callables taking a resource representation and returning
+     * a list of issues, each one with the keys "message" and "context" (psr-3).
+     * The checks are collected once, so no event is triggered for each
+     * resource. They only report: the fixes stay under the responsibility of
+     * each module, for example an identifier has an external meaning and is
+     * never fixed.
+     *
+     * @return callable[]
+     */
+    protected function collectAuditCheckers(ServiceLocatorInterface $services): array
+    {
+        $eventManager = $services->get('EventManager');
+        $eventManager->setIdentifiers(['AdvancedResourceTemplate']);
+        $args = $eventManager->prepareArgs([
+            'checkers' => [],
+            'args' => $this->job->getArgs(),
+        ]);
+        $eventManager->trigger('advancedresourcetemplate.audit.checkers', $this, $args);
+        return array_filter((array) $args['checkers'], 'is_callable');
+    }
+
+    /**
+     * Collect the additional fixes provided by the other modules.
+     *
+     * A module returns callables taking the data of the resource and the
+     * resource representation, and returning the modified data or null when
+     * there is nothing to fix. The options of the module are available in the
+     * argument "args", like for the checks above.
+     *
+     * @return callable[]
+     */
+    protected function collectFixProcessors(ServiceLocatorInterface $services): array
+    {
+        $eventManager = $services->get('EventManager');
+        $eventManager->setIdentifiers(['AdvancedResourceTemplate']);
+        $args = $eventManager->prepareArgs([
+            'processors' => [],
+            'args' => $this->job->getArgs(),
+        ]);
+        $eventManager->trigger('advancedresourcetemplate.fix.processors', $this, $args);
+        return array_filter((array) $args['processors'], 'is_callable');
+    }
+
+    /**
+     * Run the fixes provided by the other modules.
+     *
+     * Return the modified data or null when nothing was modified.
+     */
+    protected function runFixProcessors(array $data, AbstractResourceEntityRepresentation $resource): ?array
+    {
+        $result = null;
+        foreach ($this->fixProcessors as $processor) {
+            try {
+                $modified = $processor($data, $resource);
+            } catch (\Throwable $e) {
+                $this->logger->err(
+                    'Resource #{resource_id}: an additional fix failed: {error}', // @translate
+                    ['resource_id' => $resource->id(), 'error' => $e->getMessage()]
+                );
+                continue;
+            }
+            if (is_array($modified)) {
+                $data = $modified;
+                $result = $data;
+                ++$this->totals['fixed'];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Run the checks provided by the other modules and log the issues.
+     */
+    protected function runAuditCheckers(AbstractResourceEntityRepresentation $resource): void
+    {
+        foreach ($this->auditCheckers as $checker) {
+            try {
+                $issues = (array) $checker($resource);
+            } catch (\Throwable $e) {
+                $this->logger->err(
+                    'Resource #{resource_id}: an additional check failed: {error}', // @translate
+                    ['resource_id' => $resource->id(), 'error' => $e->getMessage()]
+                );
+                continue;
+            }
+            foreach ($issues as $issue) {
+                if (empty($issue['message'])) {
+                    continue;
+                }
+                ++$this->totals['issues'];
+                $this->logger->warn($issue['message'], $issue['context'] ?? []);
+            }
+        }
+    }
+
+    /**
      * Process all resources of a given type that use the template.
      */
     protected function processResourceType(
@@ -460,6 +578,18 @@ class ApplyTemplate extends AbstractJob
         if ($result !== null) {
             $data = $result;
             $modified = true;
+        }
+
+        // Additional checks provided by other modules. They only report.
+        $this->runAuditCheckers($resource);
+
+        // Additional fixes provided by other modules.
+        if ($this->fix) {
+            $result = $this->runFixProcessors($data, $resource);
+            if ($result !== null) {
+                $data = $result;
+                $modified = true;
+            }
         }
 
         if ($modified && $this->fix) {

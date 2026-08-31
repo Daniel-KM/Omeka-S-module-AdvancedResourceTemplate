@@ -8,6 +8,8 @@
  *     the template.
  */
 
+use Common\Stdlib\PsrMessage;
+
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
 $url = $this->plugin('url');
@@ -17,6 +19,13 @@ $formElement = $this->plugin('formElement');
 // controller expects (name "form" → element "form_csrf").
 $form = new \Laminas\Form\Form('form');
 $form->add(new \Laminas\Form\Element\Csrf('form_csrf'));
+$form->add([
+    'name' => 'fix_warning',
+    'type' => \Common\Form\Element\Note::class,
+    'options' => [
+        'text' => 'Warning: some fixes remove values definitively, in particular the truncation, the maximum number of values and the properties that are not in the template. A backup of the database is recommended.', // @translate
+    ],
+]);
 $form->prepare();
 
 $formAction = $templateId
@@ -37,13 +46,13 @@ $baseAction = $url('admin/id', [
             'title' => $translate('Close'),
         ]) ?>
         <div class="apply-template-content">
-            <h3><?= $translate('Apply template to resources') ?></h3>
+            <h3><?= $translate('Audit and fix resources') // @translate ?></h3>
             <p>
-                <?= sprintf(
-                    $translate('This template is used by %s resources.'), // @translate
-                    '<span class="apply-template-resource-count">'
+                <?= new PsrMessage(
+                    $translate('{count} resources have values that may not match the current settings of this template.'), // @translate
+                    ['count' => '<span class="apply-template-resource-count">'
                         . (int) $resourceCount
-                        . '</span>'
+                        . '</span>']
                 ) ?>
             </p>
             <form id="apply-template-form" method="post"
@@ -51,15 +60,38 @@ $baseAction = $url('admin/id', [
                 <?= $formElement($form->get('form_csrf')) ?>
                 <input type="hidden" name="template_id"
                     value="<?= (int) $templateId ?>">
-                <div class="field">
-                    <label>
-                        <input type="checkbox"
-                            id="apply-template-fix"
-                            name="fix" value="1">
-                        <?= $translate('Apply the fixes below') // @translate ?>
+                <div class="field apply-template-mode">
+                    <label class="radio">
+                        <input type="radio" name="fix" value="0"
+                            id="apply-template-mode-audit" checked>
+                        <?= $translate('Audit') // @translate ?>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="fix" value="1"
+                            id="apply-template-mode-fix">
+                        <?= $translate('Apply to resources') // @translate ?>
                     </label>
                 </div>
-                <fieldset id="apply-template-options" disabled>
+                <?php
+                // Audit options provided by other modules ("check_*"). Most of
+                // the checks need no option and are simply registered through
+                // the event "advancedresourcetemplate.audit.checkers".
+                $auditOptions = $this->trigger(
+                    'advancedresourcetemplate.audit.options',
+                    ['options' => []],
+                    true,
+                    ['AdvancedResourceTemplate']
+                );
+                ?>
+                <?php if ($auditOptions['options']): ?>
+                <fieldset id="apply-template-audit-options">
+                    <?php foreach ($auditOptions['options'] as $auditOption): ?>
+                    <?= $auditOption ?>
+                    <?php endforeach; ?>
+                </fieldset>
+                <?php endif; ?>
+                <fieldset id="apply-template-options" disabled hidden>
+                    <?= $formElement($form->get('fix_warning')) ?>
                     <div class="field">
                         <label>
                             <input type="checkbox"
@@ -77,6 +109,21 @@ $baseAction = $url('admin/id', [
                     <div class="field">
                         <label>
                             <input type="checkbox"
+                                name="fix_visibility" value="1">
+                            <?= $translate('Fix visibility (public/private)') // @translate ?>
+                        </label>
+                    </div>
+                    <div class="field">
+                        <label>
+                            <input type="checkbox"
+                                name="fix_data_types" value="1">
+                            <?= $translate('Fix wrong data types when possible') // @translate ?>
+                        </label>
+                    </div>
+                    <?php // The fixes below remove data definitively. ?>
+                    <div class="field">
+                        <label>
+                            <input type="checkbox"
                                 name="fix_truncate" value="1">
                             <?= $translate('Truncate values exceeding max length') // @translate ?>
                         </label>
@@ -91,24 +138,22 @@ $baseAction = $url('admin/id', [
                     <div class="field">
                         <label>
                             <input type="checkbox"
-                                name="fix_visibility" value="1">
-                            <?= $translate('Fix visibility (public/private)') // @translate ?>
-                        </label>
-                    </div>
-                    <div class="field">
-                        <label>
-                            <input type="checkbox"
-                                name="fix_data_types" value="1">
-                            <?= $translate('Fix wrong data types when possible') // @translate ?>
-                        </label>
-                    </div>
-                    <div class="field">
-                        <label>
-                            <input type="checkbox"
                                 name="fix_extra_properties" value="1">
                             <?= $translate('Remove values of properties not in template') // @translate ?>
                         </label>
                     </div>
+                    <?php
+                    // Fixes provided by other modules.
+                    $fixOptions = $this->trigger(
+                        'advancedresourcetemplate.fix.options',
+                        ['options' => []],
+                        true,
+                        ['AdvancedResourceTemplate']
+                    );
+                    foreach ($fixOptions['options'] as $fixOption) {
+                        echo $fixOption;
+                    }
+                    ?>
                 </fieldset>
             </form>
         </div>
