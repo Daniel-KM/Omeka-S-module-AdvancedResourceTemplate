@@ -230,6 +230,53 @@
         display: inline-block;
     }
 
+    /* Collapsible sections of the property settings: the summary is styled as a
+       header band, clearly distinct from the option labels below it. */
+    .resource-templates #edit-sidebar .field.settings .setting-section {
+        display: block;
+        width: 100%;
+        margin: 0 0 6px;
+        border: 1px solid #d5d5d5;
+    }
+    .resource-templates #edit-sidebar .field.settings .setting-section > summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        list-style: none;
+        cursor: pointer;
+        padding: 8px 10px;
+        background: #ededed;
+        /* Same colour as the admin headings, not a darker one. */
+        color: #676767;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
+    /* Move the disclosure marker to the far right. */
+    .resource-templates #edit-sidebar .field.settings .setting-section > summary::-webkit-details-marker {
+        display: none;
+    }
+    .resource-templates #edit-sidebar .field.settings .setting-section > summary::after {
+        content: '\25B6';
+        flex: 0 0 auto;
+        font-size: 0.9em;
+        transition: transform 0.15s ease;
+    }
+    .resource-templates #edit-sidebar .field.settings .setting-section[open] > summary::after {
+        transform: rotate(90deg);
+    }
+    .resource-templates #edit-sidebar .field.settings .setting-section > summary:hover {
+        background: #e0e0e0;
+    }
+    .resource-templates #edit-sidebar .field.settings .setting-section[open] > summary {
+        border-bottom: 1px solid #d5d5d5;
+        margin-bottom: 6px;
+    }
+    .resource-templates #edit-sidebar .field.settings .setting-section > .option {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
     form > .settings > a::after {
         margin-left: 12px;
     }

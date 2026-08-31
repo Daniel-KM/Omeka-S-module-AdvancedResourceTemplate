@@ -84,6 +84,20 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 ],
             ])
             ->add([
+                'name' => 'unique_value',
+                'type' => CommonElement\OptionalCheckbox::class,
+                'options' => [
+                    'label' => 'Unique value among resources', // @translate
+                    'checked_value' => 'yes',
+                ],
+                'attributes' => [
+                    // 'id' => 'unique_value',
+                    'class' => 'setting',
+                    'data-setting-key' => 'unique_value',
+                ],
+            ])
+
+            ->add([
                 'name' => 'default_value',
                 'type' => Element\Textarea::class,
                 'options' => [
@@ -135,52 +149,6 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 ],
             ])
             ->add([
-                'name' => 'display_value',
-                'type' => Element\Textarea::class,
-                'options' => [
-                    'label' => 'Fake value to display when empty', // @translate
-                ],
-                'attributes' => [
-                    // 'id' => 'display_value',
-                    'class' => 'setting',
-                    'data-setting-key' => 'display_value',
-                ],
-            ])
-            ->add([
-                'name' => 'display_on_public_site',
-                'type' => Element\Radio::class,
-                'options' => [
-                    'label' => 'Display values on the public site', // @translate
-                    'value_options' => [
-                        '' => 'Yes (default)', // @translate
-                        'authenticated' => 'No, except for authenticated users', // @translate
-                        'no' => 'No', // @translate
-                    ],
-                    // Fix the formatting issue of the radio label.
-                    'label_attributes' => [
-                        'class' => 'radio',
-                    ],
-                ],
-                'attributes' => [
-                    'class' => 'setting',
-                    'data-setting-key' => 'display_on_public_site',
-                    'value' => '',
-                ],
-            ])
-            ->add([
-                'name' => 'unique_value',
-                'type' => CommonElement\OptionalCheckbox::class,
-                'options' => [
-                    'label' => 'Unique value among resources', // @translate
-                    'checked_value' => 'yes',
-                ],
-                'attributes' => [
-                    // 'id' => 'unique_value',
-                    'class' => 'setting',
-                    'data-setting-key' => 'unique_value',
-                ],
-            ])
-            ->add([
                 'name' => 'locked_value',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
@@ -206,6 +174,7 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                     'data-setting-key' => 'property_read_only',
                 ],
             ])
+
             ->add([
                 'name' => 'split_separator',
                 'type' => Element\Text::class,
@@ -216,32 +185,6 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                     // 'id' => 'split_separator',
                     'class' => 'setting',
                     'data-setting-key' => 'split_separator',
-                ],
-            ])
-            ->add([
-                'name' => 'order_by_linked_resource_properties',
-                'type' => OmekaElement\ArrayTextarea::class,
-                'options' => [
-                    'label' => 'Order linked resources by properties', // @translate
-                    'as_key_value' => true,
-                ],
-                'attributes' => [
-                    // 'id' => 'value_languages',
-                    'class' => 'setting',
-                    'data-setting-key' => 'order_by_linked_resource_properties',
-                ],
-            ])
-            ->add([
-                'name' => 'resource_query',
-                'type' => Element\Text::class,
-                'options' => [
-                    'label' => 'Filter linked resources with a query', // @translate
-                    'info' => 'Use url arguments of a standard advanced search query', // @translate
-                ],
-                'attributes' => [
-                    // 'id' => 'resource_query',
-                    'class' => 'setting',
-                    'data-setting-key' => 'resource_query',
                 ],
             ])
             ->add([
@@ -289,6 +232,7 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                     'value' => '',
                 ],
             ])
+
             ->add([
                 'name' => 'value_languages',
                 'type' => OmekaElement\ArrayTextarea::class,
@@ -324,61 +268,32 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                     'value' => '',
                 ],
             ])
+
             ->add([
-                'name' => 'custom_vocab_open',
-                'type' => CommonElement\OptionalCheckbox::class,
+                'name' => 'resource_query',
+                'type' => Element\Text::class,
                 'options' => [
-                    'label' => 'Custom vocab: open authority list', // @translate
-                    'checked_value' => 'yes',
+                    'label' => 'Filter linked resources with a query', // @translate
+                    'info' => 'Use url arguments of a standard advanced search query', // @translate
                 ],
                 'attributes' => [
-                    // 'id' => 'custom_vocab_open',
+                    // 'id' => 'resource_query',
                     'class' => 'setting',
-                    'data-setting-key' => 'custom_vocab_open',
+                    'data-setting-key' => 'resource_query',
                 ],
             ])
+
             ->add([
-                'name' => 'value_suggest_keep_original_label',
-                'type' => Element\Radio::class,
+                'name' => 'order_by_linked_resource_properties',
+                'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
-                    'label' => 'Value Suggest: keep original label', // @translate
-                    'value_options' => [
-                        '' => 'Use template setting', // @translate
-                        'no' => 'No', // @translate
-                        'yes' => 'Yes', // @translate
-                    ],
-                    // Fix the formatting issue of the radio label in Omeka.
-                    'label_attributes' => [
-                        'class' => 'radio',
-                    ],
+                    'label' => 'Order linked resources by properties', // @translate
+                    'as_key_value' => true,
                 ],
                 'attributes' => [
-                    // 'id' => 'value_suggest_keep_original_label',
+                    // 'id' => 'value_languages',
                     'class' => 'setting',
-                    'data-setting-key' => 'value_suggest_keep_original_label',
-                    'value' => '',
-                ],
-            ])
-            ->add([
-                'name' => 'value_suggest_require_uri',
-                'type' => Element\Radio::class,
-                'options' => [
-                    'label' => 'Value Suggest: require uri', // @translate
-                    'value_options' => [
-                        '' => 'Use template setting', // @translate
-                        'no' => 'No', // @translate
-                        'yes' => 'Yes', // @translate
-                    ],
-                    // Fix the formatting issue of the radio label in Omeka.
-                    'label_attributes' => [
-                        'class' => 'radio',
-                    ],
-                ],
-                'attributes' => [
-                    // 'id' => 'value_suggest_require_uri',
-                    'class' => 'setting',
-                    'data-setting-key' => 'value_suggest_require_uri',
-                    'value' => '',
+                    'data-setting-key' => 'order_by_linked_resource_properties',
                 ],
             ])
 
@@ -408,10 +323,44 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
             ])
 
             ->add([
+                'name' => 'display_on_public_site',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Display values on the public site', // @translate
+                    'value_options' => [
+                        '' => 'Yes (default)', // @translate
+                        'authenticated' => 'No, except for authenticated users', // @translate
+                        'no' => 'No', // @translate
+                    ],
+                    // Fix the formatting issue of the radio label.
+                    'label_attributes' => [
+                        'class' => 'radio',
+                    ],
+                ],
+                'attributes' => [
+                    'class' => 'setting',
+                    'data-setting-key' => 'display_on_public_site',
+                    'value' => '',
+                ],
+            ])
+            ->add([
+                'name' => 'display_value',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Fake value to display when empty', // @translate
+                ],
+                'attributes' => [
+                    // 'id' => 'display_value',
+                    'class' => 'setting',
+                    'data-setting-key' => 'display_value',
+                ],
+            ])
+
+            ->add([
                 'name' => 'card_display',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
-                    'label' => 'Display in resource card', // @translate
+                    'label' => 'Display the value in resource card', // @translate
                     'checked_value' => 'yes',
                 ],
                 'attributes' => [
@@ -423,7 +372,7 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 'name' => 'card_role',
                 'type' => CommonElement\OptionalSelect::class,
                 'options' => [
-                    'label' => 'Card role', // @translate
+                    'label' => 'Role', // @translate
                     'value_options' => [
                         '' => '',
                         'body' => 'Body', // @translate
@@ -442,7 +391,7 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 'name' => 'card_first_only',
                 'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
-                    'label' => 'Card: first value only', // @translate
+                    'label' => 'First value only', // @translate
                     'checked_value' => 'yes',
                 ],
                 'attributes' => [
@@ -454,7 +403,7 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 'name' => 'card_separator',
                 'type' => Element\Text::class,
                 'options' => [
-                    'label' => 'Card: value separator', // @translate
+                    'label' => 'Value separator', // @translate
                 ],
                 'attributes' => [
                     'class' => 'setting',
@@ -466,13 +415,72 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 'name' => 'card_max',
                 'type' => Element\Number::class,
                 'options' => [
-                    'label' => 'Card: max values', // @translate
+                    'label' => 'Maximum number of values', // @translate
                 ],
                 'attributes' => [
                     'class' => 'setting',
                     'data-setting-key' => 'card_max',
                     'min' => '0',
                     'step' => '1',
+                ],
+            ])
+
+            ->add([
+                'name' => 'custom_vocab_open',
+                'type' => CommonElement\OptionalCheckbox::class,
+                'options' => [
+                    'label' => 'Open authority list', // @translate
+                    'checked_value' => 'yes',
+                ],
+                'attributes' => [
+                    // 'id' => 'custom_vocab_open',
+                    'class' => 'setting',
+                    'data-setting-key' => 'custom_vocab_open',
+                ],
+            ])
+
+            ->add([
+                'name' => 'value_suggest_keep_original_label',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Keep original label', // @translate
+                    'value_options' => [
+                        '' => 'Use template setting', // @translate
+                        'no' => 'No', // @translate
+                        'yes' => 'Yes', // @translate
+                    ],
+                    // Fix the formatting issue of the radio label in Omeka.
+                    'label_attributes' => [
+                        'class' => 'radio',
+                    ],
+                ],
+                'attributes' => [
+                    // 'id' => 'value_suggest_keep_original_label',
+                    'class' => 'setting',
+                    'data-setting-key' => 'value_suggest_keep_original_label',
+                    'value' => '',
+                ],
+            ])
+            ->add([
+                'name' => 'value_suggest_require_uri',
+                'type' => Element\Radio::class,
+                'options' => [
+                    'label' => 'Require uri', // @translate
+                    'value_options' => [
+                        '' => 'Use template setting', // @translate
+                        'no' => 'No', // @translate
+                        'yes' => 'Yes', // @translate
+                    ],
+                    // Fix the formatting issue of the radio label in Omeka.
+                    'label_attributes' => [
+                        'class' => 'radio',
+                    ],
+                ],
+                'attributes' => [
+                    // 'id' => 'value_suggest_require_uri',
+                    'class' => 'setting',
+                    'data-setting-key' => 'value_suggest_require_uri',
+                    'value' => '',
                 ],
             ])
 

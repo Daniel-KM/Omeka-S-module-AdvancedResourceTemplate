@@ -157,15 +157,114 @@ endif;
                 <?php echo $this->dataType()->getSelect('data_type', null, ['id' => 'data-type', 'multiple' => true, 'class' => 'chosen-select', 'data-property-key' => 'o:data_type', 'data-placeholder' => 'Select data types…']); ?>
             </div>
         </div>
-        <?php $elements = array_filter($propertyFieldset->getElements(), function ($element) { return $element->getAttribute('data-setting-key'); });
-        if (count($elements)): ?>
+        <?php
+        $elements = array_filter($propertyFieldset->getElements(), function ($element) { return $element->getAttribute('data-setting-key'); });
+        if (count($elements)):
+            // Group advanced settings into collapsible sections to make sidebar
+            // easier to use. The core sections come first, then one section per
+            // module: settings of Custom Vocab and Value Suggest are managed
+            // here only because they are not integrated upstream, so they are
+            // listed with the other modules. Settings that are not listed (for
+            // example added by a new module) fall in the last section.
+            $settingSections = [
+                'Validation' => [ // @translate
+                    'min_values',
+                    'max_values',
+                    'min_length',
+                    'max_length',
+                    'input_control',
+                    'unique_value',
+                ],
+                'Automatic values' => [ // @translate
+                    'default_value',
+                    'automatic_value',
+                    'automatic_value_issued',
+                    'locked_value',
+                    'property_read_only',
+                ],
+                'Editing' => [ // @translate
+                    'split_separator',
+                    'quick_new_resource',
+                    'autocomplete',
+                    'value_languages',
+                    'use_language',
+                ],
+                'Linked resources' => [ // @translate
+                    'resource_query',
+                    'order_by_linked_resource_properties',
+                ],
+                'Value annotations' => [ // @translate
+                    'value_annotations_template',
+                ],
+                'Display as record' => [ // @translate
+                    'display_on_public_site',
+                    'display_value',
+                ],
+                'Display in lists' => [ // @translate
+                    'card_display',
+                    'card_role',
+                    'card_first_only',
+                    'card_separator',
+                    'card_max',
+                ],
+                // Custom Vocab and Value Suggest are managed here only because
+                // they are not integrated upstream, so they get their own
+                // section, like the other modules.
+                'Custom Vocab' => [ // @translate
+                    'custom_vocab_open',
+                ],
+                'Value Suggest' => [ // @translate
+                    'value_suggest_keep_original_label',
+                    'value_suggest_require_uri',
+                ],
+            ];
+            $elementsByKey = [];
+            foreach ($elements as $element) {
+                $elementsByKey[$element->getAttribute('data-setting-key')] = $element;
+            }
+            $sections = [];
+            $used = [];
+            foreach ($settingSections as $sectionLabel => $keys) {
+                $sectionElements = [];
+                foreach ($keys as $key) {
+                    if (isset($elementsByKey[$key])) {
+                        $sectionElements[] = $elementsByKey[$key];
+                        $used[$key] = true;
+                    }
+                }
+                if ($sectionElements) {
+                    $sections[$sectionLabel] = $sectionElements;
+                }
+            }
+            // Modules declare their own section through the standard option
+            // "element_group", so the module name is not hardcoded here. The
+            // settings without any declared group end in a last section.
+            $otherElements = [];
+            foreach (array_diff_key($elementsByKey, $used) as $element) {
+                $sectionLabel = (string) $element->getOption('element_group');
+                if ($sectionLabel === '') {
+                    $otherElements[] = $element;
+                } else {
+                    $sections[$sectionLabel][] = $element;
+                }
+            }
+            // Keep the settings without any declared group in a last section.
+            if ($otherElements) {
+                $sections['Other settings'] = $otherElements; // @translate
+            }
+        ?>
         <div class="field settings">
             <h3><?php echo $propertyFieldset->get('o:data')->getLabel(); ?></h3>
-            <?php foreach ($elements as $element): ?>
-            <div class="option">
-                <?php echo $formLabel($element); ?>
-                <?php echo $formElement($element); ?>
-            </div>
+            <?php foreach ($sections as $sectionLabel => $sectionElements): ?>
+            <details class="setting-section">
+                <summary><?php echo $escape($translate($sectionLabel)); ?></summary>
+                <?php foreach ($sectionElements as $element): ?>
+                <div class="option">
+                    <?php echo $formLabel($element); ?>
+                    <?php echo $formElement($element); ?>
+                </div>
+                <?php endforeach; ?>
+            </details>
             <?php endforeach; ?>
         </div>
         <?php endif; ?>
