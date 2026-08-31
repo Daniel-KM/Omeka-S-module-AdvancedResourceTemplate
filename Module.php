@@ -829,6 +829,33 @@ class Module extends AbstractModule
             $newValues = $this->prependGroupsToValues($resource, $values, $groups);
         }
 
+        // The values are ordered according to the template by default, but a
+        // customized view may need another order, so keep the order of the
+        // caller when it listed the properties or asked for it explicitly.
+        // The groups define their own order, so they are skipped.
+        // @see https://github.com/omeka/omeka-s/issues/2391
+        $options = $event->getParam('options') ?: [];
+        if (!$groups
+            && (!empty($options['properties']) || !empty($options['keep_values_order']))
+        ) {
+            // The values may be an iterator when the template is used.
+            if (!is_array($newValues)) {
+                $newValues = iterator_to_array($newValues);
+            }
+            $order = empty($options['properties'])
+                ? array_keys($values)
+                : $options['properties'];
+            $orderedValues = [];
+            foreach ($order as $term) {
+                if (array_key_exists($term, $newValues)) {
+                    $orderedValues[$term] = $newValues[$term];
+                }
+            }
+            // Append the values that are not in the order, in particular the
+            // fake values added by the module.
+            $newValues = $orderedValues + $newValues;
+        }
+
         $event->setParam('values', $newValues);
     }
 

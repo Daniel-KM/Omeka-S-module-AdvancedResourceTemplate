@@ -601,6 +601,23 @@ property metadata.
 For individual skipping, the key `skipValidation` as true can be added to api
 requests for create and api update.
 
+#### Order of the displayed values
+
+By default, the values displayed with `displayValues()` are ordered according to
+the properties of the resource template. To keep the order of the resource, pass
+the option `keep_values_order`:
+
+```php
+echo $resource->displayValues(['keep_values_order' => true]);
+```
+
+The order is kept too when the option `properties` is used, so a customized view
+can display the properties in the order it needs:
+
+```php
+echo $resource->displayValues(['properties' => ['dcterms:date', 'dcterms:title']]);
+```
+
 
 TODO
 ----
