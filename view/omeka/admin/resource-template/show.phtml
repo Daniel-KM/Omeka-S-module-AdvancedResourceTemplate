@@ -20,6 +20,7 @@ $hyperlink = $plugins->get('hyperlink');
 
 $this->headLink()
     ->appendStylesheet($this->assetUrl('css/common-autocomplete.css', 'Common'))
+    ->appendStylesheet($this->assetUrl('css/common-page-action-menu.css', 'Common'))
     ->appendStylesheet($this->assetUrl('css/advanced-resource-template-admin.css', 'AdvancedResourceTemplate'));
 $this->htmlElement('body')->appendAttribute('class', 'resource-templates show');
 
@@ -30,7 +31,7 @@ $matches = [];
 
 <div id="page-actions">
     <?php $this->trigger('view.show.page_actions', ['resource' => $resourceTemplate]); ?>
-    <div id="page-action-menu">
+    <div class="page-action-menu">
         <?php
         $useForResources = $resourceTemplate->dataValue('use_for_resources');
         $templateId = $resourceTemplate->id();
@@ -72,29 +73,29 @@ $matches = [];
             <?php $link = reset($newLinks); ?>
         <a class="button" href="<?= $escape($link['url']) ?>"><?= $link['label'] ?></a>
         <?php elseif (count($newLinks) > 1): ?>
-        <span class="action-menu-dropdown">
+        <div class="with-sub-menu">
             <a href="#" class="button expand" aria-label="<?= $translate('Expand') ?>"><?= $translate('New resource') ?></a>
             <ul class="collapsible">
                 <?php foreach ($newLinks as $link): ?>
                 <li><a class="link" href="<?= $escape($link['url']) ?>"><?= $link['label'] ?></a></li>
                 <?php endforeach; ?>
             </ul>
-        </span>
+        </div>
         <?php endif; ?>
         <?php if (count($browseLinks) === 1): ?>
             <?php $link = reset($browseLinks); ?>
         <a class="button" href="<?= $escape($link['url']) ?>"><?= $link['label'] ?></a>
         <?php elseif (count($browseLinks) > 1): ?>
-        <span class="action-menu-dropdown">
+        <div class="with-sub-menu">
             <a href="#" class="button expand" aria-label="<?= $translate('Expand') ?>"><?= $translate('Browse') ?></a>
             <ul class="collapsible">
                 <?php foreach ($browseLinks as $link): ?>
                 <li><a class="link" href="<?= $escape($link['url']) ?>"><?= $link['label'] ?></a></li>
                 <?php endforeach; ?>
             </ul>
-        </span>
+        </div>
         <?php endif; ?>
-        <span class="action-menu-dropdown">
+        <div class="with-sub-menu">
             <a href="#" class="button expand" aria-label="<?= $translate('Expand') ?>" title="<?= $translate('Expand') ?>">
                 <?= $translate('Export') ?>
             </a>
@@ -103,7 +104,7 @@ $matches = [];
                 <li><a class="link" href="<?= $escape($url(null, ['action' => 'export'], ['query' => ['output' => 'tsv']], true)) ?>"><?= $translate('As tsv') ?></a></li>
                 <li><a class="link" href="<?= $escape($url(null, ['action' => 'export'], ['query' => ['output' => 'json']], true)) ?>"><?= $translate('As json') ?></a></li>
             </ul>
-        </span>
+        </div>
         <?php if ($this->userIsAllowed('Omeka\Controller\Admin\Item', 'batch-edit')): ?>
         <a class="button apply-template-trigger" href="#" data-template-id="<?= $templateId ?>"><?= $translate('Apply to resources') ?></a>
         <?php endif; ?>

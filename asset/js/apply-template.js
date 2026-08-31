@@ -25,9 +25,9 @@
         });
 
         // Close other dropdowns when opening one.
-        $('#page-action-menu').on('click', 'a.expand, a.collapse', function() {
-            $(this).closest('.action-menu-dropdown')
-                .siblings('.action-menu-dropdown')
+        $('.page-action-menu').on('click', 'a.expand, a.collapse', function() {
+            $(this).closest('.with-sub-menu')
+                .siblings('.with-sub-menu')
                 .find('a.collapse')
                 .removeClass('collapse').addClass('expand')
                 .attr('aria-label', Omeka.jsTranslate('Expand'))
