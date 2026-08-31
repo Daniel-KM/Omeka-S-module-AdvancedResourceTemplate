@@ -158,6 +158,8 @@ $matches = [];
                     <li>
                         <?php if (strtok($dataTypeLabel['name'], ':') === 'customvocab'):?>
                         <?= $hyperlink($dataTypeLabel['label'], $url('admin/default', ['controller' => 'custom-vocab'], ['query' => ['id' => strtok(':')]])) ?>
+                        <?php elseif (strtok($dataTypeLabel['name'], ':') === 'thesaurus'):?>
+                        <?= $hyperlink($dataTypeLabel['label'], $url('admin/id', ['controller' => 'item', 'action' => 'show', 'id' => strtok(':')])) ?>
                         <?php else: ?>
                         <?php echo $escape($dataTypeLabel['label']); ?>
                         <?php endif; ?>

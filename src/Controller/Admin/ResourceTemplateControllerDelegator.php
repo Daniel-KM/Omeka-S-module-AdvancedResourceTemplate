@@ -14,6 +14,19 @@ use Omeka\Stdlib\Message;
 
 class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\ResourceTemplateController
 {
+    /**
+     * Prefixes of the data types whose name contains an id that is specific to
+     * each install (custom vocabs, thesaurus, tables), so they are identified
+     * by their label when a template is imported.
+     *
+     * @var array
+     */
+    const DYNAMIC_DATA_TYPE_PREFIXES = [
+        'customvocab',
+        'thesaurus',
+        'table',
+    ];
+
     public function tableTemplatesAction()
     {
         $this->browse()->setDefaults('resource_templates');
@@ -172,13 +185,14 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                         $dataTypeListNewOrdered[$dataTypeOriginal] = $dataTypeOriginalData;
                         unset($dataTypeListNew[$dataTypeOriginal]);
                     }
-                    // Else it is a custom vocab, whose id may be different, so
-                    // take them in order. It will be improved with new form.
-                    // In most of the real use cases, it is enough anyway.
-                    // Or the user modified the list, and it's not managed.
+                    // Else it is a dynamic data type (custom vocab, thesaurus,
+                    // table), whose id may be different, so take them in order.
+                    // It will be improved with new form. In most of the real
+                    // use cases, it is enough anyway. Or the user modified the
+                    // list, and it's not managed.
                     else {
                         foreach ($dataTypeListNew as $dataTypeNew) {
-                            if (strstr($dataTypeNew, ':', true) === 'customvocab') {
+                            if (in_array(strstr($dataTypeNew, ':', true), self::DYNAMIC_DATA_TYPE_PREFIXES)) {
                                 $dataTypeListNewOrdered[$dataTypeNew] = ['name' => $dataTypeNew, 'label' => $dataTypeNew];
                                 unset($dataTypeListNew[$dataTypeNew]);
                                 break;
@@ -285,6 +299,8 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                 'xml',
                 // DataTypePlace.
                 'place',
+                // Thesaurus.
+                'resource:concept',
                 // NumericDataTypes
                 'numeric:timestamp',
                 'numeric:integer',
@@ -297,12 +313,18 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
                 return $dataTypeNameLabel['name'];
             }
 
-            if (mb_substr((string) $dataTypeNameLabel['name'], 0, 12) === 'customvocab:') {
-                try {
-                    $customVocab = $this->api()->read('custom_vocabs', ['label' => $dataTypeNameLabel['label']])->getContent();
-                    return 'customvocab:' . $customVocab->id();
-                } catch (\Omeka\Api\Exception\NotFoundException $e) {
-                    return null;
+            // Dynamic data types (custom vocabs, thesaurus, tables) contain an
+            // id that is specific to each install, so they are identified by
+            // their label.
+            $prefix = strstr((string) $dataTypeNameLabel['name'], ':', true);
+            if ($prefix && in_array($prefix, self::DYNAMIC_DATA_TYPE_PREFIXES)) {
+                $label = (string) $dataTypeNameLabel['label'];
+                foreach ($this->dataTypeManager->getRegisteredNames() as $dataTypeName) {
+                    if (strstr($dataTypeName, ':', true) === $prefix
+                        && $this->dataTypeManager->get($dataTypeName)->getLabel() === $label
+                    ) {
+                        return $dataTypeName;
+                    }
                 }
             }
             return null;

@@ -192,7 +192,7 @@ class ResourceTemplatePropertyFieldset extends Fieldset implements InputFilterPr
                 // data types without an optgroup.
                 $optgroupKey = md5($optgroupLabel);
                 // Put resource data types before ones added by modules.
-                $optionsVal = in_array($dataTypeName, ['resource', 'resource:item', 'resource:itemset', 'resource:media', 'resource:digitalobject'])
+                $optionsVal = in_array($dataTypeName, ['resource', 'resource:item', 'resource:itemset', 'resource:media', 'resource:digitalobject', 'resource:concept'])
                     ? 'options'
                     : 'optgroupOptions';
                 if (!isset(${$optionsVal}[$optgroupKey])) {
