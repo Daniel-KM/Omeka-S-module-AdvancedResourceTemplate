@@ -35,22 +35,30 @@ $this->headScript()
 <?php
 $templateSettings = $form->get('o:data');
 $hasSettings = (bool) count($templateSettings->getElements());
-if ($hasSettings):
-    echo $this->sectionNav([
-        'template-properties' => $translate('Properties'),
-        'template-settings' => $translate('Template settings'),
-    ]);
-endif;
+
+// Group the template label, class and the advanced module settings in a separated tab.
+echo $this->sectionNav([
+    'template-settings' => $translate('Settings'), // @translate
+    'template-properties' => $translate('Editing'), // @translate
+]);
 ?>
 
 <?php $this->trigger("view.$action.form.before", ['form' => $form]); ?>
 
-<fieldset id="template-properties" class="section active" aria-labelledby="template-properties-label">
-<legend><?= $translate('Properties') ?></legend>
+<fieldset id="template-settings" class="section active" aria-labelledby="template-settings-label">
+<legend><?= $translate('Settings') ?></legend>
 
 <?php foreach ($form->getElements() as $element): ?>
 <?php echo $this->formRow($element); ?>
 <?php endforeach; ?>
+
+<?php if ($hasSettings): ?>
+<?php echo $this->formCollectionElementGroups($templateSettings); ?>
+<?php endif; ?>
+</fieldset>
+
+<fieldset id="template-properties" class="section" aria-labelledby="template-properties-label">
+<legend><?= $translate('Editing') ?></legend>
 
 <div class="property-list-toolbar">
     <button type="button" id="toggle-extended-info" class="button" aria-pressed="false"><?= $translate('Details') ?></button>
@@ -68,13 +76,6 @@ endif;
 </ul>
 
 </fieldset>
-
-<?php if ($hasSettings): ?>
-<fieldset id="template-settings" class="section" aria-labelledby="template-settings-label">
-<legend><?= $translate('Template settings') ?></legend>
-<?php echo $this->formCollectionElementGroups($templateSettings); ?>
-</fieldset>
-<?php endif; ?>
 
 <?php $this->trigger("view.$action.form.after", ['form' => $form]); ?>
 

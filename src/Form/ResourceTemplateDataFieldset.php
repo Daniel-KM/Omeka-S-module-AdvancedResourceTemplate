@@ -24,6 +24,7 @@ class ResourceTemplateDataFieldset extends Fieldset
         'language' => 'Language', // @translate
         'values' => 'Values', // @translate
         'display' => 'Display', // @translate
+        'value_suggest' => 'Value Suggest', // @translate
     ];
 
     public function init(): void
@@ -45,6 +46,7 @@ class ResourceTemplateDataFieldset extends Fieldset
         }
 
         $this
+            // Template.
             ->add([
                 'name' => 'use_for_resources',
                 'type' => CommonElement\OptionalMultiCheckbox::class,
@@ -57,10 +59,13 @@ class ResourceTemplateDataFieldset extends Fieldset
                     'id' => 'use_for_resources',
                     // Don't make templates available for value annotations by
                     // default to incite to create specific templates for them.
-                    'value' => ['items', 'media', 'item_sets'],
+                    'value' => [
+                        'items',
+                        'media',
+                        'item_sets',
+                    ],
                 ],
             ])
-
             ->add([
                 'name' => 'require_resource_class',
                 'type' => CommonElement\OptionalCheckbox::class,
@@ -97,7 +102,6 @@ class ResourceTemplateDataFieldset extends Fieldset
                     'id' => 'closed_property_list',
                 ],
             ])
-
             ->add([
                 'name' => 'quick_new_resource',
                 'type' => CommonElement\OptionalCheckbox::class,
@@ -128,7 +132,51 @@ class ResourceTemplateDataFieldset extends Fieldset
                     'value' => 'no',
                 ],
             ])
-
+            ->add([
+                'name' => 'item_sets',
+                'type' => CommonElement\OptionalItemSetSelect::class,
+                'options' => [
+                    'element_group' => 'template',
+                    'label' => 'Item sets to set for items', // @translate
+                    'disable_inarray_validator' => true,
+                ],
+                'attributes' => [
+                    'id' => 'item_sets',
+                    'class' => 'chosen-select',
+                    'multiple' => true,
+                    'data-placeholder' => 'Select item sets…', // @translate
+                ],
+            ])
+            ->add([
+                'name' => 'media_templates_minimum',
+                'type' => \Omeka\Form\Element\ArrayTextarea::class,
+                'options' => [
+                    'element_group' => 'template',
+                    'label' => 'Minimum number of media for each media template', // @translate
+                    'info' => 'Set the template number or label, then "=", then the number. Use 0 as number to set the number for other templates.', // @translate
+                    'as_key_value' => true,
+                ],
+                'attributes' => [
+                    'id' => 'media_templates_minimum',
+                    'placeholder' => <<<'TXT'
+                        File = 1
+                        0 = 1
+                        TXT,
+                ],
+            ])
+            ->add([
+                'name' => 'settings',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'element_group' => 'template',
+                    'label' => 'More settings', // @translate
+                    'info' => 'Allow to pass some settings, usually for theme and generally via key-value pairs or json.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'settings',
+                ],
+            ])
+            // Language.
             ->add([
                 'name' => 'value_languages',
                 'type' => OmekaElement\ArrayTextarea::class,
@@ -164,32 +212,7 @@ class ResourceTemplateDataFieldset extends Fieldset
                     'id' => 'no_language',
                 ],
             ])
-
-            ->add([
-                'name' => 'value_suggest_keep_original_label',
-                'type' => CommonElement\OptionalCheckbox::class,
-                'options' => [
-                    'element_group' => 'values',
-                    'label' => 'Value Suggest: keep original label', // @translate
-                    'checked_value' => 'yes',
-                ],
-                'attributes' => [
-                    'id' => 'value_suggest_keep_original_label',
-                ],
-            ])
-            ->add([
-                'name' => 'value_suggest_require_uri',
-                'type' => CommonElement\OptionalCheckbox::class,
-                'options' => [
-                    'element_group' => 'values',
-                    'label' => 'Value Suggest: require uri', // @translate
-                    'checked_value' => 'yes',
-                ],
-                'attributes' => [
-                    'id' => 'value_suggest_require_uri',
-                ],
-            ])
-
+            // Values.
             ->add([
                 'name' => 'title_fallback_properties',
                 'type' => OmekaElement\ArrayTextarea::class,
@@ -206,7 +229,6 @@ class ResourceTemplateDataFieldset extends Fieldset
                         TXT,
                 ],
             ])
-
             ->add([
                 'name' => 'automatic_values',
                 'type' => Element\Textarea::class,
@@ -224,9 +246,6 @@ class ResourceTemplateDataFieldset extends Fieldset
                 ],
             ])
             // Autofillers feature has been moved to module Mapper.
-
-            // Value annotations.
-
             ->add([
                 'name' => 'value_annotations_template',
                 'type' => CommonElement\OptionalResourceSelect::class,
@@ -250,26 +269,32 @@ class ResourceTemplateDataFieldset extends Fieldset
                     'value' => '',
                 ],
             ])
-
-            // Items.
+            // Value Suggest.
             ->add([
-                'name' => 'item_sets',
-                'type' => CommonElement\OptionalItemSetSelect::class,
+                'name' => 'value_suggest_keep_original_label',
+                'type' => CommonElement\OptionalCheckbox::class,
                 'options' => [
-                    'element_group' => 'template',
-                    'label' => 'Item sets to set for items', // @translate
-                    'disable_inarray_validator' => true,
+                    'element_group' => 'value_suggest',
+                    'label' => 'Keep original label', // @translate
+                    'checked_value' => 'yes',
                 ],
                 'attributes' => [
-                    'id' => 'item_sets',
-                    'class' => 'chosen-select',
-                    'multiple' => true,
-                    'data-placeholder' => 'Select item sets…', // @translate
+                    'id' => 'value_suggest_keep_original_label',
                 ],
             ])
-
+            ->add([
+                'name' => 'value_suggest_require_uri',
+                'type' => CommonElement\OptionalCheckbox::class,
+                'options' => [
+                    'element_group' => 'value_suggest',
+                    'label' => 'Require uri', // @translate
+                    'checked_value' => 'yes',
+                ],
+                'attributes' => [
+                    'id' => 'value_suggest_require_uri',
+                ],
+            ])
             // Display.
-
             ->add([
                 'name' => 'groups',
                 'type' => CommonElement\GroupTextarea::class,
@@ -326,41 +351,6 @@ class ResourceTemplateDataFieldset extends Fieldset
                         bibo:volume asc
                         bibo:issue asc
                         TXT,
-                ],
-            ])
-
-            // Media.
-
-            ->add([
-                'name' => 'media_templates_minimum',
-                'type' => \Omeka\Form\Element\ArrayTextarea::class,
-                'options' => [
-                    'element_group' => 'template',
-                    'label' => 'Minimum number of media for each media template', // @translate
-                    'info' => 'Set the template number or label, then "=", then the number. Use 0 as number to set the number for other templates.', // @translate
-                    'as_key_value' => true,
-                ],
-                'attributes' => [
-                    'id' => 'media_templates_minimum',
-                    'placeholder' => <<<'TXT'
-                        File = 1
-                        0 = 1
-                        TXT,
-                ],
-            ])
-
-            // Others.
-
-            ->add([
-                'name' => 'settings',
-                'type' => Element\Textarea::class,
-                'options' => [
-                    'element_group' => 'template',
-                    'label' => 'More settings', // @translate
-                    'info' => 'Allow to pass some settings, usually for theme and generally via key-value pairs or json.', // @translate
-                ],
-                'attributes' => [
-                    'id' => 'settings',
                 ],
             ])
         ;
