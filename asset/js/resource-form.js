@@ -520,28 +520,35 @@
                 }
                 const formData = new FormData(formEl);
                 const post = {};
+                // A numeric key is stored prefixed, because javascript always
+                // enumerates integer-like keys in ascending order, whatever the
+                // insertion order: "o:media[3]" submitted before "o:media[0]"
+                // would be reordered and the sort of the medias would be lost.
+                // The prefix is removed by orderedLists() below.
+                const encodeKey = function (k) {
+                    return /^\d+$/.test(k) ? '#' + k : k;
+                };
                 const setPath = function (obj, keys, value) {
                     for (let i = 0; i < keys.length - 1; i++) {
                         const k = keys[i];
                         const nextK = keys[i + 1];
-                        const nextIsIndex = nextK === '' || /^\d+$/.test(nextK);
                         if (k === '') {
-                            const arr = obj;
-                            const next = nextIsIndex ? [] : {};
-                            arr.push(next);
+                            const next = nextK === '' ? [] : {};
+                            obj.push(next);
                             obj = next;
                         } else {
-                            if (obj[k] === undefined || obj[k] === null) {
-                                obj[k] = nextIsIndex ? [] : {};
+                            const ek = encodeKey(k);
+                            if (obj[ek] === undefined || obj[ek] === null) {
+                                obj[ek] = nextK === '' ? [] : {};
                             }
-                            obj = obj[k];
+                            obj = obj[ek];
                         }
                     }
                     const last = keys[keys.length - 1];
                     if (last === '') {
                         obj.push(value);
                     } else {
-                        obj[last] = value;
+                        obj[encodeKey(last)] = value;
                     }
                 };
                 for (const [name, value] of formData.entries()) {
@@ -559,45 +566,40 @@
                     const rest = name.slice(name.indexOf('['));
                     const keys = [mainKey];
                     rest.replace(/\[([^\]]*)\]/g, function (_m, k) { keys.push(k); return ''; });
-                    const firstSubIsIndex = keys[1] === '' || /^\d+$/.test(keys[1]);
                     if (post[mainKey] === undefined) {
-                        post[mainKey] = firstSubIsIndex ? [] : {};
+                        post[mainKey] = keys[1] === '' ? [] : {};
                     }
                     setPath(post, keys, value);
                 }
-                // With json-encoding, a sparse array (for example "o:media[2]"
-                // when  the rows 0 and 1 were removed) is stringified with null
-                // holes unlike a native post where the missing indexes are
-                // absent. So drop the holes, but keep the original numeric
-                // indexes as an object.
-                const compactHoles = function (value) {
+                // Turn the prefixed numeric keys back into a list, in the
+                // order the fields were encountered, that is the order of the
+                // form: this is what a native post gives to php, where the
+                // array keeps its insertion order. The original indexes are
+                // dropped, like the holes of a removed row, since only the
+                // order matters ("file_index" is a value, not a key).
+                const orderedLists = function (value) {
                     if (Array.isArray(value)) {
-                        let hasHole = false;
-                        for (let i = 0; i < value.length; i++) {
-                            if (!(i in value) || value[i] === undefined || value[i] === null) {
-                                hasHole = true;
-                                break;
-                            }
-                        }
-                        if (!hasHole) {
-                            return value.map(compactHoles);
-                        }
-                        const obj = {};
-                        for (let i = 0; i < value.length; i++) {
-                            if (i in value && value[i] !== undefined && value[i] !== null) {
-                                obj[i] = compactHoles(value[i]);
-                            }
-                        }
-                        return obj;
+                        return value.map(orderedLists);
                     }
-                    if (value && typeof value === 'object') {
-                        Object.keys(value).forEach(function (k) {
-                            value[k] = compactHoles(value[k]);
+                    if (!value || typeof value !== 'object') {
+                        return value;
+                    }
+                    const keys = Object.keys(value);
+                    const isList = keys.length > 0 && keys.every(function (k) {
+                        return /^#\d+$/.test(k);
+                    });
+                    if (isList) {
+                        return keys.map(function (k) {
+                            return orderedLists(value[k]);
                         });
                     }
-                    return value;
+                    const out = {};
+                    keys.forEach(function (k) {
+                        out[k.charAt(0) === '#' ? k.slice(1) : k] = orderedLists(value[k]);
+                    });
+                    return out;
                 };
-                compactHoles(post);
+                const orderedPost = orderedLists(post);
 
                 formEl.querySelectorAll('[name]').forEach(function (el) {
                     if (el.name === 'csrf' || el.name === '_post') {
@@ -615,7 +617,7 @@
                 $(formEl).prepend($('<input>', {
                     type: 'hidden',
                     name: '_post',
-                    value: JSON.stringify(post),
+                    value: JSON.stringify(orderedPost),
                 }));
             }
         });
