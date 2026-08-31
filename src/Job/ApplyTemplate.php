@@ -1131,13 +1131,14 @@ class ApplyTemplate extends AbstractJob
         array $data,
         int $resourceId
     ): ?array {
-        // Property terms in the serialized data are all keys that contain a
-        // colon (vocabulary:localName).
+        // The keys of the serialized data that contain a colon are not all
+        // property terms: "o:owner", "o:media", "o:item_set", etc. are metadata
+        // of the resource, that are neither removable nor fixable here.
         $modified = false;
         $extraTerms = [];
 
         foreach ($data as $term => $values) {
-            if (strpos($term, ':') === false || !is_array($values)) {
+            if (!is_array($values) || !$this->easyMeta->propertyId($term)) {
                 continue;
             }
 
