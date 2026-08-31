@@ -41,6 +41,8 @@ $('#property-selector .selector-child').click(function(e) {
                 $('.description-property-cell').remove();
                 $('#properties .property[data-property-id=' + propertyId + ']').find('.actions').before(descriptionPropertyTemplate);
             }
+            // Keep the new row consistent with an active filter.
+            filterProperties();
         });
 });
 
@@ -464,5 +466,31 @@ $('#toggle-extended-info').on('click', function() {
     btn.attr('aria-pressed', !pressed);
     $('#properties .property-extended-info').toggle(!pressed);
 });
+
+// Filter the list of properties on the term, the label and the alternate label.
+// The comparison ignores the case and the diacritics, so "createur" matches
+// "Créateur".
+function normalizeForFilter(string) {
+    return string.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function filterProperties() {
+    var query = normalizeForFilter($('#property-filter').val().trim());
+    $('#properties > li.property').each(function() {
+        var row = $(this);
+        if (!query.length) {
+            row.show();
+            return;
+        }
+        var haystack = normalizeForFilter([
+            row.find('.property-term').text(),
+            row.find('.original-label-cell').text(),
+            row.find('.alternate-label-cell').text()
+        ].join(' '));
+        row.toggle(haystack.indexOf(query) !== -1);
+    });
+}
+
+$('#property-filter').on('input', filterProperties);
 
 });

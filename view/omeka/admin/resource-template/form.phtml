@@ -61,6 +61,9 @@ echo $this->sectionNav([
 <legend><?= $translate('Editing') ?></legend>
 
 <div class="property-list-toolbar">
+    <input type="text" id="property-filter" autocomplete="off"
+        placeholder="<?= $escape($translate('Filter properties…')) ?>"
+        aria-label="<?= $escape($translate('Filter properties on term, label or alternate label')) ?>">
     <button type="button" id="toggle-extended-info" class="button" aria-pressed="false"><?= $translate('Details') ?></button>
 </div>
 

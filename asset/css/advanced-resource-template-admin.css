@@ -408,13 +408,23 @@
         margin-top: 6px;
     }
     .property-list-toolbar {
-        text-align: right;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
         margin-bottom: 6px;
+    }
+    .property-list-toolbar #property-filter {
+        flex: 0 1 16em;
+        min-height: 0;
+        padding: 4px 8px;
+        font-size: .85em;
     }
     .property-list-toolbar #toggle-extended-info {
         font-size: .85em;
         padding: 4px 10px;
         min-height: 0;
+        margin-bottom: 0;
     }
     .property-list-toolbar #toggle-extended-info[aria-pressed="true"] {
         background-color: #676767;
