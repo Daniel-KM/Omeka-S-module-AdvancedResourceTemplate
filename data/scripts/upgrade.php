@@ -829,7 +829,9 @@ if (version_compare((string) $oldVersion, '3.4.50', '<')) {
         }
     }
 
-    $mapperIsActive = $this->isModuleActive('Mapper');
+    // Mapper must be active for next.
+    $mapperIsActive = $this->isModuleActive('Mapper')
+        && $services->get('Omeka\ApiAdapterManager')->has('mappers');
 
     // If custom autofillers or templates use autofillers, require Mapper.
     if (($hasCustomAutofillers || !empty($templatesUsingAutofillers)) && !$mapperIsActive) {
@@ -1078,4 +1080,14 @@ if (version_compare((string) $oldVersion, '3.4.54', '<')) {
         'For accessibility, the heading level of metadata groups in the resource view changed from h4 to h3. Check your theme if needed.' // @translate
     );
     $messenger->addWarning($message);
+}
+
+if (version_compare((string) $oldVersion, '3.4.55', '<')) {
+    // The property setting "display_value" was renamed "placeholder_value".
+    $sql = <<<'SQL'
+        UPDATE `resource_template_property_data`
+        SET `data` = REPLACE(`data`, '"display_value":', '"placeholder_value":')
+        WHERE `data` LIKE '%"display_value":%'
+        SQL;
+    $count = $connection->executeStatement($sql);
 }
