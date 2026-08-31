@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-01 00:00+0000\n"
-"PO-Revision-Date: 2026-06-01 00:00+0000\n"
+"POT-Creation-Date: 2026-08-31 00:00+0000\n"
+"PO-Revision-Date: 2026-08-31 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -15,12 +15,12 @@ msgstr ""
 "X-Generator: Poedit 3.6\n"
 
 #: data/scripts/upgrade.php:45 data/scripts/upgrade.php:83
-#: data/scripts/upgrade.php:845 data/scripts/upgrade.php:986
+#: data/scripts/upgrade.php:847 data/scripts/upgrade.php:988
 msgid "Missing requirement. Unable to upgrade."
 msgstr "Pré-requis absent. Impossible de mettre à jour."
 
-#: data/scripts/upgrade.php:54 data/scripts/upgrade.php:76 Module.php:53
-#: Module.php:78
+#: data/scripts/upgrade.php:54 data/scripts/upgrade.php:76 Module.php:70
+#: Module.php:95
 msgid ""
 "Some features require the module {module} to be upgraded to version "
 "{version} or later."
@@ -28,12 +28,12 @@ msgstr ""
 "Certaines fonctionnalités nécessitent que le module {module} soit mis à "
 "niveau à la version {version} ou supérieure."
 
-#: data/scripts/upgrade.php:65 Module.php:41 Module.php:63
+#: data/scripts/upgrade.php:65 Module.php:58 Module.php:80
 #, php-format
 msgid "The module %1$s should be upgraded to version %2$s or later."
 msgstr "Le module %1$s doit être mis à niveau à la version %2$s ou supérieure."
 
-#: Module.php:87
+#: Module.php:104
 msgid ""
 "The module {link}Mapper{link_end} is recommended for autofiller features "
 "(IdRef, Geonames, etc.) and for automatic values."
@@ -42,48 +42,38 @@ msgstr ""
 "remplissage automatique (IdRef, Geonames, etc.) et pour les valeurs "
 "automatiques."
 
-#: Module.php:1422
+#: Module.php:1466
 #, php-format
 msgid "Browse %1$d %2$s"
 msgstr "Parcourir %1$d %2$s"
 
-#: Module.php:1429
+#: Module.php:1473
 #, php-format
 msgid "Add new %s"
 msgstr "Ajouter un nouveau %s"
 
-#: Module.php:1442 view/common/apply-template-sidebar.phtml:40
+#: Module.php:1486
 msgid "Apply template to resources"
 msgstr "Appliquer le modèle aux ressources"
 
-#: Module.php:1531
+#: Module.php:1575
 msgid "Resources for this template"
 msgstr "Ressources pour ce modèle"
 
-#: Module.php:1533
+#: Module.php:1577
 #, php-format
 msgid "Items: %d"
 msgstr "Contenus : %d"
 
-#: Module.php:1538
+#: Module.php:1582
 #, php-format
 msgid "Item sets: %d"
 msgstr "Collections : %d"
 
-#: Module.php:1544
+#: Module.php:1588
 #, php-format
 msgid "Media: %d"
 msgstr "Média : %d"
-
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1221
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1230
-#, php-format
-msgid "This template is used by %d resources."
-msgstr "Ce modèle ne peut pas être utilisé par %d ressources."
-
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1223
-msgid "Apply changes to existing resources?"
-msgstr "Appliquer les changements aux ressources existantes ?"
 
 #: src/Listener/ValueDisplayListener.php:359
 msgid "Search this value"
@@ -113,50 +103,59 @@ msgstr "Voir cette ressource"
 msgid "Open this external uri in a new tab"
 msgstr "Ouvrir cette uri externe dans un nouvel onglet"
 
-#: view/common/apply-template-sidebar.phtml:43
-#, php-format
-msgid "This template is used by %s resources."
-msgstr "Ce modèle ne peut pas être utilisé par %s ressources."
+#: view/common/apply-template-sidebar.phtml:49
+msgid "Audit and fix resources"
+msgstr "Auditer et corriger les ressources"
 
-#: view/common/apply-template-sidebar.phtml:59
-msgid "Apply the fixes below"
-msgstr "Appliquer les corrections ci-dessous"
+#: view/common/apply-template-sidebar.phtml:52
+msgid ""
+"{count} resources have values that may not match the current settings of "
+"this template."
+msgstr ""
+"{count} ressources ont des valeurs qui peuvent ne pas correspondre aux "
+"paramètres actuels de ce modèle."
 
 #: view/common/apply-template-sidebar.phtml:67
+#: view/common/apply-template-sidebar.phtml:163
+#: view/common/apply-template-sidebar.phtml:165
+msgid "Audit"
+msgstr "Audit"
+
+#: view/common/apply-template-sidebar.phtml:72
+#: view/omeka/admin/resource-template/show.phtml:109
+msgid "Apply to resources"
+msgstr "Appliquer aux ressources"
+
+#: view/common/apply-template-sidebar.phtml:99
 msgid "Add missing default values"
 msgstr "Ajouter les valeurs par défaut"
 
-#: view/common/apply-template-sidebar.phtml:74
+#: view/common/apply-template-sidebar.phtml:106
 msgid "Recalculate automatic values"
 msgstr "Détermination des valeurs automatiques"
 
-#: view/common/apply-template-sidebar.phtml:81
+#: view/common/apply-template-sidebar.phtml:113
+msgid "Fix visibility (public/private)"
+msgstr "Corriger la visibilité (public/privé)"
+
+#: view/common/apply-template-sidebar.phtml:120
+msgid "Fix wrong data types when possible"
+msgstr "Corriger les types de données incorrects si possible"
+
+#: view/common/apply-template-sidebar.phtml:128
 msgid "Truncate values exceeding max length"
 msgstr "Couper les valeurs dépassant la longueur spécifiée"
 
-#: view/common/apply-template-sidebar.phtml:88
+#: view/common/apply-template-sidebar.phtml:135
 msgid "Remove values exceeding max count"
 msgstr ""
 "Supprimer les valeurs en trop lorsque la propriété définit un nombre maximum"
 
-#: view/common/apply-template-sidebar.phtml:95
-msgid "Fix visibility (public/private)"
-msgstr "Corriger la visibilité (public/privé)"
-
-#: view/common/apply-template-sidebar.phtml:102
-msgid "Fix wrong data types when possible"
-msgstr "Corriger les types de données incorrects si possible"
-
-#: view/common/apply-template-sidebar.phtml:109
+#: view/common/apply-template-sidebar.phtml:142
 msgid "Remove values of properties not in template"
 msgstr "Supprimer les valeurs des propriétés absentes du modèle"
 
-#: view/common/apply-template-sidebar.phtml:118
-#: view/common/apply-template-sidebar.phtml:120
-msgid "Audit"
-msgstr "Audit"
-
-#: view/common/apply-template-sidebar.phtml:119
+#: view/common/apply-template-sidebar.phtml:164
 msgid "Apply fixes"
 msgstr "Appliquer les corrections"
 
@@ -164,10 +163,14 @@ msgstr "Appliquer les corrections"
 msgid "Other metadata"
 msgstr "Autres métadonnées"
 
-#: view/omeka/admin/resource-template/form.phtml:41
-#: view/omeka/admin/resource-template/form.phtml:74
-msgid "Template settings"
-msgstr "Paramètres du modèle"
+#: view/omeka/admin/resource-template/form.phtml:65
+msgid "Filter properties…"
+msgstr "Filtrer les propriétés…"
+
+#: view/omeka/admin/resource-template/form.phtml:66
+msgid "Filter properties on term, label or alternate label"
+msgstr ""
+"Filtrer les propriétés sur le terme, le libellé ou le libellé alternatif"
 
 #: view/omeka/admin/resource-template/review-import.phtml:89
 msgid "Default language?"
@@ -192,46 +195,42 @@ msgstr "Min : %d"
 msgid "Card: %s"
 msgstr "Carte : %s"
 
-#: view/omeka/admin/resource-template/show.phtml:55
+#: view/omeka/admin/resource-template/show.phtml:56
 #, php-format
 msgid "Browse %d items"
 msgstr "Parcourir %d contenus"
 
-#: view/omeka/admin/resource-template/show.phtml:61
+#: view/omeka/admin/resource-template/show.phtml:62
 #, php-format
 msgid "Browse %d item sets"
 msgstr "Parcourir %d collections"
 
-#: view/omeka/admin/resource-template/show.phtml:67
+#: view/omeka/admin/resource-template/show.phtml:68
 #, php-format
 msgid "Browse %d media"
 msgstr "Parcourir %d médias"
 
-#: view/omeka/admin/resource-template/show.phtml:76
+#: view/omeka/admin/resource-template/show.phtml:77
 msgid "New resource"
 msgstr "Nouvelle ressource"
 
-#: view/omeka/admin/resource-template/show.phtml:102
+#: view/omeka/admin/resource-template/show.phtml:103
 msgid "As csv"
 msgstr "En csv"
 
-#: view/omeka/admin/resource-template/show.phtml:103
+#: view/omeka/admin/resource-template/show.phtml:104
 msgid "As tsv"
 msgstr "En tsv"
 
-#: view/omeka/admin/resource-template/show.phtml:104
+#: view/omeka/admin/resource-template/show.phtml:105
 msgid "As json"
 msgstr "En json"
 
-#: view/omeka/admin/resource-template/show.phtml:108
-msgid "Apply to resources"
-msgstr "Appliquer aux ressources"
-
-#: view/omeka/admin/resource-template/show.phtml:134
+#: view/omeka/admin/resource-template/show.phtml:135
 msgid "Other settings"
 msgstr "Autres paramètres"
 
-#: view/omeka/admin/resource-template/show.phtml:202
+#: view/omeka/admin/resource-template/show.phtml:205
 msgid "Advanced settings"
 msgstr "Paramètres avancés"
 
@@ -461,7 +460,7 @@ msgstr ""
 "Un nouveau paramètre de template permet de définir les propriétés de "
 "fallbacks pour le titre."
 
-#: data/scripts/upgrade.php:837
+#: data/scripts/upgrade.php:839
 msgid ""
 "The autofiller feature has been moved to module {link}Mapper{link_end}. "
 "Please install and activate it before upgrading, then run the upgrade again."
@@ -470,7 +469,7 @@ msgstr ""
 "Mapper{link_end}. Veuillez l'installer et l'activer avant de procéder à la "
 "mise à jour, puis exécutez la à nouveau."
 
-#: data/scripts/upgrade.php:850
+#: data/scripts/upgrade.php:852
 msgid ""
 "The autofiller feature has been moved to module {link}Mapper{link_end}. "
 "Default autofillers (IdRef, Geonames) are available there."
@@ -479,11 +478,11 @@ msgstr ""
 "Mapper{link_end}. Les remplisseurs automatiques par défaut (IdRef, Geonames) "
 "y sont disponibles."
 
-#: data/scripts/upgrade.php:910
+#: data/scripts/upgrade.php:912
 msgid "Could not migrate autofiller \"{label}\": {error}"
 msgstr "Impossible de migrer le remplisseur automatique \"{label}\" : {error}"
 
-#: data/scripts/upgrade.php:918
+#: data/scripts/upgrade.php:920
 msgid ""
 "{count} custom autofillers have been migrated to module Mapper. Check them "
 "in {link}Mapper admin{link_end}."
@@ -491,7 +490,7 @@ msgstr ""
 "{count} champs de remplissage ont été migrés vers le module Mapper "
 "(Aligneur). Vérifiez-les dans {link}Mapper admin{link_end}."
 
-#: data/scripts/upgrade.php:933
+#: data/scripts/upgrade.php:935
 msgid ""
 "{count} templates use autofillers. You may need to update their "
 "configuration to reference Mapper mappings."
@@ -500,7 +499,7 @@ msgstr ""
 "deviez mettre à jour leur configuration pour qu'ils fassent référence aux "
 "alignements de Mapper."
 
-#: data/scripts/upgrade.php:977
+#: data/scripts/upgrade.php:979
 msgid ""
 "The automatic values feature now requires module {link}Mapper{link_end}. The "
 "following templates use automatic values and need migration: {templates}. "
@@ -511,7 +510,7 @@ msgstr ""
 "automatiques et nécessitent une migration : {templates}. Veuillez installer "
 "et activer Mapper avant de procéder à la mise à jour."
 
-#: data/scripts/upgrade.php:1065
+#: data/scripts/upgrade.php:1067
 msgid ""
 "Automatic values format migrated to Mapper format for {count} templates: "
 "{templates}."
@@ -519,13 +518,48 @@ msgstr ""
 "Format des valeurs automatiques migré vers le format Mapper pour les modèles "
 "{count} : {templates}."
 
-#: data/scripts/upgrade.php:1078
+#: data/scripts/upgrade.php:1080
 msgid ""
 "For accessibility, the heading level of metadata groups in the resource view "
 "changed from h4 to h3. Check your theme if needed."
 msgstr ""
 "Pour l’accessibilité, les titres des sections des groupes de métadonnées ont "
 "été changés de h4 en h3. Vérifiez votre thème si besoin."
+
+#: view/omeka/admin/resource-template/form.phtml:174
+msgid "Validation"
+msgstr "Validation"
+
+#: view/omeka/admin/resource-template/form.phtml:182
+msgid "Automatic values"
+msgstr "Valeurs automatiques"
+
+#: view/omeka/admin/resource-template/form.phtml:203
+msgid "Display as record"
+msgstr "Afficher en notice"
+
+#: view/omeka/admin/resource-template/form.phtml:207
+msgid "Display in lists"
+msgstr "Afficher dans les listes"
+
+#: view/omeka/admin/resource-template/form.phtml:217
+msgid "Custom Vocab"
+msgstr "Vocabulaire personnalisé"
+
+#: view/omeka/admin/resource-template/form.phtml:220
+#: src/Form/ResourceTemplateDataFieldset.php:27
+msgid "Value Suggest"
+msgstr "Valeurs suggérées"
+
+#: view/common/apply-template-sidebar.phtml:26
+msgid ""
+"Warning: some fixes remove values definitively, in particular the "
+"truncation, the maximum number of values and the properties that are not in "
+"the template. A backup of the database is recommended."
+msgstr ""
+"Attention : certaines corrections suppriment définitivement des valeurs, en "
+"particulier la troncature, le nombre maximal de valeurs et les propriétés "
+"absentes du modèle. Une sauvegarde de la base de données est recommandée."
 
 #: src/Listener/ResourceOnSave.php:464
 msgid "This template cannot be used for this resource."
@@ -618,19 +652,19 @@ msgstr "Erreur dans l'application des valeurs automatiques : {error}"
 msgid "Automatic values: unknown property term \"{term}\""
 msgstr "Valeurs automatiques : terme inconnu \"{term}\""
 
-#: src/Job/ApplyTemplate.php:178
+#: src/Job/ApplyTemplate.php:194
 msgid "No template id provided."
 msgstr "Pas de modèle indiqué."
 
-#: src/Job/ApplyTemplate.php:199
+#: src/Job/ApplyTemplate.php:215
 msgid "Template #{template_id} not found."
 msgstr "Le modèle « {template_id} » n’est pas disponible."
 
-#: src/Job/ApplyTemplate.php:211
+#: src/Job/ApplyTemplate.php:231
 msgid "Applying template \"{label}\" (mode: {mode})."
 msgstr "Application du modèle \"{label}\" (mode : {mode})."
 
-#: src/Job/ApplyTemplate.php:241
+#: src/Job/ApplyTemplate.php:261
 msgid ""
 "Template \"{label}\" applied: {resources} resources checked, {issues} issues "
 "found, {fixed} fixed, {skipped} not fixable."
@@ -638,7 +672,7 @@ msgstr ""
 "Modèle « {label} » appliqué : {resources} ressources vérifiées, {issues} "
 "problèmes détectés, {fixed} corrigés, {skipped} non corrigibles."
 
-#: src/Job/ApplyTemplate.php:242
+#: src/Job/ApplyTemplate.php:262
 msgid ""
 "Template \"{label}\" audited: {resources} resources checked, {issues} issues "
 "found."
@@ -646,30 +680,40 @@ msgstr ""
 "Modèle « {label} » audité : {resources} ressources vérifiées, {issues} "
 "problèmes détectés."
 
-#: src/Job/ApplyTemplate.php:387
+#: src/Job/ApplyTemplate.php:430
+msgid "Resource #{resource_id}: an additional fix failed: {error}"
+msgstr ""
+"Ressource #{resource_id} : un contrôle complémentaire a échoué : {error}"
+
+#: src/Job/ApplyTemplate.php:454
+msgid "Resource #{resource_id}: an additional check failed: {error}"
+msgstr ""
+"Ressource #{resource_id} : un contrôle complémentaire a échoué : {error}"
+
+#: src/Job/ApplyTemplate.php:505
 msgid "Processing {count} {resource_type} with template."
 msgstr "Traitement de {count} {resource_type} avec un modèle."
 
-#: src/Job/ApplyTemplate.php:397
+#: src/Job/ApplyTemplate.php:515
 msgid "Job stopped by user."
 msgstr "Tâche interrompue par l’utilisateur."
 
-#: src/Job/ApplyTemplate.php:427
+#: src/Job/ApplyTemplate.php:545
 msgid "Resource #{resource_id} cannot be read: {error}"
 msgstr "La ressource #{resource_id} ne peut pas être lue : {error}"
 
-#: src/Job/ApplyTemplate.php:476
+#: src/Job/ApplyTemplate.php:606
 msgid "Resource #{resource_id}: update failed: {error}"
 msgstr "Ressource #{resource_id} : échec de la mise à jour : {error}"
 
-#: src/Job/ApplyTemplate.php:517
+#: src/Job/ApplyTemplate.php:647
 msgid ""
 "Resource #{resource_id}: {term}: added default value for required property."
 msgstr ""
 "Ressource #{resource_id} : {term} : valeur par défaut ajoutée pour la "
 "propriété obligatoire."
 
-#: src/Job/ApplyTemplate.php:527
+#: src/Job/ApplyTemplate.php:657
 msgid ""
 "Resource #{resource_id}: {term}: required but empty (fixable with default "
 "value)."
@@ -677,26 +721,26 @@ msgstr ""
 "Ressource #{resource_id} : {term} : obligatoire mais vide (peut être corrigé "
 "avec une valeur par défaut)."
 
-#: src/Job/ApplyTemplate.php:536
+#: src/Job/ApplyTemplate.php:666
 msgid "Resource #{resource_id}: {term}: required but empty (no default value)."
 msgstr ""
 "Ressource #{resource_id} : {term} : obligatoire mais vide (pas de valeur par "
 "défaut)."
 
-#: src/Job/ApplyTemplate.php:561
+#: src/Job/ApplyTemplate.php:691
 msgid "Resource #{resource_id}: {term}: added default value."
 msgstr "Ressource #{resource_id} : {term} : valeur par défaut ajoutée."
 
-#: src/Job/ApplyTemplate.php:571
+#: src/Job/ApplyTemplate.php:701
 msgid "Resource #{resource_id}: {term}: empty, has default value."
 msgstr ""
 "Ressource #{resource_id} : {term} : vide, possède une valeur par défaut."
 
-#: src/Job/ApplyTemplate.php:596
+#: src/Job/ApplyTemplate.php:726
 msgid "Resource #{resource_id}: {term}: added automatic value."
 msgstr "Ressource #{resource_id} : {term} : valeur automatique ajoutée."
 
-#: src/Job/ApplyTemplate.php:624
+#: src/Job/ApplyTemplate.php:754
 msgid ""
 "Resource #{resource_id}: {term}: value truncated from {length} to {max} "
 "characters."
@@ -704,14 +748,14 @@ msgstr ""
 "Ressource #{resource_id} : {term} : valeur tronquée de {length} à {max} "
 "caractères."
 
-#: src/Job/ApplyTemplate.php:635
+#: src/Job/ApplyTemplate.php:765
 msgid ""
 "Resource #{resource_id}: {term}: value exceeds max length ({length}/{max})."
 msgstr ""
 "Ressource #{resource_id} : {term} : la valeur dépasse la longueur maximale "
 "({length}/{max})."
 
-#: src/Job/ApplyTemplate.php:661
+#: src/Job/ApplyTemplate.php:791
 msgid ""
 "Resource #{resource_id}: {term}: value too short ({length}/{min}, not "
 "fixable)."
@@ -719,20 +763,20 @@ msgstr ""
 "Ressource #{resource_id} : {term} : valeur trop courte ({length}/{min}, "
 "impossible à corriger)."
 
-#: src/Job/ApplyTemplate.php:683
+#: src/Job/ApplyTemplate.php:813
 msgid ""
 "Resource #{resource_id}: {term}: removed {count} excess values (max {max})."
 msgstr ""
 "Ressource #{resource_id} : {term} : suppression de {count} valeurs en excès "
 "(max {max})."
 
-#: src/Job/ApplyTemplate.php:694
+#: src/Job/ApplyTemplate.php:824
 msgid "Resource #{resource_id}: {term}: {count} values exceed max of {max}."
 msgstr ""
 "Ressource #{resource_id} : {term} : {count} valeurs dépassent le maximum de "
 "{max}."
 
-#: src/Job/ApplyTemplate.php:713
+#: src/Job/ApplyTemplate.php:843
 msgid ""
 "Resource #{resource_id}: {term}: {count} values below min of {min} (not "
 "fixable)."
@@ -740,27 +784,27 @@ msgstr ""
 "Ressource #{resource_id} : {term} : {count} valeurs inférieures au minimum "
 "de {min} (impossible à corriger)."
 
-#: src/Job/ApplyTemplate.php:736
+#: src/Job/ApplyTemplate.php:866
 msgid ""
 "Resource #{resource_id}: {term}: value does not match pattern (not fixable)."
 msgstr ""
 "Ressource #{resource_id} : {term} : la valeur ne correspond pas au modèle "
 "(impossible à corriger)."
 
-#: src/Job/ApplyTemplate.php:760
+#: src/Job/ApplyTemplate.php:890
 msgid "Resource #{resource_id}: {term}: visibility changed to {visibility}."
 msgstr ""
 "Ressource #{resource_id} : {term} : la visibilité a été modifiée en "
 "{visibility}."
 
-#: src/Job/ApplyTemplate.php:770
+#: src/Job/ApplyTemplate.php:900
 msgid ""
 "Resource #{resource_id}: {term}: value is {actual}, should be {expected}."
 msgstr ""
 "Ressource #{resource_id} : {term} : la valeur est {actual}, elle devrait "
 "être {expected}."
 
-#: src/Job/ApplyTemplate.php:930
+#: src/Job/ApplyTemplate.php:1060
 msgid ""
 "Resource #{resource_id}: {term}: duplicate value found in resource "
 "#{duplicate_id} (not fixable)."
@@ -768,7 +812,7 @@ msgstr ""
 "Ressource #{resource_id} : {term} : valeur en double détectée dans la "
 "ressource #{duplicate_id} (impossible à corriger)."
 
-#: src/Job/ApplyTemplate.php:1040
+#: src/Job/ApplyTemplate.php:1171
 msgid ""
 "Resource #{resource_id}: {term}: data type \"{type}\" is not allowed by the "
 "template (allowed: {allowed}). Use BulkEdit for manual conversion."
@@ -777,36 +821,36 @@ msgstr ""
 "autorisé par le modèle (autorisé : {allowed}). Utilisez BulkEdit pour une "
 "conversion manuelle."
 
-#: src/Job/ApplyTemplate.php:1073
+#: src/Job/ApplyTemplate.php:1204
 msgid "Resource #{resource_id}: removed properties not in template: {terms}."
 msgstr ""
 "Ressource #{resource_id} : propriétés supprimées non présentes dans le "
 "modèle : {terms}."
 
-#: src/Job/ApplyTemplate.php:1081
+#: src/Job/ApplyTemplate.php:1212
 msgid "Resource #{resource_id}: properties not in template: {terms}."
 msgstr ""
 "Ressource #{resource_id} : propriétés non présentes dans le modèle : {terms}."
 
-#: src/Job/ApplyTemplate.php:1107
+#: src/Job/ApplyTemplate.php:1238
 msgid ""
 "Template \"{label}\": {count} properties not used by any resource: {terms}."
 msgstr ""
 "Modèle « {label} » : {count} propriétés non utilisées par aucune ressource : "
 "{terms}."
 
-#: src/Job/ApplyTemplate.php:1161
+#: src/Job/ApplyTemplate.php:1292
 msgid "Browse {resource_type} with extra property \"{term}\": {url}"
 msgstr ""
 "Dans parcourir {resource_type}, manque la propriété spécifique \"{term}\" : "
 "{url}"
 
-#: src/Job/ApplyTemplate.php:1180
+#: src/Job/ApplyTemplate.php:1311
 msgid "Browse {resource_type} missing required \"{term}\": {url}"
 msgstr "Dans parcourir {resource_type}, manque \"{term}\" requis: {url}"
 
-#: src/Job/ApplyTemplate.php:1226 src/Job/ApplyTemplate.php:1255
-#: src/Job/ApplyTemplate.php:1278 src/Job/ApplyTemplate.php:1312
+#: src/Job/ApplyTemplate.php:1357 src/Job/ApplyTemplate.php:1386
+#: src/Job/ApplyTemplate.php:1409 src/Job/ApplyTemplate.php:1443
 msgid "Resource #{resource_id}: {term}: converted from \"{from}\" to \"{to}\"."
 msgstr ""
 "Ressource #{resource_id} : {term} : convertie de « {from} » en « {to} »."
@@ -967,103 +1011,129 @@ msgstr "Ne pas afficher les valeurs privées sur les sites, même pour un admin"
 msgid "Use property display settings in admin board"
 msgstr "Utilise les paramètres d’affichage des propriétés dans la partie admin"
 
-#: src/Form/ResourceTemplateDataFieldset.php:35
+#: src/Form/ResourceTemplateDataFieldset.php:36
 msgid "Medias"
 msgstr "Médias"
 
-#: src/Form/ResourceTemplateDataFieldset.php:44
+#: src/Form/ResourceTemplateDataFieldset.php:45
 msgid "Digital objects"
 msgstr "Objets numériques"
 
-#: src/Form/ResourceTemplateDataFieldset.php:53
+#: src/Form/ResourceTemplateDataFieldset.php:55
 msgid "Use for resources"
 msgstr "Utiliser pour les ressources"
 
-#: src/Form/ResourceTemplateDataFieldset.php:69
+#: src/Form/ResourceTemplateDataFieldset.php:74
 msgid "Require a class"
 msgstr "Requiert une classe"
 
-#: src/Form/ResourceTemplateDataFieldset.php:81
+#: src/Form/ResourceTemplateDataFieldset.php:86
 msgid "Limit to specified classes"
 msgstr "Limiter aux classes listées"
 
-#: src/Form/ResourceTemplateDataFieldset.php:93
+#: src/Form/ResourceTemplateDataFieldset.php:98
 msgid "Limit to specified properties"
 msgstr "Limiter aux propriétés listées"
 
-#: src/Form/ResourceTemplateDataFieldset.php:106
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:251
+#: src/Form/ResourceTemplateDataFieldset.php:110
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:194
 msgid "Allow quick creation of a resource"
 msgstr "Autoriser la création rapide d’une ressource"
 
-#: src/Form/ResourceTemplateDataFieldset.php:119
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:273
+#: src/Form/ResourceTemplateDataFieldset.php:123
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:216
 msgid "Autocomplete with existing values"
 msgstr "Auto-compléter avec des valeurs existantes"
 
-#: src/Form/ResourceTemplateDataFieldset.php:122
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:277
+#: src/Form/ResourceTemplateDataFieldset.php:126
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:220
 msgid "Starts with"
 msgstr "Commence par"
 
-#: src/Form/ResourceTemplateDataFieldset.php:123
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:278
+#: src/Form/ResourceTemplateDataFieldset.php:127
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:221
 msgid "Contains"
 msgstr "Contient"
 
-#: src/Form/ResourceTemplateDataFieldset.php:137
-msgid "Languages for values"
-msgstr "Langues pour les valeurs"
-
-#: src/Form/ResourceTemplateDataFieldset.php:160
-msgid "No language"
-msgstr "Pas de langue"
-
-#: src/Form/ResourceTemplateDataFieldset.php:173
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:344
-msgid "Value Suggest: keep original label"
-msgstr "Value Suggest : conserver le libellé original"
-
-#: src/Form/ResourceTemplateDataFieldset.php:185
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:366
-msgid "Value Suggest: require uri"
-msgstr "Value Suggest : uri obligatoire"
-
-#: src/Form/ResourceTemplateDataFieldset.php:198
-msgid "Properties used as fallback for title"
-msgstr "Propriétés utilisées comme substitut au titre"
-
-#: src/Form/ResourceTemplateDataFieldset.php:215
-msgid "Automatic values (on save)"
-msgstr "Valeurs automatiques (lors de l’enregistrement)"
-
-#: src/Form/ResourceTemplateDataFieldset.php:216
-msgid "Uses Mapper INI format. Requires module Mapper."
-msgstr "Utilise le format Mapper ini. Requiert le module Mapper."
-
-#: src/Form/ResourceTemplateDataFieldset.php:238
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:393
-msgid "Manual selection (default)"
-msgstr "Sélection manuelle (défaut)"
-
-#: src/Form/ResourceTemplateDataFieldset.php:239
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:394
-msgid "No value annotation"
-msgstr "Aucune annotation de valeur"
-
-#: src/Form/ResourceTemplateDataFieldset.php:260
+#: src/Form/ResourceTemplateDataFieldset.php:140
 msgid "Item sets to set for items"
 msgstr "Collections pour les contenus"
 
-#: src/Form/ResourceTemplateDataFieldset.php:267
+#: src/Form/ResourceTemplateDataFieldset.php:147
 msgid "Select item sets…"
 msgstr "Choisir des collections…"
 
+#: src/Form/ResourceTemplateDataFieldset.php:155
+msgid "Minimum number of media for each media template"
+msgstr "Nombre minimal de médias pour chaque modèle de média"
+
+#: src/Form/ResourceTemplateDataFieldset.php:156
+msgid ""
+"Set the template number or label, then \"=\", then the number. Use 0 as "
+"number to set the number for other templates."
+msgstr ""
+"Indiquer le numéro ou le libellé du modèle, puis « = », puis le nombre. "
+"Utiliser 0 pour définir le nombre des autres modèles."
+
+#: src/Form/ResourceTemplateDataFieldset.php:172
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:491
+msgid "More settings"
+msgstr "Autres paramètres"
+
+#: src/Form/ResourceTemplateDataFieldset.php:173
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:492
+msgid ""
+"Allow to pass some settings, usually for theme and generally via key-value "
+"pairs or json."
+msgstr ""
+"Permet de passer certains paramètres généralement pour le thème et via des "
+"paires clés-valeurs ou json."
+
+#: src/Form/ResourceTemplateDataFieldset.php:185
+msgid "Languages for values"
+msgstr "Langues pour les valeurs"
+
+#: src/Form/ResourceTemplateDataFieldset.php:208
+msgid "No language"
+msgstr "Pas de langue"
+
+#: src/Form/ResourceTemplateDataFieldset.php:221
+msgid "Properties used as fallback for title"
+msgstr "Propriétés utilisées comme substitut au titre"
+
+#: src/Form/ResourceTemplateDataFieldset.php:237
+msgid "Automatic values (on save)"
+msgstr "Valeurs automatiques (lors de l’enregistrement)"
+
+#: src/Form/ResourceTemplateDataFieldset.php:238
+msgid "Uses Mapper INI format. Requires module Mapper."
+msgstr "Utilise le format Mapper ini. Requiert le module Mapper."
+
+#: src/Form/ResourceTemplateDataFieldset.php:257
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:308
+msgid "Manual selection (default)"
+msgstr "Sélection manuelle (défaut)"
+
+#: src/Form/ResourceTemplateDataFieldset.php:258
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:309
+msgid "No value annotation"
+msgstr "Aucune annotation de valeur"
+
 #: src/Form/ResourceTemplateDataFieldset.php:278
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:446
+msgid "Keep original label"
+msgstr "Conserver le libellé original"
+
+#: src/Form/ResourceTemplateDataFieldset.php:290
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:468
+msgid "Require uri"
+msgstr "Exiger un uri"
+
+#: src/Form/ResourceTemplateDataFieldset.php:303
 msgid "Groups"
 msgstr "Groupes"
 
-#: src/Form/ResourceTemplateDataFieldset.php:279
+#: src/Form/ResourceTemplateDataFieldset.php:304
 msgid ""
 "Allow to get properties by group for display. This is a list of group names "
 "and properties for each of them. May need a specific theme template."
@@ -1072,11 +1142,11 @@ msgstr ""
 "de noms de groupes et de propriétés. Dans certains cas, le thème doit être "
 "mis à jour."
 
-#: src/Form/ResourceTemplateDataFieldset.php:316
+#: src/Form/ResourceTemplateDataFieldset.php:341
 msgid "Order of linked values (Omeka v4.1)"
 msgstr "Tri des valeurs liées (Omeka v4.1)"
 
-#: src/Form/ResourceTemplateDataFieldset.php:317
+#: src/Form/ResourceTemplateDataFieldset.php:342
 msgid ""
 "The default order of the linked resources is the title. Another order can be "
 "set for each linking property. For the default order when there is no "
@@ -1086,37 +1156,12 @@ msgstr ""
 "être défini pour chaque propriété liante. Pour définir le tri par défaut en "
 "l’absence de propriété, ne pas indiquer le terme."
 
-#: src/Form/ResourceTemplateDataFieldset.php:339
-msgid "Minimum number of media for each media template"
-msgstr "Nombre minimal de médias pour chaque modèle de média"
-
-#: src/Form/ResourceTemplateDataFieldset.php:340
-msgid ""
-"Set the template number or label, then \"=\", then the number. Use 0 as "
-"number to set the number for other templates."
-msgstr ""
-"Indiquer le numéro ou le libellé du modèle, puis « = », puis le nombre. "
-"Utiliser 0 pour définir le nombre des autres modèles."
-
-#: src/Form/ResourceTemplateDataFieldset.php:359
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:483
-msgid "More settings"
-msgstr "Autres paramètres"
-
-#: src/Form/ResourceTemplateDataFieldset.php:360
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:484
-msgid ""
-"Allow to pass some settings, usually for theme and generally via key-value "
-"pairs or json."
-msgstr ""
-"Permet de passer certains paramètres généralement pour le thème et via des "
-"paires clés-valeurs ou json."
-
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:19
 msgid "Minimum number of values (when required)"
 msgstr "Nombre minimal de valeurs (si requis)"
 
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:33
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:418
 msgid "Maximum number of values"
 msgstr "Nombre maximal de valeurs"
 
@@ -1132,117 +1177,109 @@ msgstr "Longueur maximale (caractères)"
 msgid "Input control for literal (html pattern)"
 msgstr "Contrôle de saisie pour les valeurs texte (motif html)"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:94
-msgid "Default value"
-msgstr "Valeur par défaut"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:106
-msgid "Automatic value (on save)"
-msgstr "Valeur automatique (lors de l’enregistrement)"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:118
-msgid "Automatic date when resource is made public"
-msgstr "Date automatique quand la ressource est rendue publique"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:125
-msgid "First time issued"
-msgstr "Première date de publication"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:141
-msgid "Fake value to display when empty"
-msgstr "Valeur fictive à afficher si vide"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:153
-msgid "Display values on the public site"
-msgstr "Afficher les valeurs sur le site public"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:155
-msgid "Yes (default)"
-msgstr "Oui (défaut)"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:156
-msgid "No, except for authenticated users"
-msgstr "Non, sauf les utilisateurs authentifiés"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:174
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:90
 msgid "Unique value among resources"
 msgstr "Valeur unique parmi toutes les ressources"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:187
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:108
+msgid "Default value"
+msgstr "Valeur par défaut"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:120
+msgid "Automatic value (on save)"
+msgstr "Valeur automatique (lors de l’enregistrement)"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:132
+msgid "Automatic date when resource is made public"
+msgstr "Date automatique quand la ressource est rendue publique"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:139
+msgid "First time issued"
+msgstr "Première date de publication"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:155
 msgid "Locked value once saved"
 msgstr "Valeur bloquée une fois enregistrée"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:200
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:168
 msgid "Property disabled in form (editable only by api/job)"
 msgstr ""
 "Propriété désactivée dans le formulaire (éditable seulement par api/tâche)"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:213
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:182
 msgid "Separator to split a literal value"
 msgstr "Séparateur pour éclater une valeur textuelle"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:225
-msgid "Order linked resources by properties"
-msgstr "Trier les ressources liées par propriétés"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:238
-msgid "Filter linked resources with a query"
-msgstr "Filtrer les ressources liées avec une requête"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:239
-msgid "Use url arguments of a standard advanced search query"
-msgstr "Utiliser les arguments d’une url de recherche avancée standard"
-
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:253
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:275
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:311
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:346
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:368
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:392
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:196
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:218
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:255
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:307
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:448
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:470
 msgid "Use template setting"
 msgstr "Utiliser le paramètre du modèle"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:296
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:240
 msgid "Suggested languages"
 msgstr "Langues suggérées"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:309
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:253
 msgid "Use language"
 msgstr "Utilise la langue"
 
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:276
+msgid "Filter linked resources with a query"
+msgstr "Filtrer les ressources liées avec une requête"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:277
+msgid "Use url arguments of a standard advanced search query"
+msgstr "Utiliser les arguments d’une url de recherche avancée standard"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:290
+msgid "Order linked resources by properties"
+msgstr "Trier les ressources liées par propriétés"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:329
+msgid "Display values on the public site"
+msgstr "Afficher les valeurs sur le site public"
+
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:331
-msgid "Custom vocab: open authority list"
-msgstr "Vocabulaire personnalisé : liste d’autorité ouverte"
+msgid "Yes (default)"
+msgstr "Oui (défaut)"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:414
-msgid "Display in resource card"
-msgstr "Afficher dans la notice de ressource"
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:332
+msgid "No, except for authenticated users"
+msgstr "Non, sauf les utilisateurs authentifiés"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:426
-msgid "Card role"
-msgstr "Rôle de la carte"
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:350
+msgid "Placeholder to display when there is no value"
+msgstr "Texte affiché en l’absence de valeur"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:431
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:363
+msgid "Display the value in resource card"
+msgstr "Afficher dans la carte de ressource"
+
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:380
 #: config/module.config.php:160
 msgid "Meta"
 msgstr "Meta"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:432
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:381
 #: config/module.config.php:161
 msgid "Footer"
 msgstr "Pied-de-page"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:445
-msgid "Card: first value only"
-msgstr "Carte : première valeur seulement"
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:394
+msgid "First value only"
+msgstr "Première valeur seulement"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:457
-msgid "Card: value separator"
-msgstr "Carte : séparateur de valeurs"
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:406
+msgid "Value separator"
+msgstr "Séparateur de valeurs"
 
-#: src/Form/ResourceTemplatePropertyDataFieldset.php:469
-msgid "Card: max values"
-msgstr "Carte : nombre maximum de valeurs"
+#: src/Form/ResourceTemplatePropertyDataFieldset.php:432
+msgid "Open authority list"
+msgstr "Liste d’autorité ouverte"
 
 #: src/Form/TraitPropertyValuesDisplay.php:17
 msgid "Display of property values"
@@ -1385,12 +1422,12 @@ msgstr "Le type de données « {data_type} » n’est pas disponible."
 msgid "The query is empty."
 msgstr "La requête est vide."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:51
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:64
 msgid "Select resource templates"
 msgstr "Choisir des modèles de ressources"
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:452
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:664
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:474
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:686
 msgid ""
 "The template has duplicate properties. They are mixed in the form, but will "
 "be imported separately."
@@ -1398,29 +1435,29 @@ msgstr ""
 "Le modèle contient des propriétés en double. Elles sont mélangées dans cette "
 "page, mais seront importées séparément."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:461
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:483
 msgid "Wrong media type \"{media_type}\" for file."
 msgstr "Média-type incorrect {media_type} pour le fichier."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:485
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:507
 msgid "The file does not contain any row."
 msgstr "Le fichier ne contient aucune ligne."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:591
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:613
 msgid "There is no valid template properties."
 msgstr "Il n’y a aucune propriété valide."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:636
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:658
 #, php-format
 msgid "The alternative label for a duplicate property (%s) should be unique."
 msgstr ""
 "Le libellé alternatif pour la propriété en double (%s) doit être unique."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:657
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:679
 msgid "File cannot be checked or saved."
 msgstr "Le fichier ne peut pas être vérifié ou enregistré."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1177
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1199
 msgid ""
 "When multiple fields use the same property, only one field can be without "
 "data type."
@@ -1428,7 +1465,7 @@ msgstr ""
 "Quand plusieurs champs utilisent la même propriété, un seul champ peut être "
 "sans type de données."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1180
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1202
 msgid ""
 "When multiple fields use the same property, the data types must be unique "
 "among them."
@@ -1436,19 +1473,30 @@ msgstr ""
 "Quand plusieurs champs utilisent la même propriété, les types de données "
 "doivent être uniques entre eux."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1219
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1241
 msgid ""
-"{info} <a href=\"#\" class=\"apply-template-trigger\" data-template-id=\"{id}"
-"\">{action}</a>"
+"The template \"{template}\" has been modified. The {count} resources using "
+"it may have values that do not match its settings any more. {link}An audit "
+"is recommended{link_end}."
 msgstr ""
-"{info} <a href=\"#\" class=\"apply-template-trigger\" data-template-id=\"{id}"
-"\">{action}</a>"
+"Le modèle « {template} » a été modifié. Les {count} ressources qui "
+"l’utilisent peuvent avoir des valeurs qui ne correspondent plus à ses "
+"paramètres. {link}Il est recommandé de lancer un audit{link_end}."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1726
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1253
+msgid ""
+"The template \"{template}\" has been modified. The {count} resources using "
+"it may have values that do not match its settings any more."
+msgstr ""
+"Le modèle « {template} » a été modifié. Les {count} ressources qui "
+"l’utilisent peuvent avoir des valeurs qui ne correspondent plus à ses "
+"paramètres."
+
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1752
 msgid "Invalid or missing CSRF token."
 msgstr "Jeton CSRF invalide ou manquant."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1756
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1792
 msgid ""
 "Applying template corrections to resources in background (job {link_job}"
 "#{job_id}{link_end}, {link_log}logs{link_end})."
@@ -1456,7 +1504,7 @@ msgstr ""
 "Application des corrections du modèle aux ressources en arrière-plan "
 "({link_job}tâche #{job_id}{link_end}, {link_log}journaux{link_end})."
 
-#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1757
+#: src/Controller/Admin/ResourceTemplateControllerDelegator.php:1793
 msgid ""
 "Auditing resources against template in background (job {link_job}#{job_id}"
 "{link_end}, {link_log}logs{link_end})."
@@ -1490,6 +1538,75 @@ msgstr "Carte"
 
 msgid "No %s found."
 msgstr "Aucun %s trouvé."
+
+#, php-format
+#~ msgid "Apply changes to existing resources?"
+#~ msgstr "Appliquer les changements aux ressources existantes ?"
+
+#, php-format
+#~ msgid "Apply the fixes below"
+#~ msgstr "Appliquer les corrections ci-dessous"
+
+#~ msgid "Template settings"
+#~ msgstr "Paramètres du modèle"
+
+#~ msgid "Value Suggest: keep original label"
+#~ msgstr "Value Suggest : conserver le libellé original"
+
+#~ msgid "Fake value to display when empty"
+#~ msgstr "Valeur fictive à afficher si vide"
+
+#~ msgid "Custom vocab: open authority list"
+#~ msgstr "Vocabulaire personnalisé : liste d’autorité ouverte"
+
+#~ msgid "Card role"
+#~ msgstr "Rôle de la carte"
+
+#~ msgid "Card: first value only"
+#~ msgstr "Carte : première valeur seulement"
+
+#~ msgid "Card: value separator"
+#~ msgstr "Carte : séparateur de valeurs"
+
+#~ msgid "Card: max values"
+#~ msgstr "Carte : nombre maximum de valeurs"
+
+#~ msgid ""
+#~ "{info} <a href=\"#\" class=\"apply-template-trigger\" data-template-"
+#~ "id=\"{id}\">{action}</a>"
+#~ msgstr ""
+#~ "{info} <a href=\"#\" class=\"apply-template-trigger\" data-template-"
+#~ "id=\"{id}\">{action}</a>"
+
+#~ msgid "Display the value"
+#~ msgstr "Afficher la valeur"
+
+#~ msgid "Role"
+#~ msgstr "Rôle"
+
+#~ msgid "Role in search results"
+#~ msgstr "Rôle dans les résultats de recherche"
+
+#~ msgid "Search results: first value only"
+#~ msgstr "Résultats de recherche : première valeur seulement"
+
+#~ msgid "Search results: value separator"
+#~ msgstr "Résultats de recherche : séparateur de valeurs"
+
+#~ msgid "Search results: maximum number of values"
+#~ msgstr "Résultats de recherche : nombre maximal de valeurs"
+
+#~ msgid "Values and validation"
+#~ msgstr "Valeurs et validation"
+
+#~ msgid "Default and automatic values"
+#~ msgstr "Valeurs par défaut et automatiques"
+
+#~ msgid "Display and value annotations"
+#~ msgstr "Affichage et annotations de valeur"
+
+#~ msgid "Resource card"
+#~ msgstr "Carte de ressource"
 
 #~ msgid "Apply corrections"
 #~ msgstr "Appliquer les corrections"
