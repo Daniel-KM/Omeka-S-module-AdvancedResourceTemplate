@@ -119,7 +119,11 @@
             e.preventDefault();
             annotatingValue = $(this).closest('.value');
             vaContainer.empty();
-            const valueAnnotations = annotatingValue.data('value-annotations') ? annotatingValue.data('value-annotations') : {};
+            // Use a deep copy: fillVaTemplate() removes the properties that
+            // are managed by the template from the object, so the annotations
+            // stored in the value would be lost when the sidebar is closed
+            // without setting them.
+            const valueAnnotations = $.extend(true, {}, annotatingValue.data('value-annotations') || {});
             const templateData = $('#resource-values').data('template-data');
             const propertyData = annotatingValue.closest('.resource-property').data('template-property-data');
             const vaTemplate = templateData && templateData.value_annotations_template ? templateData.value_annotations_template : 'manual';
