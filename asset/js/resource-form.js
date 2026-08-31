@@ -533,6 +533,12 @@
                     }
                 };
                 for (const [name, value] of formData.entries()) {
+                    // The files are sent as multipart data and are not
+                    // serializable in json, so skip them: they would be stored
+                    // as an empty object in the post.
+                    if (value instanceof File) {
+                        continue;
+                    }
                     if (!name.includes('[')) {
                         post[name] = value;
                         continue;
