@@ -1014,7 +1014,11 @@
         var term = propertyLi.data('property-term');
         var field = $('.resource-property.template').clone(true);
         field.removeClass('template');
-        field.find('.field-label').text(propertyLi.data('child-search')).attr('id', 'property-' + propertyId + '-label');
+        // The dataset "child-search" concatenates the label, the original label
+        // and the term in order to find a property whatever the language, so
+        // use the visible label of the selector for the display.
+        var propertyLabel = propertyLi.children('.selectable').text().trim();
+        field.find('.field-label').text(propertyLabel).attr('id', 'property-' + propertyId + '-label');
         field.find('.field-term').text(term);
         field.find('.field-description').text(propertyLi.find('.field-comment').text());
         field.data('property-term', term);
