@@ -565,8 +565,49 @@
                     }
                     setPath(post, keys, value);
                 }
+                // With json-encoding, a sparse array (for example "o:media[2]"
+                // when  the rows 0 and 1 were removed) is stringified with null
+                // holes unlike a native post where the missing indexes are
+                // absent. So drop the holes, but keep the original numeric
+                // indexes as an object.
+                const compactHoles = function (value) {
+                    if (Array.isArray(value)) {
+                        let hasHole = false;
+                        for (let i = 0; i < value.length; i++) {
+                            if (!(i in value) || value[i] === undefined || value[i] === null) {
+                                hasHole = true;
+                                break;
+                            }
+                        }
+                        if (!hasHole) {
+                            return value.map(compactHoles);
+                        }
+                        const obj = {};
+                        for (let i = 0; i < value.length; i++) {
+                            if (i in value && value[i] !== undefined && value[i] !== null) {
+                                obj[i] = compactHoles(value[i]);
+                            }
+                        }
+                        return obj;
+                    }
+                    if (value && typeof value === 'object') {
+                        Object.keys(value).forEach(function (k) {
+                            value[k] = compactHoles(value[k]);
+                        });
+                    }
+                    return value;
+                };
+                compactHoles(post);
+
                 formEl.querySelectorAll('[name]').forEach(function (el) {
                     if (el.name === 'csrf' || el.name === '_post') {
+                        return;
+                    }
+                    // Keep the file inputs enabled: uploads are sent as
+                    // multipart files, not as post values, so they are not
+                    // counted by max_input_vars, and disabling them would drop
+                    // the files referenced by "file_index".
+                    if (el.type === 'file') {
                         return;
                     }
                     el.disabled = true;
