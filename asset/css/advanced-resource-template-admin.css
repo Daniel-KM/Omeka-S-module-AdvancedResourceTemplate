@@ -196,6 +196,17 @@
         font-size: small;
     }
 
+    /* Fix actions to rights in all cases. */
+    .resource-templates.show #properties tbody td:first-child .tablesaw-cell-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .resource-templates.show #properties tbody td:first-child .actions {
+        margin-left: auto;
+    }
+
     /* Template form */
     /* Adaptation from module DataVisualization */
 
