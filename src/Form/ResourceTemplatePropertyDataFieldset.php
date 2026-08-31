@@ -344,15 +344,15 @@ class ResourceTemplatePropertyDataFieldset extends Fieldset
                 ],
             ])
             ->add([
-                'name' => 'display_value',
+                'name' => 'placeholder_value',
                 'type' => Element\Textarea::class,
                 'options' => [
-                    'label' => 'Fake value to display when empty', // @translate
+                    'label' => 'Placeholder to display when there is no value', // @translate
                 ],
                 'attributes' => [
-                    // 'id' => 'display_value',
+                    // 'id' => 'placeholder_value',
                     'class' => 'setting',
-                    'data-setting-key' => 'display_value',
+                    'data-setting-key' => 'placeholder_value',
                 ],
             ])
 

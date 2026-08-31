@@ -983,7 +983,7 @@ class Module extends AbstractModule
             }
             if (!isset($values[$term]['values']) || !count($values[$term]['values'])) {
                 foreach ($rtp->data() as $rtpData) {
-                    $displayValue = trim((string) $rtpData->dataValue('display_value'));
+                    $displayValue = trim((string) $rtpData->dataValue('placeholder_value'));
                     if (strlen($displayValue)) {
                         if (empty($resourceEntity)) {
                             /** @var \Common\Stdlib\EasyMeta $easyMeta */
