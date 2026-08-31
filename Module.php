@@ -1434,7 +1434,7 @@ class Module extends AbstractModule
         } elseif (in_array('media', $useForResources)) {
             $resourceName = 'media';
         } elseif (in_array('digital_objects', $useForResources)
-            && class_exists(\DigitalObject\Entity\DigitalObject::class)
+            && class_exists('DigitalObject\Module', false)
         ) {
             $resourceName = 'digital_objects';
         } else {

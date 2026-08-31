@@ -314,17 +314,17 @@ class ResourceTemplateDataFieldset extends Fieldset
                         dcterms:type
                         dcterms:source
                         dcterms:relation
-                        
+
                         # Indexing metadata
                         dcterms:coverage
                         dcterms:subject
-                        
+
                         # Intellectual property metadata
                         dcterms:creator
                         dcterms:contributor
                         dcterms:publisher
                         dcterms:rights
-                        
+
                         # Instantiation metadata
                         dcterms:date
                         dcterms:format
