@@ -13,7 +13,7 @@ use Omeka\Test\AbstractHttpControllerTestCase;
  * customized view may need another order, so the order of the caller is kept
  * when it lists the properties or asks for it explicitly.
  *
- * @see https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/issues/23
+ * @see https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/work_items/23
  */
 class DisplayValuesOrderTest extends AbstractHttpControllerTestCase
 {

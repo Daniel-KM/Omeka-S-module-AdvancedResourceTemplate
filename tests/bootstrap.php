@@ -12,7 +12,7 @@
 require dirname(__DIR__, 3) . '/modules/Common/tests/Bootstrap.php';
 
 \CommonTest\Bootstrap::bootstrap(
-    ['Common', '?Mapper', 'AdvancedResourceTemplate'],
+    ['Common', '?Mapper', '?Thesaurus', 'AdvancedResourceTemplate'],
     'AdvancedResourceTemplateTest',
     __DIR__ . '/AdvancedResourceTemplateTest'
 );
