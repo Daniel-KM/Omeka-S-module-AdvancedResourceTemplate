@@ -194,16 +194,108 @@
          * The button is displayed when a value is removed.
          */
         function prepareFieldMaxValues(field) {
+            // The values of the resource may be appended after this step.
+            updateAddValueButtons(field);
+            setTimeout(function() {
+                updateAddValueButtons(field);
+            }, 0);
+        }
+
+        /**
+         * Check if a value has no content, whatever its data type.
+         *
+         * The language and the visibility are not a content: they may be set
+         * automatically for a new value.
+         */
+        function isEmptyValue(value) {
+            // A value loaded from the resource has a content, even when its
+            // inputs are not standard ones or not yet filled.
+            if (value.data('has-content')) {
+                return false;
+            }
+            let isEmpty = true;
+            value.find(':input[data-value-key]').each(function() {
+                const key = $(this).data('value-key');
+                if (key === '@language' || key === 'is_public') {
+                    return;
+                }
+                const val = $(this).val();
+                if (val !== null && val !== undefined && String(val).trim() !== '') {
+                    isEmpty = false;
+                    return false;
+                }
+            });
+            return isEmpty;
+        }
+
+        /**
+         * Get the values of a field that are not marked to be removed.
+         */
+        function currentValues(field) {
+            return field.find('.inputs .values > .value').not('.delete');
+        }
+
+        /**
+         * Display the buttons to add a value according to the maximum number.
+         *
+         * When the maximum is reached but all values are empty, the buttons are
+         * kept when the property has multiple data types, so the user can choose
+         * another data type than the first one, that is used for the new value.
+         */
+        function updateAddValueButtons(field) {
             const rtpData = field.data('template-property-data');
             if (!rtpData) {
                 return;
             }
-            const currentCountValues = field.find('.inputs .values > .value').length;
-            if (!rtpData.max_values || currentCountValues < rtpData.max_values) {
+            const selector = field.data('selector') ? field.data('selector') : 'default';
+            const buttons = field.find('.add-values.' + selector + '-selector');
+            const maxValues = parseInt(rtpData.max_values, 10) || 0;
+            const values = currentValues(field);
+            if (!maxValues || values.length < maxValues) {
+                buttons.show();
                 return;
             }
-            const selector = field.data('selector') ? field.data('selector') : 'default';
-            field.find('.add-values.' + selector + '-selector').hide();
+            const dataTypes = field.data('data-types') ? String(field.data('data-types')).split(',') : [];
+            let allEmpty = true;
+            values.each(function() {
+                if (!isEmptyValue($(this))) {
+                    allEmpty = false;
+                    return false;
+                }
+            });
+            if (allEmpty && dataTypes.length > 1) {
+                buttons.show();
+            } else {
+                buttons.hide();
+            }
+        }
+
+        /**
+         * Replace the empty values of a field by a new value when the maximum
+         * number of values is exceeded, so choosing a data type changes the type
+         * of the field instead of adding a value.
+         */
+        function replaceEmptyValues(field, newValue) {
+            const rtpData = field.data('template-property-data');
+            const maxValues = rtpData ? (parseInt(rtpData.max_values, 10) || 0) : 0;
+            if (!maxValues || currentValues(field).length <= maxValues) {
+                return;
+            }
+            // When an empty value has already the chosen data type, it is kept
+            // and the new one is useless.
+            const dataType = newValue.attr('data-data-type');
+            const sameEmptyValue = currentValues(field).not(newValue).filter(function() {
+                return $(this).attr('data-data-type') === dataType && isEmptyValue($(this));
+            });
+            if (sameEmptyValue.length) {
+                newValue.remove();
+                return;
+            }
+            currentValues(field).not(newValue).each(function() {
+                if (currentValues(field).length > maxValues && isEmptyValue($(this))) {
+                    $(this).remove();
+                }
+            });
         }
 
         /**
@@ -1083,11 +1175,15 @@
             }
 
             const selector = field.data('selector') ? field.data('selector') : 'default';
-            if (rtpData.max_values && field.find('.inputs .values > .value').length + 1 >= rtpData.max_values) {
-                field.find('.add-values.' + selector + '-selector').hide();
-            } else {
-                field.find('.add-values.' + selector + '-selector').show();
+            if (valueObj && !$.isEmptyObject(valueObj)) {
+                value.data('has-content', true);
             }
+            // The value is appended to the field after this event, so the check
+            // of the maximum and the replacement of an empty value are delayed.
+            setTimeout(function() {
+                replaceEmptyValues(field, value);
+                updateAddValueButtons(field);
+            }, 0);
 
             if (field.data('autocomplete')) {
                 value.find('textarea.input-value').addClass('autocomplete');
@@ -1169,14 +1265,20 @@
          *
          * @todo Manage the issue when there are two values, but only one max.
          */
-        $(document).on('click', 'a.remove-value', function(e) {
-            var field = $(this).closest('.resource-property');
-            const rtpData = field.data('template-property-data');
-            if (!rtpData) {
-                return;
-            }
-            const selector = field.data('selector') ? field.data('selector') : 'default';
-            field.find('.add-values.' + selector + '-selector').show();
+        $(document).on('click', 'a.remove-value, a.restore-value', function(e) {
+            const field = $(this).closest('.resource-property');
+            // The class "delete" is set by the core handler, so check after it.
+            setTimeout(function() {
+                updateAddValueButtons(field);
+            }, 0);
+        });
+
+        // Hide the buttons when an empty value gets a content, and show them
+        // again when it is emptied.
+        $(document).on('input change', '#properties .values > .value :input[data-value-key]', function() {
+            // Once edited, the content of the value is checked on its inputs.
+            $(this).closest('.value').removeData('has-content');
+            updateAddValueButtons($(this).closest('.resource-property'));
         });
 
         /**
