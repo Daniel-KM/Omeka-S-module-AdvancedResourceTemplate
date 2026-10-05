@@ -357,11 +357,17 @@
             const term = field.data('property-term');
 
             var listName = 'value-languages';
-            var datalist = $('#value-languages-template');
+            // A fragment containing the datalist may be cloned and appended
+            // elsewhere in the page, so the id may be duplicated. The selector
+            // "#id" uses getElementById and returns only one element, so the
+            // duplicates are searched with the attribute and removed, else the
+            // browser uses the first one, that is not the updated one.
+            var datalist = $('[id="value-languages-template"]');
             if (datalist.length) {
-                datalist.empty();
+                datalist.slice(1).remove();
+                datalist = datalist.first().empty();
             } else {
-                $('#value-languages').after($('<datalist/>', { id: 'value-languages-template', class: 'value-languages' }));
+                $('#value-languages').first().after($('<datalist/>', { id: 'value-languages-template', class: 'value-languages' }));
                 datalist = $('#value-languages-template');
             }
             if (templateData && templateData.value_languages && !$.isEmptyObject(templateData.value_languages)) {
@@ -373,10 +379,11 @@
 
             datalist = field.find('.values ~ datalist.value-languages');
             if (datalist.length) {
-                datalist.empty();
+                datalist.slice(1).remove();
+                datalist = datalist.first().empty();
             } else {
                 field.find('.values').first().after('<datalist class="value-languages"></datalist>');
-                datalist = field.find('.values ~ datalist.value-languages');
+                datalist = field.find('.values ~ datalist.value-languages').first();
                 datalist.attr('id', 'value-languages-' + term);
             }
             if (rtpData.value_languages && !$.isEmptyObject(rtpData.value_languages)) {
