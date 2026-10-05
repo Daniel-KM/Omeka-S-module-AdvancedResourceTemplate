@@ -51,6 +51,27 @@ $this->headLink()
 <<?= $tagMain ?> class="block-resource block-metadata">
     <?php
     $values = $resource->values();
+
+    // Follow the option "Display private values even for admin": this block
+    // reads the values directly, so it bypasses the event filtering them.
+    $skipPrivate = $this->siteSetting('advancedresourcetemplate_skip_private_values');
+    $skipPrivate = is_numeric($skipPrivate)
+        ? (bool) $skipPrivate
+        : (bool) $this->setting('advancedresourcetemplate_skip_private_values');
+    if ($skipPrivate) {
+        foreach ($values as $term => $propertyData) {
+            $publicValues = array_values(array_filter(
+                $propertyData['values'],
+                fn ($v) => $v->isPublic()
+            ));
+            if ($publicValues) {
+                $values[$term]['values'] = $publicValues;
+            } else {
+                unset($values[$term]);
+            }
+        }
+    }
+
     foreach ($metadataByGroup as $group => $fields):
         // Get values ordered by the option.
         $selectedValues = array_filter(array_replace(array_intersect_key($fields, $values), array_intersect_key($values, $fields)));

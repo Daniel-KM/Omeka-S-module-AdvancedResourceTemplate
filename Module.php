@@ -765,6 +765,9 @@ class Module extends AbstractModule
             if ($skipPrivate) {
                 $values = $this->hidePrivateValues($values);
                 if (!count($values)) {
+                    // Store the filtered values, else the original ones (with private
+                    // or hidden values) are displayed.
+                    $event->setParam('values', []);
                     return;
                 }
             }
@@ -798,6 +801,9 @@ class Module extends AbstractModule
                     }
                 }
                 if (!count($values)) {
+                    // Store the filtered values, else the original ones (with private
+                    // or hidden values) are displayed.
+                    $event->setParam('values', []);
                     return;
                 }
             }
@@ -811,6 +817,9 @@ class Module extends AbstractModule
                     array_flip($hideProperties)
                 );
                 if (!count($values)) {
+                    // Store the filtered values, else the original ones (with private
+                    // or hidden values) are displayed.
+                    $event->setParam('values', []);
                     return;
                 }
             }
@@ -824,6 +833,9 @@ class Module extends AbstractModule
                     array_flip($hideProperties)
                 );
                 if (!count($values)) {
+                    // Store the filtered values, else the original ones (with private
+                    // or hidden values) are displayed.
+                    $event->setParam('values', []);
                     return;
                 }
             }
