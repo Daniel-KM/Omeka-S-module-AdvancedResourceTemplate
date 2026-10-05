@@ -15,6 +15,7 @@ class ResourceTemplateDataFieldsetFactory implements FactoryInterface
         return $form
             ->setHasAnnotations($apiAdapterManager->has('annotations'))
             ->setHasDigitalObjects($apiAdapterManager->has('digital_objects'))
+            ->setHasConcepts($apiAdapterManager->has('concepts'))
         ;
     }
 }

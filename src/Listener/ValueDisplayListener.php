@@ -361,6 +361,7 @@ class ValueDisplayListener
             'media' => $escape($translate('Show this media')), // @translate
             'item-set' => $escape($translate('Show this item set')), // @translate
             'digital-object' => $escape($translate('Show this digital object')), // @translate
+            'concept' => $escape($translate('Show this concept')), // @translate
             'resource' => $escape($translate('Show this resource')), // @translate
             'uri' => $escape($translate('Open this external uri in a new tab')), // @translate
         ];
@@ -520,17 +521,22 @@ class ValueDisplayListener
         $vrType = $valueResource->getControllerName() ?? 'resource';
         $vrName = $valueResource->resourceName() ?? 'resources';
         $vrUrl = $ctx['isAdmin'] ? $valueResource->adminUrl() : $valueResource->siteUrl($ctx['siteSlug']);
+        // Some resources have no public page (concepts), so no link to them.
+        if (!$vrUrl) {
+            return '';
+        }
+        $vrText = $ctx['text'][$vrType] ?? $ctx['text']['resource'];
 
         return $ctx['isAdmin']
             ? sprintf(
-                '<a href="%1$s" class="resource-link"><span title="%2$s" class="resource-name"></a>',
+                '<a href="%1$s" class="resource-link"><span title="%2$s" class="resource-name"></span></a>',
                 $ctx['escapeAttr']($vrUrl),
-                $ctx['text'][$vrType]
+                $vrText
             )
             : sprintf(
                 '<a href="%1$s" class="resource-link"><span title="%2$s" class="o-icon-%3$s resource-name"></span></a>',
                 $ctx['escapeAttr']($vrUrl),
-                $ctx['text'][$vrType],
+                $vrText,
                 $vrName
             );
     }

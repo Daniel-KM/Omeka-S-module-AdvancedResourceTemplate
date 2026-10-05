@@ -1683,6 +1683,10 @@ class Module extends AbstractModule
             'DigitalObject\Controller\Site\DigitalObject' => 'digital_objects',
             'digital-object' => 'digital_objects',
             'digital_objects' => 'digital_objects',
+            // Module Thesaurus.
+            'Thesaurus\Controller\Admin\ConceptController' => 'concepts',
+            'concept' => 'concepts',
+            'concepts' => 'concepts',
         ];
         $params = $status->getRouteMatch()->getParams();
         $controller = $params['controller'] ?? $params['__CONTROLLER__'] ?? null;
@@ -1735,6 +1739,8 @@ class Module extends AbstractModule
             'annotations' => [],
             // Module DigitalObject.
             'digital_objects' => [],
+            // Module Thesaurus.
+            'concepts' => [],
         ];
         foreach ($templatesData as $templateId => $templateData) {
             $templateId = (int) $templateId;
@@ -1749,6 +1755,7 @@ class Module extends AbstractModule
                 $templatesByResourceNames['value_annotations'][] = $templateId;
                 $templatesByResourceNames['annotations'][] = $templateId;
                 $templatesByResourceNames['digital_objects'][] = $templateId;
+                $templatesByResourceNames['concepts'][] = $templateId;
             } elseif (is_array($templateData['use_for_resources'])) {
                 foreach ($templateData['use_for_resources'] as $resourceName) {
                     $templatesByResourceNames[$resourceName][] = $templateId;

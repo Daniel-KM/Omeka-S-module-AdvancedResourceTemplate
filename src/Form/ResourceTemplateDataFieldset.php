@@ -19,6 +19,11 @@ class ResourceTemplateDataFieldset extends Fieldset
      */
     protected $hasDigitalObjects = false;
 
+    /**
+     * @var bool
+     */
+    protected $hasConcepts = false;
+
     protected $elementGroups = [
         'template' => 'Template', // @translate
         'language' => 'Language', // @translate
@@ -43,6 +48,9 @@ class ResourceTemplateDataFieldset extends Fieldset
         }
         if ($this->hasDigitalObjects) {
             $resourceNames['digital_objects'] = 'Digital objects'; // @translate
+        }
+        if ($this->hasConcepts) {
+            $resourceNames['concepts'] = 'Concepts'; // @translate
         }
 
         $this
@@ -365,6 +373,12 @@ class ResourceTemplateDataFieldset extends Fieldset
     public function setHasDigitalObjects(bool $hasDigitalObjects): self
     {
         $this->hasDigitalObjects = $hasDigitalObjects;
+        return $this;
+    }
+
+    public function setHasConcepts(bool $hasConcepts): self
+    {
+        $this->hasConcepts = $hasConcepts;
         return $this;
     }
 }
