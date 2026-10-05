@@ -12,7 +12,8 @@ use Omeka\Module\Exception\ModuleCannotInstallException;
  * @var string $oldVersion
  *
  * @var \Omeka\Api\Manager $api
- * @var \Omeka\View\Helper\Url $url
+ * @var callable $url
+ * @var callable $linkParams
  * @var \Laminas\Log\Logger $logger
  * @var \Omeka\Settings\Settings $settings
  * @var \Laminas\I18n\View\Helper\Translate $translate
@@ -23,7 +24,22 @@ use Omeka\Module\Exception\ModuleCannotInstallException;
  * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
  */
 $plugins = $services->get('ControllerPluginManager');
-$url = $plugins->get('url');
+$helpers = $services->get('ViewHelperManager');
+// Links of messages must never break an upgrade: outside of a web request, the
+// router or a route may be unavailable, for example the one of a module that
+// is upgraded in the same process, so an empty url is returned instead.
+$url = function (string $route, array $params = [], array $options = []) use ($helpers): string {
+    try {
+        return (string) $helpers->get('url')($route, $params, $options);
+    } catch (\Throwable $e) {
+        return '';
+    }
+};
+// The params "link" and "link_end" of a message, empty without url, so the
+// text is kept without link.
+$linkParams = fn (string $href): array => $href === ''
+    ? ['link' => '', 'link_end' => '']
+    : ['link' => sprintf('<a href="%s">', htmlspecialchars($href)), 'link_end' => '</a>'];
 $api = $plugins->get('api');
 $logger = $services->get('Omeka\Logger');
 $settings = $services->get('Omeka\Settings');
@@ -236,10 +252,7 @@ if (version_compare((string) $oldVersion, '3.3.4.14', '<')) {
     $messenger->addSuccess($message);
     $message = new PsrMessage(
         'New settings were added to the {link}main settings{link_end} to simplify resource form.', // @translate
-        [
-            'link' => '<a href="' . $url->fromRoute('admin/default', ['controller' => 'setting', 'action' => 'browse']) . '#advanded-resource-template">',
-            'link_end' => '</a>',
-        ]
+        $linkParams($url('admin/default', ['controller' => 'setting', 'action' => 'browse'], ['fragment' => 'advanded-resource-template']))
     );
     $message->setEscapeHtml(false);
     $messenger->addSuccess($message);
@@ -640,10 +653,8 @@ if (version_compare((string) $oldVersion, '3.4.26', '<')) {
     $hasEasyAdmin = $this->isModuleActive('EasyAdmin');
     $message = new PsrMessage(
         'A job is added in tasks of the module {link}Easy Admin{link_end} to fill the annotation templates and classes when needed.', // @translate
-        [
-            'link' => sprintf('<a href="%s">', htmlspecialchars($hasEasyAdmin ? $url->fromRoute('admin/default', ['controller' => 'easy-admin', 'action' => 'check-and-fix'], ['fragment' => 'resource_values']) : 'https://omeka.org/s/modules/EasyAdmin')),
-            'link_end' => '</a>',
-        ]
+        $linkParams(($hasEasyAdmin ? $url('admin/default', ['controller' => 'easy-admin', 'action' => 'check-and-fix'], ['fragment' => 'resource_values']) : '')
+            ?: 'https://omeka.org/s/modules/EasyAdmin')
     );
     $message->setEscapeHtml(false);
     $messenger->addSuccess($message);
@@ -739,9 +750,11 @@ if (version_compare((string) $oldVersion, '3.4.38', '<')) {
             $settings->set('dynamicitemsets_item_set_queries', $itemSetQueries);
         }
         $list = [];
-        $baseUrlItemSet = rtrim($url->fromRoute('admin/id', ['controller' => 'item-set', 'id' => '00']), '0');
+        $baseUrlItemSet = rtrim($url('admin/id', ['controller' => 'item-set', 'id' => '00']), '0');
         foreach (array_keys($itemSetQueries) as $itemSetId) {
-            $list[] = sprintf('#<a href="%s">%d</a>', $baseUrlItemSet . $itemSetId, $itemSetId);
+            $list[] = $baseUrlItemSet === ''
+                ? sprintf('#%d', $itemSetId)
+                : sprintf('#<a href="%s">%d</a>', htmlspecialchars($baseUrlItemSet . $itemSetId), $itemSetId);
         }
         $message = new PsrMessage(
             'Currently, the feature is used by {count} item sets: {item_sets}. Upgrade is automatic.', // @translate
@@ -918,11 +931,7 @@ if (version_compare((string) $oldVersion, '3.4.50', '<')) {
         if ($migratedCount > 0) {
             $message = new PsrMessage(
                 '{count} custom autofillers have been migrated to module Mapper. Check them in {link}Mapper admin{link_end}.', // @translate
-                [
-                    'count' => $migratedCount,
-                    'link' => '<a href="' . $url->fromRoute('admin/mapper') . '">',
-                    'link_end' => '</a>',
-                ]
+                ['count' => $migratedCount] + $linkParams($url('admin/mapper'))
             );
             $message->setEscapeHtml(false);
             $messenger->addSuccess($message);
