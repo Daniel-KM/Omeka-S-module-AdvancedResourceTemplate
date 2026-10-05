@@ -442,7 +442,7 @@ doit exister quand le type de données est une ressource.
 Quelques jokers simples peuvent être utilisées avec la dotation "json point" et
 quelques commandes basiques de type "twig". Le format est le même que pour
 l’auto-remplissage (voir ci-dessous). Une version future intégrera les
-améliorations réalisées pour le module [Bulk Import].
+améliorations réalisées pour le module [Import en lot].
 
 Deux syntaxes de jokers sont disponibles :
 
@@ -634,6 +634,34 @@ https://www.idref.fr/Sru/Solr
 /doc/str[@name="ppn_z"] = bibo:uri ^^uri ~ https://idref.fr/{{ value }}
 ```
 
+### Développement
+
+#### Ignorer la validation
+
+Un paramètre général permet d’ignorer la validation de la ressource selon le
+modèle et les métadonnées des propriétés.
+
+Pour l’ignorer ponctuellement, la clé `skipValidation` à vrai peut être ajoutée
+aux requêtes de création et de mise à jour de l’api.
+
+#### Ordre des valeurs affichées
+
+Par défaut, les valeurs affichées avec `displayValues()` sont ordonnées selon
+les propriétés du modèle de ressource. Pour conserver l’ordre de la ressource,
+passez l’option `keep_values_order` :
+
+```php
+echo $resource->displayValues(['keep_values_order' => true]);
+```
+
+L’ordre est également conservé lorsque l’option `properties` est utilisée, de
+sorte qu’une vue personnalisée puisse afficher les propriétés dans l’ordre dont
+elle a besoin :
+
+```php
+echo $resource->displayValues(['properties' => ['dcterms:date', 'dcterms:title']]);
+```
+
 
 TODO
 ----
@@ -710,14 +738,11 @@ l’exploiter dans les mêmes conditions en matière de sécurité.
 Le fait que vous lisez actuellement ce document signifie que vous avez pris
 connaissance de la licence CeCILL et que vous en acceptez les termes.
 
-* La bibliothèque [jQuery-Autocomplete] est publiée sous licence [MIT].
-
 
 Copyright
 ---------
 
 * Copyright Daniel Berthereau, 2020-2026 (voir [Daniel-KM] sur GitLab)
-* Library [jQuery-Autocomplete] : Copyright 2012 DevBridge et autres contributeurs
 
 Ces fonctionnalités ont été conçues pour la bibliothèque numérique [Manioc] de
 l’Université des Antilles et de l’Université de la Guyane, préalablement gérée
@@ -748,13 +773,12 @@ et pour la la bibliothèque numérique du [Musée de Bretagne].
 [Mapper]: https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [bio]: https://vocab.org/bio
-[questions du module]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/issues
+[configurer les clés]: https://github.com/omeka/omeka-s/blob/develop/config/local.config.php.dist
+[questions du module]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/work_items
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
-[MIT]: http://opensource.org/licenses/MIT
-[jQuery-Autocomplete]: https://www.devbridge.com/sourcery/components/jquery-autocomplete/
 [Manioc]: http://www.manioc.org
 [Greenstone]: http://www.greenstone.org
 [Dante]: https://dante.univ-tlse2.fr

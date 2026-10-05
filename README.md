@@ -719,12 +719,12 @@ digital library of the [Musée de Bretagne].
 [digital objects]: https://gitlab.com/Daniel-KM/Omeka-S-module-DigitalObject
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
 [bio]: https://vocab.org/bio
-[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/issues
+[config the keys]: https://github.com/omeka/omeka-s/blob/develop/config/local.config.php.dist
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-AdvancedResourceTemplate/-/work_items
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
-[MIT]: http://opensource.org/licenses/MIT
 [Manioc]: http://www.manioc.org
 [Greenstone]: http://www.greenstone.org
 [Dante]: https://dante.univ-tlse2.fr
