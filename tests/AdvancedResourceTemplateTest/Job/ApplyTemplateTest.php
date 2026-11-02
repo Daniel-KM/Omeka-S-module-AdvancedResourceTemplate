@@ -233,6 +233,120 @@ class ApplyTemplateTest extends AbstractHttpControllerTestCase
     }
 
     /**
+     * Audit mode lists the missing automatic values and the ids of the
+     * resources, without modifying them.
+     */
+    public function testAuditLogsMissingAutomaticValues(): void
+    {
+        $template = $this->createTemplate('Audit Automatic Template', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:type' => [
+                'data_type' => ['literal'],
+                'data' => ['automatic_value' => 'Auto type'],
+            ],
+        ]);
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Item without type'],
+            ],
+        ]);
+        $this->assignTemplateDirectly($item->id(), $template->id());
+
+        $messages = $this->captureJobMessages(function () use ($template): void {
+            $this->dispatchApplyTemplate($template->id(), false);
+        });
+
+        $this->assertContains(
+            sprintf('Resource #%d: dcterms:type: missing automatic value "Auto type" (fixable).', $item->id()),
+            $messages
+        );
+        $this->assertContains(
+            sprintf('Ids of the items with missing automatic values (1): %d', $item->id()),
+            $messages
+        );
+        $this->assertNull($this->reloadItem($item->id())->value('dcterms:type'));
+    }
+
+    /**
+     * Fix mode adds the missing automatic values and lists the updated ids.
+     */
+    public function testFixAddsAutomaticValuesAndLogsIds(): void
+    {
+        $template = $this->createTemplate('Fix Automatic Template', [], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+            'dcterms:type' => [
+                'data_type' => ['literal'],
+                'data' => ['automatic_value' => 'Auto type'],
+            ],
+        ]);
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Item without type'],
+            ],
+        ]);
+        $this->assignTemplateDirectly($item->id(), $template->id());
+
+        $messages = $this->captureJobMessages(function () use ($template): void {
+            $this->dispatchApplyTemplate($template->id(), true, [
+                'fix_automatic_values' => true,
+            ]);
+        });
+
+        $this->assertContains(
+            sprintf('Resource #%d: dcterms:type: added automatic value "Auto type".', $item->id()),
+            $messages
+        );
+        $this->assertContains(
+            sprintf('Ids of the updated items (1): %d', $item->id()),
+            $messages
+        );
+        $values = $this->reloadItem($item->id())->value('dcterms:type', ['all' => true]);
+        $this->assertCount(1, $values);
+        $this->assertSame('Auto type', $values[0]->value());
+    }
+
+    /**
+     * Fix mode adds the missing automatic values set at the template level.
+     */
+    public function testFixAddsTemplateAutomaticValues(): void
+    {
+        if (!$this->getServiceLocator()->has('Mapper\Mapper')) {
+            $this->markTestSkipped('Mapper module not available');
+        }
+        $template = $this->createTemplate('Fix Template Automatic Values', [
+            'automatic_values' => 'dcterms:subject = "Auto subject"',
+        ], [
+            'dcterms:title' => [
+                'data_type' => ['literal'],
+            ],
+        ]);
+        $item = $this->createItem([
+            'dcterms:title' => [
+                ['type' => 'literal', '@value' => 'Item without subject'],
+            ],
+        ]);
+        $this->assignTemplateDirectly($item->id(), $template->id());
+
+        $messages = $this->captureJobMessages(function () use ($template): void {
+            $this->dispatchApplyTemplate($template->id(), true, [
+                'fix_automatic_values' => true,
+            ]);
+        });
+
+        $this->assertContains(
+            sprintf('Resource #%d: dcterms:subject: added automatic value "Auto subject".', $item->id()),
+            $messages
+        );
+        $values = $this->reloadItem($item->id())->value('dcterms:subject', ['all' => true]);
+        $this->assertCount(1, $values);
+        $this->assertSame('Auto subject', $values[0]->value());
+    }
+
+    /**
      * Fix mode with fix_max_values removes excess values.
      */
     public function testFixRemovesExcessValues(): void

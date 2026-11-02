@@ -400,4 +400,71 @@ INI;
         $this->assertNotNull($identifier, 'Composite pattern should resolve');
         $this->assertSame('item-abc', $identifier->value());
     }
+
+    /**
+     * Two properties with a dynamic pattern get their own values.
+     *
+     * The Mapper used to reuse the first one-line mapping registered with the
+     * same name, so the second value was missing.
+     *
+     * @group mapper-required
+     */
+    public function testTwoAutomaticValuePropertiesWithPatterns(): void
+    {
+        if (!self::$mapperAvailable) {
+            $this->markTestSkipped('Mapper module not available');
+        }
+
+        $template = $this->createTemplate('Auto Value Two Patterns', [], [
+            'dcterms:alternative' => [
+                'data_type' => ['literal'],
+                'data' => [
+                    'automatic_value' => '{dcterms:title.0.@value}',
+                ],
+            ],
+            'dcterms:identifier' => [
+                'data_type' => ['literal'],
+                'data' => [
+                    'automatic_value' => 'item-{dcterms:title.0.@value}',
+                ],
+            ],
+        ]);
+
+        $item = $this->createItem([
+            'dcterms:title' => [['type' => 'literal', '@value' => 'abc']],
+        ], $template->id());
+
+        $this->assertSame('abc', (string) $item->value('dcterms:alternative'));
+        $this->assertSame('item-abc', (string) $item->value('dcterms:identifier'));
+    }
+
+    /**
+     * The template-level automatic values of two templates are not mixed when
+     * resources are saved in the same process (batch, job).
+     *
+     * @group mapper-required
+     */
+    public function testAutomaticValuesOfTwoTemplatesInSameProcess(): void
+    {
+        if (!self::$mapperAvailable) {
+            $this->markTestSkipped('Mapper module not available');
+        }
+
+        $templateA = $this->createTemplate('Auto Values A', [
+            'automatic_values' => 'dcterms:type = "Type A"',
+        ]);
+        $templateB = $this->createTemplate('Auto Values B', [
+            'automatic_values' => 'dcterms:type = "Type B"',
+        ]);
+
+        $itemA = $this->createItem([
+            'dcterms:title' => [['type' => 'literal', '@value' => 'A']],
+        ], $templateA->id());
+        $itemB = $this->createItem([
+            'dcterms:title' => [['type' => 'literal', '@value' => 'B']],
+        ], $templateB->id());
+
+        $this->assertSame('Type A', (string) $itemA->value('dcterms:type'));
+        $this->assertSame('Type B', (string) $itemB->value('dcterms:type'));
+    }
 }
