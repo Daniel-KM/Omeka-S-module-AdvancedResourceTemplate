@@ -207,6 +207,15 @@ class IndexController extends AbstractRestfulController
             ))->setTranslator($this->translator)->translate(), HttpResponse::STATUS_CODE_501);
         }
 
+        // A template may be edited by non-admin users, so the mapping must be a
+        // reference, never a content that may query any url from the server.
+        if ($options['mapping'] !== '' && !preg_match('~^(?:mapping|module|user):\S~', $options['mapping'])) {
+            return $this->jSend(JSend::ERROR, null, (new PsrMessage(
+                'The mapping of the autofiller "{service}" must be a reference to a mapping of module Mapper ("mapping:", "module:" or "user:").', // @translate
+                ['service' => $service]
+            ))->setTranslator($this->translator)->translate(), HttpResponse::STATUS_CODE_400);
+        }
+
         return ($this->autofillerFactory)($this->autofillers[$options['service']], $options);
     }
 
