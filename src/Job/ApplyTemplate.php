@@ -132,6 +132,20 @@ class ApplyTemplate extends AbstractJob
     protected $extraPropertyIds = [];
 
     /**
+     * Ids of the resources with missing automatic values, by resource type.
+     *
+     * @var array<string, int[]>
+     */
+    protected $automaticValueResourceIds = [];
+
+    /**
+     * Ids of the updated resources, by resource type.
+     *
+     * @var array<string, int[]>
+     */
+    protected $updatedResourceIds = [];
+
+    /**
      * Missing required property terms, with their property ID.
      * Used to build browse links.
      *
@@ -255,6 +269,7 @@ class ApplyTemplate extends AbstractJob
 
         $this->reportUnusedProperties($template);
         $this->logBrowseLinks($templateId);
+        $this->logResourceIds();
 
         $this->logger->notice(
             $this->fix
@@ -570,6 +585,14 @@ class ApplyTemplate extends AbstractJob
             }
         }
 
+        $result = $this->checkTemplateAutomaticValues(
+            $data, $resource, $resourceId, $template
+        );
+        if ($result !== null) {
+            $data = $result;
+            $modified = true;
+        }
+
         // Check extra properties, wrong data types, and track used template
         // properties.
         $result = $this->checkExtraProperties(
@@ -601,6 +624,7 @@ class ApplyTemplate extends AbstractJob
                     [],
                     ['isPartial' => true]
                 );
+                $this->updatedResourceIds[$resourceType][] = $resourceId;
             } catch (\Throwable $e) {
                 $this->logger->err(
                     'Resource #{resource_id}: update failed: {error}', // @translate
@@ -708,27 +732,17 @@ class ApplyTemplate extends AbstractJob
         }
 
         // --- Automatic value: recalculate.
-        if ($constraint['automatic_value']
-            && $this->fix
-            && $this->fixAutomaticValues
-        ) {
+        if ($constraint['automatic_value']) {
             /** @var \AdvancedResourceTemplate\Api\Representation\ResourceTemplatePropertyDataRepresentation $rtpData */
             $rtpData = $constraint['rtp_data'];
             $autoValues = $this->automaticValuesHandler
                 ->automaticValuesFromTemplatePropertyData($rtpData, $data);
             foreach ($autoValues as $autoValue) {
-                if ($this->isNewValue($autoValue, $values)) {
+                if ($this->isNewValue($autoValue, $values)
+                    && $this->handleMissingAutomaticValue($resource, $resourceId, $term, $autoValue)
+                ) {
                     $data[$term][] = $autoValue;
                     $modified = true;
-                    ++$this->totals['issues'];
-                    ++$this->totals['fixed'];
-                    $this->logger->info(
-                        'Resource #{resource_id}: {term}: added automatic value.', // @translate
-                        [
-                            'resource_id' => $resourceId,
-                            'term' => $term,
-                        ]
-                    );
                 }
             }
             $values = $data[$term] ?? [];
@@ -1251,6 +1265,99 @@ class ApplyTemplate extends AbstractJob
      * Use search-based queries (property existence or non-existence) to avoid
      * url length issues on large collections.
      */
+    /**
+     * Check the automatic values set at the template level.
+     */
+    protected function checkTemplateAutomaticValues(
+        array $data,
+        AbstractResourceEntityRepresentation $resource,
+        int $resourceId,
+        ResourceTemplateRepresentation $template
+    ): ?array {
+        if (trim((string) $template->dataValue('automatic_values')) === '') {
+            return null;
+        }
+        $result = $this->automaticValuesHandler
+            ->appendAutomaticValuesFromTemplateData($template, $data);
+        $modified = false;
+        foreach ($result as $term => $values) {
+            if (!is_array($values) || strpos((string) $term, ':') === false) {
+                continue;
+            }
+            foreach ($values as $value) {
+                if (is_array($value)
+                    && $this->isNewValue($value, $data[$term] ?? [])
+                    && $this->handleMissingAutomaticValue($resource, $resourceId, $term, $value)
+                ) {
+                    $data[$term][] = $value;
+                    $modified = true;
+                }
+            }
+        }
+        return $modified ? $data : null;
+    }
+
+    /**
+     * Log and count a missing automatic value. Returns true when it should be
+     * added to the resource.
+     */
+    protected function handleMissingAutomaticValue(
+        AbstractResourceEntityRepresentation $resource,
+        int $resourceId,
+        string $term,
+        array $value
+    ): bool {
+        ++$this->totals['issues'];
+        $this->automaticValueResourceIds[$resource->resourceName()][$resourceId] = $resourceId;
+        $context = [
+            'resource_id' => $resourceId,
+            'term' => $term,
+            'value' => $value['@value'] ?? $value['@id'] ?? $value['value_resource_id'] ?? '',
+        ];
+        if ($this->fix && $this->fixAutomaticValues) {
+            ++$this->totals['fixed'];
+            $this->logger->info(
+                'Resource #{resource_id}: {term}: added automatic value "{value}".', // @translate
+                $context
+            );
+            return true;
+        }
+        ++$this->totals['skipped'];
+        $this->logger->info(
+            'Resource #{resource_id}: {term}: missing automatic value "{value}" (fixable).', // @translate
+            $context
+        );
+        return false;
+    }
+
+    /**
+     * Log the list of the ids of the resources with missing automatic values
+     * and of the updated resources, so they can be checked later.
+     */
+    protected function logResourceIds(): void
+    {
+        foreach ($this->automaticValueResourceIds as $resourceType => $ids) {
+            $this->logger->notice(
+                'Ids of the {resource_type} with missing automatic values ({count}): {resource_ids}', // @translate
+                [
+                    'resource_type' => $resourceType,
+                    'count' => count($ids),
+                    'resource_ids' => implode(', ', $ids),
+                ]
+            );
+        }
+        foreach ($this->updatedResourceIds as $resourceType => $ids) {
+            $this->logger->notice(
+                'Ids of the updated {resource_type} ({count}): {resource_ids}', // @translate
+                [
+                    'resource_type' => $resourceType,
+                    'count' => count($ids),
+                    'resource_ids' => implode(', ', $ids),
+                ]
+            );
+        }
+    }
+
     protected function logBrowseLinks(int $templateId): void
     {
         if (!$this->extraPropertyIds
