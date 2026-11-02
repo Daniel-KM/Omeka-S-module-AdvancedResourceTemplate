@@ -425,7 +425,7 @@ Examples of strings for the property level field:
 |-------------------------------------------------------------|------------------------------------------|
 | `Document`                                                  | the literal `Document`                   |
 | `https://example.org/entity/{o:id}`                         | the resource id, resolved after creation |
-| `archive-{o:created}`                                       | the creation date (ISO 8601 datetime)    |
+| `archive-{o:created}`                                       | the creation date ([ISO 8601] datetime)  |
 | `updated-{o:modified}`                                      | the last modification date (ISO 8601)    |
 | `{dcterms:title.0.@value}`                                  | a copy of the first title                |
 | `item-{dcterms:title.0.@value}`                             | the title prefixed with `item-`          |
@@ -468,12 +468,43 @@ managed by the theme, not by the module.
 
 ### Autofilling
 
-For the autofilling, you have to set the mappings inside the main settings, then
-to select it inside the resource template.
+The autofilling requires the module [Mapper]. It adds a field in the resource
+form to search a remote service and to fill multiple properties with the values
+of the selected result.
 
-The mapping is a simple text specifying the services and the mappings. it uses
-a similar format than the modules [Bulk Export], [Bulk Import], and [Bulk Import Files].
-It will be improved with the [Bulk Import] format in a future release.
+The autofillers are set in the resource template, one by line, with a service,
+an optional sub-service, an optional variant to use a service multiple times,
+and an optional mapping of the module [Mapper]:
+
+```
+idref:person
+idref:corporation
+geonames = mapping:5
+generic:json #Mall History = user:mall-history.ini
+```
+
+The integrated services are:
+- `geonames`;
+- `idref`, `idref:person`, `idref:corporation`, `idref:conference`,
+  `idref:subject`, `idref:rameau`, `idref:fmesh`, `idref:geo`, `idref:family`,
+  `idref:title`, `idref:authorTitle`, `idref:trademark`, `idref:ppn`,
+  `idref:library`;
+- `generic:json` and `generic:xml` for any other service.
+
+The mapping may be a mapping of the module Mapper (`mapping:5`), a file of the
+directory `files/mapping` (`user:xxx.ini`), or a file of a module (`module:xxx.ini`).
+For security, only references are allowed, not the content of a mapping, since
+the templates may be edited by authors and editors.
+Without mapping, the default one of the service is used: see the directory
+`data/autofillers` of the module. The label of the field is the label set in
+the section `[info]` of the mapping.
+
+Note: the custom autofillers defined in the main settings before version 3.4.50
+were converted into mappings of the module Mapper, with a label starting with
+"ART: ". Since the link between the key of the autofiller and its mapping was
+removed, the resource templates that use them should be updated with the
+reference of the mapping, for example `generic:json #my api = mapping:5`. Only
+the integrated services without variant work without mapping.
 
 #### Integrated services
 
@@ -482,7 +513,11 @@ can be a list of XPath and properties with some arguments (here with the
 specialized ontology [bio] to manage biographic metadata):
 
 ```
-[idref:person] = IdRef Person
+[info]
+label = IdRef Person
+querier = xpath
+
+[maps]
 /record/controlfield[@tag="003"] = bibo:uri ^^uri
 /record/datafield[@tag="900"]/subfield[@code="a"] = dcterms:title
 /record/datafield[@tag="200"]/subfield[@code="a"] = foaf:familyName
@@ -494,101 +529,65 @@ specialized ontology [bio] to manage biographic metadata):
 /record/datafield[@tag="200"]/subfield[@code="c"] = bio:position @fra
 ```
 
-The first line contains the key and the label of the mapping, that will be
-listed in the resource template form. Multiple mapping can be appended for
-different services.
-
-You can use the same autofiller with multiple mappings for different purposes:
-append a number to the key (`[idref:person #2]`). If the mapping isn’t available,
-it will be skipped. Don’t change it once defined, else you will have to check
-all resource templates that use it.
-
-For a json service, use the object notation:
+For a json service, use the object notation. Arguments may be appended to the
+query sent to the service with the param `query` of the section `[params]`:
 
 ```
-[geonames]
-?username=demo
+[info]
+label = Geonames
+querier = jsdot
+
+[params]
+query = "username=demo"
+
+[maps]
 toponymName = dcterms:title
-geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{{ value }}/
+geonameId = dcterms:identifier ^^uri ~ http://www.geonames.org/{{ value }}
 adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {{ value }}
 countryName = dcterms:isPartOf
-~ = dcterms:spatial ~ Coordonnées : {lat}/{lng}
+~ = dcterms:spatial ~ Coordinates: {lat}/{lng}
 ```
 
 Note that [geonames] requires a user name (that should be the one of your
 institution, but it can be "demo", "google", or "johnsmith"). Test it on
-https://api.geonames.org/searchJSON?username=demo. The module [Value Suggest]
+https://secure.geonames.org/searchJSON?username=demo. The module [Value Suggest]
 uses "kdlinfo" now, so it is used if no other user name is defined.
 
-If the key contains a `.` or a `\`, it should be escaped with a `\`: `\.` and `\\`.
-
-More largely, you can append any arguments to the query sent to the remote
-service: simply append them url encoded on a line beginning with `?`.
-
-It’s also possible to format the values: simply append `~` to indicate the
-pattern to use and `{{ value }}` to set the value from the source. For a complex
-pattern, you can use any source path between `{` and `}`.
-
-For more complex pattern, you can use some [Twig filters] with the current
-value. For example, to convert a date `17890804` into a standard [ISO 8601]
-numeric date time `1789-08-04`, you can use:
-
-```
-/record/datafield[@tag="103"]/subfield[@code="b"] = dcterms:valid ^^numeric:timestamp ~ {{ value|trim|slice(1,4) }}-{{ value|trim|slice(5,2) }}-{{ value|trim|slice(7,2) }}
-```
-
-The Twig filter starts with two `{` and a space and finishes with a space and
-two `}`. it works only with the current `value`.
-
+See the documentation of the module [Mapper] for the format of the maps, in
+particular the patterns (`~`) and the [Twig filters].
 
 #### Other services
 
 If you want to include a service that is not supported currently, you can choose
-the autofiller `generic:json` or `generic:xml`. Two required and two optional
-params should be added on four separate lines:
-- the full url of the service,
+the autofiller `generic:json` or `generic:xml`. The params of the service are
+set in the section `[params]` of the mapping:
+- `url`: the full url of the service,
   Note that the protocol may need to be `http`, not `https` on some servers (the
   server where Omeka is installed), because the request is done by Omeka itself,
   not by the browser. So, to use the recommended `https`, you may have to [config the keys]
   `sslcapath` and `sslcafile` in the Omeka file `config/local.config.php`.
-- the query with the placeholder `{query}`, starting with a `?`,
-- the path to the list of results, when it is not root, in order to loop them,
-  indicated with `{list}`,
-- the path to the value to use as a label for each result, indicated with
-  `{{ label }}`. If missing, the first field will be used.
+- `query`: the query with the placeholder `{query}`, if it is not in the url;
+- `resources_root`: the path to the list of results, when it is not root, in
+  order to loop them (a dot path for json, a XPath for xml);
+- `label`: the path to the value to use as a label for each result. If missing,
+  the first value will be used.
 
-For exemple, you can query another Omeka S service (try with "archives"), or the
-services above:
+For exemple, you can query another Omeka S service (try with "archives"):
 
 ```
-[generic:json #Mall History] Omeka S demo Mall History
-http://dev.omeka.org/omeka-s-sandbox/api/items?site_id=4
-?fulltext_search={query}
-o:title = {{ label }}
+[info]
+label = Omeka S demo Mall History
+querier = jsdot
+
+[params]
+url = https://dev.omeka.org/omeka-s-sandbox/api/items?site_id=4
+query = "fulltext_search={query}"
+label = o:title
+
+[maps]
 dcterms:title.0.@value = dcterms:title
 dcterms:date.0.@value = dcterms:date
 o:id = dcterms:identifier ^^uri ~ https://dev.omeka.org/omeka-s-sandbox/s/mallhistory/item/{{ value }}
-
-[generic:json #geonames] = Geonames generic
-http://api.geonames.org/searchJSON
-?username=johnsmith&q={query}
-geonames = {list}
-toponymName = dcterms:title
-geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{{ value }}/
-adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {{ value }}
-countryName = dcterms:isPartOf
-~ = dcterms:spatial ~ Coordinates: {lat}/{lng}
-
-[generic:xml #IdRef Person] = IdRef Person
-https://www.idref.fr/Sru/Solr
-?version=2.2&rows=30&q=persname_t%3A{query}
-/doc/str[@name="affcourt_z"] = {{ label }}
-/response/result/doc = {list}
-/doc/arr[@name="affcourt_r"]/str = dcterms:title
-/doc/arr[@name="nom_t"] = foaf:lastName
-/doc/arr[@name="prenom_t"] = foaf:firstName
-/doc/date[@name="datenaissance_dt"] = dcterms:date ^^numeric:timestamp
-/doc/str[@name="ppn_z"] = bibo:uri ^^uri ~ https://idref.fr/{{ value }}
 ```
 
 ### Development
@@ -712,9 +711,7 @@ digital library of the [Musée de Bretagne].
 [geonames]: https://www.geonames.org/export/geonames-search.html
 [Twig filters]: https://twig.symfony.com/doc/3.x
 [ISO 8601]: https://www.iso.org/iso-8601-date-and-time-format.html
-[Bulk Export]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkExport
 [Bulk Import]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkImport
-[Bulk Import Files]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkImportFiles
 [Mapper]: https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper
 [digital objects]: https://gitlab.com/Daniel-KM/Omeka-S-module-DigitalObject
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest

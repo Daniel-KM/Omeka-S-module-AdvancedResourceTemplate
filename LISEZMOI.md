@@ -457,7 +457,7 @@ Exemples de chaînes pour le champ au niveau d’une propriété :
 |-------------------------------------------------------------|----------------------------------------------|
 | `Document`                                                  | le texte littéral `Document`                 |
 | `https://example.org/entity/{o:id}`                         | l’id de la ressource, résolu après création  |
-| `archive-{o:created}`                                       | la date de création (date-heure ISO 8601)    |
+| `archive-{o:created}`                                       | la date de création (date-heure [ISO 8601])  |
 | `updated-{o:modified}`                                      | la date de dernière modification (ISO 8601)  |
 | `{dcterms:title.0.@value}`                                  | une copie du premier titre                   |
 | `item-{dcterms:title.0.@value}`                             | le titre préfixé par `item-`                 |
@@ -506,23 +506,58 @@ rôles, css) est donc géré par le thème, pas par le module.
 
 ### Remplissage automatique
 
-Pour le remplissage automatique, définissez les schémas de correspondance dans
-les paramètres généraux, puis sélectionnez les dans les modèles de ressource.
+Le remplissage automatique nécessite le module [Mapper]. Il ajoute un champ dans
+le formulaire de la ressource pour chercher dans un service distant et remplir
+plusieurs propriétés avec les valeurs du résultat choisi.
 
-Le schéma de correspondance est un simple texte spécifiant les services et les
-correspondance. Elle utilise le même format que les modules [Export en lot],
-[Import en lot] et [Import de fichiers en lot]. Elle intégrera prochainement les
-améliorations réalisées pour le module [Import en lot].
+Les services de remplissage sont définis dans le modèle de ressource, un par
+ligne, avec un service, un sous-service facultatif, une variante facultative
+pour utiliser plusieurs fois un service, et un schéma de correspondance
+facultatif du module [Mapper] :
+
+```
+idref:person
+idref:corporation
+geonames = mapping:5
+generic:json #Mall History = user:mall-history.ini
+```
+
+Les services intégrés sont :
+- `geonames` ;
+- `idref`, `idref:person`, `idref:corporation`, `idref:conference`,
+  `idref:subject`, `idref:rameau`, `idref:fmesh`, `idref:geo`, `idref:family`,
+  `idref:title`, `idref:authorTitle`, `idref:trademark`, `idref:ppn`,
+  `idref:library` ;
+- `generic:json` et `generic:xml` pour tout autre service.
+
+Le schéma peut être un schéma du module Mapper (`mapping:5`), un fichier du
+dossier `files/mapping` (`user:xxx.ini`) ou un fichier d’un module (`module:xxx.ini`).
+Par sécurité, seules les références sont acceptées, pas le contenu d’un schéma,
+car les modèles peuvent être modifiés par les auteurs et les éditeurs.
+Sans schéma, celui par défaut du service est utilisé : voir le dossier
+`data/autofillers` du module. Le libellé du champ est celui indiqué dans la
+section `[info]` du schéma.
+
+Note : les services de remplissage personnalisés définis dans les paramètres
+généraux avant la version 3.4.50 ont été convertis en schémas du module Mapper,
+avec un libellé commençant par « ART: ». Comme le lien entre la clé du service
+et son schéma a été supprimé, les modèles de ressource qui les utilisent doivent
+être mis à jour avec la référence du schéma, par exemple `generic:json #mon api = mapping:5`.
+Seuls les services intégrés sans variante fonctionnent sans schéma.
 
 #### Services intégrés
 
 Par exemple, si le service renvoie un xml Marc comme pour [Colbert], le schéma
 peut être une liste de XPath et de propriétés avec quelques arguments (ici avec
-l’ontologie [bio], conçue pour gérer les informations biographiques) :
+l’ontologie spécialisée [bio] pour gérer les métadonnées biographiques) :
 
 ```
-[idref:person] = IdRef Person
-/record/controlfield[@tag="003"] = bibo:identifier
+[info]
+label = IdRef Personne
+querier = xpath
+
+[maps]
+/record/controlfield[@tag="003"] = bibo:uri ^^uri
 /record/datafield[@tag="900"]/subfield[@code="a"] = dcterms:title
 /record/datafield[@tag="200"]/subfield[@code="a"] = foaf:familyName
 /record/datafield[@tag="200"]/subfield[@code="b"] = foaf:firstName
@@ -533,105 +568,70 @@ l’ontologie [bio], conçue pour gérer les informations biographiques) :
 /record/datafield[@tag="200"]/subfield[@code="c"] = bio:position @fra
 ```
 
-La première ligne contient la clé et le libellé du schéma, qui seront énumérées
-dans le formulaire du modèle de ressource. Plusieurs schémas peuvent être
-ajoutées pour différents services.
-
-Vous pouvez utiliser le même remplisseurs avec plusieurs schémas à des fins
-différentes : ajouter un numéro à la clé (`[idref:person #2]`). Si le schéma
-n’est pas disponible, il sera ignoré. Ne le modifiez pas une fois définie, sinon
-vous devrez vérifier tous les modèles de ressources qui l’utilisent.
-
-Pour un service json, utilisez la notation objet :
+Pour un service json, utilisez la notation objet. Des arguments peuvent être
+ajoutés à la requête envoyée au service avec le paramètre `query` de la section
+`[params]` :
 
 ```
-[geonames]
-?username=demo
+[info]
+label = Geonames
+querier = jsdot
+
+[params]
+query = "username=demo"
+
+[maps]
 toponymName = dcterms:title
-geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{{ value }}/
-adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {{ value }}
+geonameId = dcterms:identifier ^^uri ~ http://www.geonames.org/{{ value }}
+adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2 : {{ value }}
 countryName = dcterms:isPartOf
-~ = dcterms:spatial ~ Coordonnées : {lat}/{lng}
+~ = dcterms:spatial ~ Coordonnées : {lat}/{lng}
 ```
 
-Notez que [geonames] nécessite un nom d’utilisateur (qui doit être le votre,
-mais il peut s’agir de "demo", "google" ou "johnsmith"). Testez le sur https://api.geonames.org/searchJSON?username=demo.
-Le module [Value Suggest] utilise désormais "kdlinfo" et il est appliqué si
-aucun nom n’est défini.
+Notez que [geonames] nécessite un nom d’utilisateur (qui devrait être celui de
+votre institution, mais cela peut être « demo », « google » ou « johnsmith »).
+Testez-le sur https://secure.geonames.org/searchJSON?username=demo. Le module
+[Value Suggest] utilise « kdlinfo » actuellement, donc il est utilisé si aucun
+autre nom d’utilisateur n’est défini.
 
-Si la clé contient un `.` ou une `\`, le caractère doit être échappé avec une `\` :
-`\.` et `\\`.
-
-Plus largement, vous pouvez ajouter tout argument à la requête envoyée au
-service à distance : il suffit de les ajouter au format url encodée sur une
-ligne commençant par `?`.
-
-Il est également possible de formater les valeurs : il suffit d’ajouter `~` pour
-indiquer le format à utiliser et `{{ value }}` pour préciser la valeur à partir
-de la source. Pour un schéma complexe, vous pouvez utiliser tout chemin de la
-source entre `{` et `}`.
-
-Pour un modèle plus complexe, vous pouvez utiliser des [filtres Twig] avec la
-valeur. Par exemple, pour convertir une date "17890804" en une norme [ISO 8601],
-avec la date numérique `1789-08-04`, vous pouvez utiliser :
-
-```
-/record/datafield[@tag="103"]/subfield[@code="b"] = dcterms:valid ^^numeric:timestamp ~ {{ value|trim|slice(1,4) }}-{{ value|trim|slice(5,2) }}-{{ value|trim|slice(7,2) }}
-```
-
-Le filtre Twig commence avec deux `{` et une espace et finit avec une espace et
-deux `}`. Il ne fonctionne qu’avec la valeur `value` actuelle.
+Voir la documentation du module [Mapper] pour le format des correspondances,
+en particulier les modèles (`~`) et les [filtres Twig].
 
 #### Autres services
 
-Si vous souhaitez inclure un service qui n’est pas pris en charge actuellement,
-vous pouvez choisir les remplisseurs `generic:json` ou `generic:xml`. Deux
-paramètres obligatoires et deux paramètres facultatifs doivent être ajoutés sur
-quatre lignes distinctes :
-- l’url complète du service,
-  Notez que le protocole peut devoir être "http" et non "https" sur certains
-  serveurs (celui où Omeka est installé), car la requête est faite par Omeka
-  lui-même, et non par le navigateur. De ce fait, pour utiliser les "https"
-  recommandés, vous devrez peut-être [configurer les clés] `sslcapath` et `sslcafile`
-  dans le fichier Omeka `config/local.config.php`.
-- la requête avec le joker `{query}`, commençant par un `?`,
-- le chemin à la liste des résultats, lorsqu’il n’est pas en racine, afin de
-  pouvoir réaliser une boucle, indiqué par `{list}`,
-- le chemin vers la valeur à utiliser comme libellé pour chaque résultat,
-  indiqué par `{{ label }}`. S’il est absent, le premier champ sera utilisé.
+Si vous voulez inclure un service qui n’est pas encore intégré, vous pouvez
+choisir le service `generic:json` ou `generic:xml`. Les paramètres du service
+sont indiqués dans la section `[params]` du schéma :
+- `url` : l’url complète du service,
+  Notez que le protocole peut être `http` et non `https` sur certains serveurs
+  (celui où Omeka est installé), car la requête est faite par Omeka lui-même,
+  non par le navigateur. Aussi, pour utiliser le protocole recommandé `https`,
+  vous devrez peut-être [configurer les clés] `sslcapath` et `sslcafile` dans le
+  fichier Omeka `config/local.config.php`.
+- `query` : la requête avec le joker `{query}`, s’il n’est pas dans l’url ;
+- `resources_root` : le chemin vers la liste des résultats, quand ce n’est pas
+  la racine, afin de pouvoir les parcourir (chemin à points pour json, XPath
+  pour xml) ;
+- `label` : le chemin vers la valeur à utiliser comme libellé de chaque
+  résultat. En son absence, la première valeur est utilisée.
 
 Par exemple, vous pouvez interroger un autre service Omeka S (essayez avec
-"archives"), ou les services ci-dessus :
+« archives ») :
 
 ```
-[generic:json #Mall History] Omeka S demo Mall History
-http://dev.omeka.org/omeka-s-sandbox/api/items?site_id=4
-?fulltext_search={query}
-o:title = {{ label }}
+[info]
+label = Omeka S demo Mall History
+querier = jsdot
+
+[params]
+url = https://dev.omeka.org/omeka-s-sandbox/api/items?site_id=4
+query = "fulltext_search={query}"
+label = o:title
+
+[maps]
 dcterms:title.0.@value = dcterms:title
 dcterms:date.0.@value = dcterms:date
 o:id = dcterms:identifier ^^uri ~ https://dev.omeka.org/omeka-s-sandbox/s/mallhistory/item/{{ value }}
-
-[generic:json #geonames] = Geonames générique
-http://api.geonames.org/searchJSON
-?username=johnsmith&q={query}
-geonames = {list}
-toponymName = dcterms:title
-geonameId = dcterms:identifier ^^uri ~ https://www.geonames.org/{{ value }}/
-adminCodes1.ISO3166_2 = dcterms:identifier ~ ISO 3166-2: {{ value }}
-countryName = dcterms:isPartOf
-~ = dcterms:spatial ~ Coordinates: {lat}/{lng}
-
-[generic:xml #IdRef Person] = IdRef Personne
-https://www.idref.fr/Sru/Solr
-?version=2.2&rows=30&q=persname_t%3A{query}
-/doc/str[@name="affcourt_z"] = {{ label }}
-/response/result/doc = {list}
-/doc/arr[@name="affcourt_r"]/str = dcterms:title
-/doc/arr[@name="nom_t"] = foaf:lastName
-/doc/arr[@name="prenom_t"] = foaf:firstName
-/doc/date[@name="datenaissance_dt"] = dcterms:date ^^numeric:timestamp
-/doc/str[@name="ppn_z"] = bibo:uri ^^uri ~ https://idref.fr/{{ value }}
 ```
 
 ### Développement
@@ -766,9 +766,7 @@ et pour la la bibliothèque numérique du [Musée de Bretagne].
 [geonames]: https://www.geonames.org/export/geonames-search.html
 [filtres Twig]: https://twig.symfony.com/doc/3.x
 [ISO 8601]: https://www.iso.org/iso-8601-date-and-time-format.html
-[Export en lot]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkExport
 [Import en lot]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkImport
-[Import de fichiers en lot]: https://gitlab.com/Daniel-KM/Omeka-S-module-BulkImportFiles
 [Digital Object]: https://gitlab.com/Daniel-KM/Omeka-S-module-DigitalObject
 [Mapper]: https://gitlab.com/Daniel-KM/Omeka-S-module-Mapper
 [Value Suggest]: https://github.com/omeka-s-modules/ValueSuggest
