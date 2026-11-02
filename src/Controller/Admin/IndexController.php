@@ -110,7 +110,11 @@ class IndexController extends AbstractRestfulController
         $lang = $this->userSettings()->get('locale')
             ?: ($this->settings()->get('locale') ?: null);
 
-        $results = $autofiller->getResults($q, $lang);
+        try {
+            $results = $autofiller->getResults($q, $lang);
+        } catch (\Laminas\Http\Client\Exception\ExceptionInterface $e) {
+            $results = null;
+        }
         if ($results === null) {
             return $this->jSend(JSend::ERROR, null, (new PsrMessage(
                 'The remote service "{service}" seems unavailable.', // @translate
