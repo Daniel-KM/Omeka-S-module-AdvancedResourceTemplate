@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-05 00:00+0000\n"
+"POT-Creation-Date: 2026-11-02 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,6 +71,10 @@ msgstr ""
 #: Module.php:1600
 #, php-format
 msgid "Media: %d"
+msgstr ""
+
+#: src/Autofiller/GenericAutofiller.php:51
+msgid "[Result]"
 msgstr ""
 
 #: src/Listener/ValueDisplayListener.php:359
@@ -448,6 +452,20 @@ msgid ""
 "changed from h4 to h3. Check your theme if needed."
 msgstr ""
 
+#: data/scripts/upgrade.php:1106
+msgid ""
+"The autofillers are available again in the resource templates. They require "
+"the module Mapper."
+msgstr ""
+
+#: data/scripts/upgrade.php:1131
+msgid ""
+"Some resource templates use custom autofillers without mapping: append to "
+"them the reference of the mapping \"ART: xxx\" of module Mapper created in "
+"version 3.4.50, for example \"generic:json #xxx = mapping:5\": "
+"{template_ids}."
+msgstr ""
+
 #: view/omeka/admin/resource-template/form.phtml:174
 msgid "Validation"
 msgstr ""
@@ -553,162 +571,178 @@ msgstr ""
 msgid "Automatic values: unknown property term \"{term}\""
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:194
+#: src/Job/ApplyTemplate.php:208
 msgid "No template id provided."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:215
+#: src/Job/ApplyTemplate.php:229
 msgid "Template #{template_id} not found."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:231
+#: src/Job/ApplyTemplate.php:245
 msgid "Applying template \"{label}\" (mode: {mode})."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:261
+#: src/Job/ApplyTemplate.php:276
 msgid ""
 "Template \"{label}\" applied: {resources} resources checked, {issues} issues "
 "found, {fixed} fixed, {skipped} not fixable."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:262
+#: src/Job/ApplyTemplate.php:277
 msgid ""
 "Template \"{label}\" audited: {resources} resources checked, {issues} issues "
 "found."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:430
+#: src/Job/ApplyTemplate.php:445
 msgid "Resource #{resource_id}: an additional fix failed: {error}"
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:454
+#: src/Job/ApplyTemplate.php:469
 msgid "Resource #{resource_id}: an additional check failed: {error}"
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:505
+#: src/Job/ApplyTemplate.php:520
 msgid "Processing {count} {resource_type} with template."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:515
+#: src/Job/ApplyTemplate.php:530
 msgid "Job stopped by user."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:545
+#: src/Job/ApplyTemplate.php:560
 msgid "Resource #{resource_id} cannot be read: {error}"
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:606
+#: src/Job/ApplyTemplate.php:630
 msgid "Resource #{resource_id}: update failed: {error}"
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:647
+#: src/Job/ApplyTemplate.php:671
 msgid ""
 "Resource #{resource_id}: {term}: added default value for required property."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:657
+#: src/Job/ApplyTemplate.php:681
 msgid ""
 "Resource #{resource_id}: {term}: required but empty (fixable with default "
 "value)."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:666
+#: src/Job/ApplyTemplate.php:690
 msgid "Resource #{resource_id}: {term}: required but empty (no default value)."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:691
+#: src/Job/ApplyTemplate.php:715
 msgid "Resource #{resource_id}: {term}: added default value."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:701
+#: src/Job/ApplyTemplate.php:725
 msgid "Resource #{resource_id}: {term}: empty, has default value."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:726
-msgid "Resource #{resource_id}: {term}: added automatic value."
-msgstr ""
-
-#: src/Job/ApplyTemplate.php:754
+#: src/Job/ApplyTemplate.php:768
 msgid ""
 "Resource #{resource_id}: {term}: value truncated from {length} to {max} "
 "characters."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:765
+#: src/Job/ApplyTemplate.php:779
 msgid ""
 "Resource #{resource_id}: {term}: value exceeds max length ({length}/{max})."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:791
+#: src/Job/ApplyTemplate.php:805
 msgid ""
 "Resource #{resource_id}: {term}: value too short ({length}/{min}, not "
 "fixable)."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:813
+#: src/Job/ApplyTemplate.php:827
 msgid ""
 "Resource #{resource_id}: {term}: removed {count} excess values (max {max})."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:824
+#: src/Job/ApplyTemplate.php:838
 msgid "Resource #{resource_id}: {term}: {count} values exceed max of {max}."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:843
+#: src/Job/ApplyTemplate.php:857
 msgid ""
 "Resource #{resource_id}: {term}: {count} values below min of {min} (not "
 "fixable)."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:866
+#: src/Job/ApplyTemplate.php:880
 msgid ""
 "Resource #{resource_id}: {term}: value does not match pattern (not fixable)."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:890
+#: src/Job/ApplyTemplate.php:904
 msgid "Resource #{resource_id}: {term}: visibility changed to {visibility}."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:900
+#: src/Job/ApplyTemplate.php:914
 msgid ""
 "Resource #{resource_id}: {term}: value is {actual}, should be {expected}."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:1060
+#: src/Job/ApplyTemplate.php:1074
 msgid ""
 "Resource #{resource_id}: {term}: duplicate value found in resource "
 "#{duplicate_id} (not fixable)."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:1171
+#: src/Job/ApplyTemplate.php:1185
 msgid ""
 "Resource #{resource_id}: {term}: data type \"{type}\" is not allowed by the "
 "template (allowed: {allowed}). Use BulkEdit for manual conversion."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:1204
+#: src/Job/ApplyTemplate.php:1218
 msgid "Resource #{resource_id}: removed properties not in template: {terms}."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:1212
+#: src/Job/ApplyTemplate.php:1226
 msgid "Resource #{resource_id}: properties not in template: {terms}."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:1238
+#: src/Job/ApplyTemplate.php:1252
 msgid ""
 "Template \"{label}\": {count} properties not used by any resource: {terms}."
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:1292
+#: src/Job/ApplyTemplate.php:1320
+msgid "Resource #{resource_id}: {term}: added automatic value \"{value}\"."
+msgstr ""
+
+#: src/Job/ApplyTemplate.php:1327
+msgid ""
+"Resource #{resource_id}: {term}: missing automatic value \"{value}\" "
+"(fixable)."
+msgstr ""
+
+#: src/Job/ApplyTemplate.php:1341
+msgid ""
+"Ids of the {resource_type} with missing automatic values ({count}): "
+"{resource_ids}"
+msgstr ""
+
+#: src/Job/ApplyTemplate.php:1351
+msgid "Ids of the updated {resource_type} ({count}): {resource_ids}"
+msgstr ""
+
+#: src/Job/ApplyTemplate.php:1399
 msgid "Browse {resource_type} with extra property \"{term}\": {url}"
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:1311
+#: src/Job/ApplyTemplate.php:1418
 msgid "Browse {resource_type} missing required \"{term}\": {url}"
 msgstr ""
 
-#: src/Job/ApplyTemplate.php:1357 src/Job/ApplyTemplate.php:1386
-#: src/Job/ApplyTemplate.php:1409 src/Job/ApplyTemplate.php:1443
+#: src/Job/ApplyTemplate.php:1464 src/Job/ApplyTemplate.php:1493
+#: src/Job/ApplyTemplate.php:1516 src/Job/ApplyTemplate.php:1550
 msgid "Resource #{resource_id}: {term}: converted from \"{from}\" to \"{to}\"."
 msgstr ""
 
@@ -948,41 +982,53 @@ msgstr ""
 msgid "Uses Mapper INI format. Requires module Mapper."
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:265
+#: src/Form/ResourceTemplateDataFieldset.php:261
+msgid "Autofillers"
+msgstr ""
+
+#: src/Form/ResourceTemplateDataFieldset.php:262
+msgid ""
+"One service by line: \"geonames\", \"idref\" or \"idref:person\", "
+"\"idref:corporation\", etc., \"generic:json\" or \"generic:xml\", optionally "
+"followed by \"=\" and a mapping reference of module Mapper. Requires module "
+"Mapper."
+msgstr ""
+
+#: src/Form/ResourceTemplateDataFieldset.php:281
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:308
 msgid "Manual selection (default)"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:266
+#: src/Form/ResourceTemplateDataFieldset.php:282
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:309
 msgid "No value annotation"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:286
+#: src/Form/ResourceTemplateDataFieldset.php:302
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:446
 msgid "Keep original label"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:298
+#: src/Form/ResourceTemplateDataFieldset.php:314
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:468
 msgid "Require uri"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:311
+#: src/Form/ResourceTemplateDataFieldset.php:327
 msgid "Groups"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:312
+#: src/Form/ResourceTemplateDataFieldset.php:328
 msgid ""
 "Allow to get properties by group for display. This is a list of group names "
 "and properties for each of them. May need a specific theme template."
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:349
+#: src/Form/ResourceTemplateDataFieldset.php:365
 msgid "Order of linked values (Omeka v4.1)"
 msgstr ""
 
-#: src/Form/ResourceTemplateDataFieldset.php:350
+#: src/Form/ResourceTemplateDataFieldset.php:366
 msgid ""
 "The default order of the linked resources is the title. Another order can be "
 "set for each linking property. For the default order when there is no "
@@ -1092,12 +1138,12 @@ msgid "Display the value in resource card"
 msgstr ""
 
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:380
-#: config/module.config.php:160
+#: config/module.config.php:183
 msgid "Meta"
 msgstr ""
 
 #: src/Form/ResourceTemplatePropertyDataFieldset.php:381
-#: config/module.config.php:161
+#: config/module.config.php:184
 msgid "Footer"
 msgstr ""
 
@@ -1242,8 +1288,103 @@ msgstr ""
 msgid "The data type \"{data_type}\" is not available."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:34
+#: src/Autofiller/GenericAutofiller.php:17
+msgid "Generic"
+msgstr ""
+
+#: src/Autofiller/GeonamesAutofiller.php:7
+msgid "Geonames"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:21 src/Autofiller/IdRefAutofiller.php:28
+msgid "IdRef"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:32
+msgid "IdRef: Person names"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:36
+msgid "IdRef: Collectivities"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:40
+msgid "IdRef: Conferences"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:44
+msgid "IdRef: Subjects"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:48
+msgid "IdRef: Subjects Rameau"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:52
+msgid "IdRef: Subjects F-MeSH"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:56
+msgid "IdRef: Geography"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:60
+msgid "IdRef: Family names"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:64
+msgid "IdRef: Uniform titles"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:68
+msgid "IdRef: Authors-Titles"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:72
+msgid "IdRef: Trademarks"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:76
+msgid "IdRef: PPN id"
+msgstr ""
+
+#: src/Autofiller/IdRefAutofiller.php:80
+msgid "IdRef: Library registry (RCR)"
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:60
+#: src/Controller/Admin/IndexController.php:101
 msgid "The query is empty."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:120
+msgid "The remote service \"{service}\" seems unavailable."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:161
+msgid "The autofillers require the module Mapper."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:168
+msgid "The service is empty."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:175
+msgid "The template is empty."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:185
+msgid "The template \"{template_id}\" is not available."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:209
+msgid "The service \"{service}\" is not available."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:218
+msgid ""
+"The mapping of the autofiller \"{service}\" must be a reference to a mapping "
+"of module Mapper (\"mapping:\", \"module:\" or \"user:\")."
 msgstr ""
 
 #: src/Controller/Admin/ResourceTemplateControllerDelegator.php:64
@@ -1329,15 +1470,15 @@ msgid ""
 "configured."
 msgstr ""
 
-#: config/module.config.php:151
+#: config/module.config.php:174
 msgid "New value"
 msgstr ""
 
-#: config/module.config.php:152
+#: config/module.config.php:175
 msgid "No results"
 msgstr ""
 
-#: config/module.config.php:157
+#: config/module.config.php:180
 msgid "Card"
 msgstr ""
 
