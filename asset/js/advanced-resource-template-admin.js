@@ -923,7 +923,12 @@
                 return;
             }
 
-            templateData.autofillers.forEach(function(autofillerName) {
+            // Each line is "service[:sub][ #variant][ = mapping]".
+            templateData.autofillers.forEach(function(line) {
+                const autofillerName = String(line).split('=')[0].trim();
+                if (!autofillerName.length) {
+                    return;
+                }
                 $.get(baseUrl + 'admin/autofiller/settings', {
                         service: autofillerName,
                         template: $('#resource-template-select').val(),

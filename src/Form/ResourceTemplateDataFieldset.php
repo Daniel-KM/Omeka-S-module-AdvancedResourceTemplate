@@ -253,7 +253,23 @@ class ResourceTemplateDataFieldset extends Fieldset
                         TXT,
                 ],
             ])
-            // Autofillers feature has been moved to module Mapper.
+            ->add([
+                'name' => 'autofillers',
+                'type' => OmekaElement\ArrayTextarea::class,
+                'options' => [
+                    'element_group' => 'values',
+                    'label' => 'Autofillers', // @translate
+                    'info' => 'One service by line: "geonames", "idref" or "idref:person", "idref:corporation", etc., "generic:json" or "generic:xml", optionally followed by "=" and a mapping reference of module Mapper. Requires module Mapper.', // @translate
+                    'as_key_value' => false,
+                ],
+                'attributes' => [
+                    'id' => 'autofillers',
+                    'placeholder' => <<<'TXT'
+                        idref:person
+                        geonames = mapping:5
+                        TXT,
+                ],
+            ])
             ->add([
                 'name' => 'value_annotations_template',
                 'type' => CommonElement\OptionalResourceSelect::class,

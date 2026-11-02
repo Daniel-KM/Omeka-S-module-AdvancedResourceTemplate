@@ -124,6 +124,29 @@ return [
                             ],
                         ],
                     ],
+                    'autofiller' => [
+                        'type' => \Laminas\Router\Http\Literal::class,
+                        'options' => [
+                            'route' => '/autofiller',
+                            'defaults' => [
+                                '__NAMESPACE__' => 'AdvancedResourceTemplate\Controller\Admin',
+                                'controller' => 'Index',
+                                'action' => 'autofiller',
+                            ],
+                        ],
+                        'may_terminate' => true,
+                        'child_routes' => [
+                            'settings' => [
+                                'type' => \Laminas\Router\Http\Literal::class,
+                                'options' => [
+                                    'route' => '/settings',
+                                    'defaults' => [
+                                        'action' => 'autofillerSettings',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ],
@@ -161,6 +184,11 @@ return [
         'Footer', // @translate
     ],
     'advancedresourcetemplate' => [
+        'autofillers' => [
+            'generic' => Autofiller\GenericAutofiller::class,
+            'geonames' => Autofiller\GeonamesAutofiller::class,
+            'idref' => Autofiller\IdRefAutofiller::class,
+        ],
         'settings' => [
             'advancedresourcetemplate_resource_form_elements' => [
                 'metadata_collapse',

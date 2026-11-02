@@ -14,6 +14,8 @@
         <!-- Tests requiring Mapper module -->
         <testsuite name="mapper">
             <file>tests/AdvancedResourceTemplateTest/Listener/AutomaticValuesMapperTest.php</file>
+            <file>tests/AdvancedResourceTemplateTest/Autofiller/AutofillerTest.php</file>
+            <file>tests/AdvancedResourceTemplateTest/Controller/AutofillerControllerTest.php</file>
         </testsuite>
     </testsuites>
     <php>
