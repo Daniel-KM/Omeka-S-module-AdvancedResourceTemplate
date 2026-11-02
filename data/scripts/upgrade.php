@@ -63,9 +63,7 @@ if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActi
 
 $hasError = false;
 
-if ($this->isModuleActive('DynamicItemSets')
-    && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.5')
-) {
+if (!$this->checkModuleAvailability('DynamicItemSets', '3.4.5')) {
     $message = new PsrMessage(
         $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
         ['module' => 'Dynamic Item Sets', 'version' => '3.4.5']
@@ -74,20 +72,16 @@ if ($this->isModuleActive('DynamicItemSets')
     $hasError = true;
 }
 
-if ($this->isModuleActive('Mapper')
-    && !$this->isModuleVersionAtLeast('Mapper', '3.4.8')
-) {
+if (!$this->checkModuleAvailability('Mapper', '3.4.10')) {
     $message = new \Omeka\Stdlib\Message(
         $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-        'Mapper', '3.4.8'
+        'Mapper', '3.4.10'
     );
     $messenger->addError($message);
     $hasError = true;
 }
 
-if ($this->isModuleActive('AdvancedSearch')
-    && !$this->isModuleVersionAtLeast('AdvancedSearch', '3.4.62')
-) {
+if (!$this->checkModuleAvailability('AdvancedSearch', '3.4.62')) {
     $message = new \Common\Stdlib\PsrMessage(
         $translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
         ['module' => 'Advanced Search', 'version' => '3.4.62']
@@ -1099,4 +1093,38 @@ if (version_compare((string) $oldVersion, '3.4.55', '<')) {
         WHERE `data` LIKE '%"display_value":%'
         SQL;
     $count = $connection->executeStatement($sql);
+}
+
+if (version_compare((string) $oldVersion, '3.4.57', '<')) {
+    $message = new PsrMessage(
+        'The autofillers are available again in the resource templates. They require the module Mapper.' // @translate
+    );
+    $messenger->addSuccess($message);
+
+    // The custom autofillers were converted into mappings "ART: xxx" of module
+    // Mapper in version 3.4.50, but the link between the key and the mapping
+    // was removed, so the templates should reference them.
+    $templateDatas = $connection->executeQuery(
+        'SELECT `resource_template_id`, `data` FROM `resource_template_data` WHERE `data` LIKE \'%"autofillers"%\''
+    )->fetchAllKeyValue();
+    $templateIds = [];
+    foreach ($templateDatas as $templateId => $templateData) {
+        $data = json_decode($templateData, true);
+        foreach ((array) ($data['autofillers'] ?? []) as $line) {
+            $service = strtok(trim((string) $line), ':# =');
+            if (strpos((string) $line, '=') === false
+                && (strpos((string) $line, '#') !== false || !in_array($service, ['geonames', 'idref'], true))
+            ) {
+                $templateIds[] = $templateId;
+                break;
+            }
+        }
+    }
+    if ($templateIds) {
+        $message = new PsrMessage(
+            'Some resource templates use custom autofillers without mapping: append to them the reference of the mapping "ART: xxx" of module Mapper created in version 3.4.50, for example "generic:json #xxx = mapping:5": {template_ids}.', // @translate
+            ['template_ids' => implode(', ', $templateIds)]
+        );
+        $messenger->addWarning($message);
+    }
 }

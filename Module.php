@@ -63,9 +63,7 @@ class Module extends AbstractModule
 
         $errors = [];
 
-        if ($this->isModuleActive('DynamicItemSets')
-            && !$this->isModuleVersionAtLeast('DynamicItemSets', '3.4.5')
-        ) {
+        if (!$this->checkModuleAvailability('DynamicItemSets', '3.4.5')) {
             $message = new \Common\Stdlib\PsrMessage(
                 $translator->translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
                 ['module' => 'Dynamic Item Sets', 'version' => '3.4.5']
@@ -73,12 +71,10 @@ class Module extends AbstractModule
             $errors[] = (string) $message;
         }
 
-        if ($this->isModuleActive('Mapper')
-            && !$this->isModuleVersionAtLeast('Mapper', '3.4.8')
-        ) {
+        if (!$this->checkModuleAvailability('Mapper', '3.4.10')) {
             $errors[] = (string) new \Omeka\Stdlib\Message(
                 $translator->translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-                'Mapper', '3.4.8'
+                'Mapper', '3.4.10'
             );
         }
 
@@ -88,9 +84,7 @@ class Module extends AbstractModule
 
         $messenger = $plugins->get('messenger');
 
-        if ($this->isModuleActive('AdvancedSearch')
-            && !$this->isModuleVersionAtLeast('AdvancedSearch', '3.4.62')
-        ) {
+        if (!$this->checkModuleAvailability('AdvancedSearch', '3.4.62')) {
             $message = new \Common\Stdlib\PsrMessage(
                 $translator->translate('Some features require the module {module} to be upgraded to version {version} or later.'), // @translate
                 ['module' => 'Advanced Search', 'version' => '3.4.62']
