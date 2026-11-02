@@ -5,6 +5,7 @@ namespace AdvancedResourceTemplate\Controller\Admin;
 use Common\Mvc\Controller\Plugin\JSend;
 use Common\Stdlib\PsrMessage;
 use Doctrine\ORM\EntityManager;
+use Laminas\I18n\Translator\TranslatorInterface;
 use Laminas\Mvc\Controller\AbstractRestfulController;
 
 class IndexController extends AbstractRestfulController
@@ -15,12 +16,16 @@ class IndexController extends AbstractRestfulController
     protected $entityManager;
 
     /**
-     * @param EntityManager $entityManager
+     * @var TranslatorInterface
      */
+    protected $translator;
+
     public function __construct(
-        EntityManager $entityManager
+        EntityManager $entityManager,
+        TranslatorInterface $translator
     ) {
         $this->entityManager = $entityManager;
+        $this->translator = $translator;
     }
 
     public function valuesAction()
