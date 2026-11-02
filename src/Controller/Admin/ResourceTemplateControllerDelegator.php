@@ -1573,8 +1573,8 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
     protected function appendCsvRow($stream, array $fields, string $type = 'csv'): void
     {
         $type === 'tsv'
-            ? fputcsv($stream, $fields, "\t", "\0", "\0")
-            : fputcsv($stream, $fields);
+            ? fputcsv($stream, $fields, "\t", "\0", '')
+            : fputcsv($stream, $fields, ',', '"', '');
     }
 
     /**
@@ -1604,7 +1604,7 @@ class ResourceTemplateControllerDelegator extends \Omeka\Controller\Admin\Resour
         }
 
         $first = true;
-        $rows = array_map(fn ($v) => str_getcsv($v, $separator, $enclosure), array_map('trim', explode("\n", $content)));
+        $rows = array_map(fn ($v) => str_getcsv($v, $separator, $enclosure, ''), array_map('trim', explode("\n", $content)));
         foreach ($rows as $key => $row) {
             if (empty(array_filter($row))) {
                 unset($rows[$key]);
